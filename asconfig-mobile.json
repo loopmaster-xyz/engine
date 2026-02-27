@@ -1,0 +1,49 @@
+{
+  "targets": {
+    "test": {
+      "outFile": "as/build/index-mobile.wasm",
+      "textFile": "as/build/index-mobile.wat",
+      "optimizeLevel": 0,
+      "converge": false,
+      "sourceMap": true,
+      "debug": true,
+      "noAssert": false,
+      "uncheckedBehavior": "never"
+    },
+    "debug": {
+      "outFile": "as/build/index-mobile.wasm",
+      "textFile": "as/build/index-mobile.wat",
+      "optimizeLevel": 0,
+      "converge": false,
+      "sourceMap": true,
+      "debug": true,
+      "noAssert": true,
+      "uncheckedBehavior": "always"
+    },
+    "release": {
+      "outFile": "as/build/index-mobile.wasm",
+      "textFile": "as/build/index-mobile.wat",
+      "optimizeLevel": 3,
+      "shrinkLevel": 2,
+      "converge": false,
+      "sourceMap": true,
+      "debug": true,
+      "noAssert": true,
+      "uncheckedBehavior": "always"
+    }
+  },
+  "options": {
+    "enable": [
+      "simd",
+      "relaxed-simd",
+      "threads"
+    ],
+    "importMemory": true,
+    "initialMemory": 64,
+    "maximumMemory": 2048,
+    "sharedMemory": true,
+    "bindings": "esm",
+    "runtime": "minimal",
+    "exportRuntime": true
+  }
+}

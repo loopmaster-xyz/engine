@@ -1,0 +1,290 @@
+import {
+  TIMELINE_HEADER_SIZE,
+  TIMELINE_KIND_GLIDE,
+  TIMELINE_KIND_HOLD,
+  TIMELINE_MAGIC,
+  TIMELINE_SEGMENT_SIZE,
+} from './constants.ts'
+
+type TimelineSegment = {
+  kind: number
+  durBars: number
+  startValue: number
+  endValue: number
+  exp: number
+  fromTokenIndex: number
+  fromTokenStart: number
+  fromTokenLength: number
+  toTokenIndex: number
+  toTokenStart: number
+  toTokenLength: number
+}
+
+const numRe = '[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)'
+const pointTokenRe = new RegExp(`^(${numRe}),(${numRe})(?:([e])(${numRe})?)?$`)
+
+type TimelineToken = {
+  index: number
+  start: number
+  length: number
+  text: string
+}
+
+type TimelinePoint = {
+  bar: number
+  value: number
+  exp: number | null
+  tokenIndex: number
+  tokenStart: number
+  tokenLength: number
+}
+
+function tokenizeTimelineNotation(input: string): TimelineToken[] {
+  const tokens: TimelineToken[] = []
+  let index = 0
+  let i = 0
+  while (i < input.length) {
+    while (i < input.length && /\s/.test(input[i]!)) i++
+    if (i >= input.length) break
+    const start = i
+    while (i < input.length && !/\s/.test(input[i]!)) i++
+    const end = i
+    tokens.push({ index, start, length: end - start, text: input.slice(start, end) })
+    index++
+  }
+  return tokens
+}
+
+function parseTimelineNotation(tokens: TimelineToken[]): TimelinePoint[] {
+  const points: TimelinePoint[] = []
+
+  for (const t of tokens) {
+    const m = pointTokenRe.exec(t.text)
+    if (!m) continue
+
+    const barUser = Number(m[1] ?? 0)
+    const bar = barUser >= 1 ? barUser - 1 : 0
+    const value = Number(m[2] ?? 0)
+    const curveKind = m[3] ?? null
+    const curveValue = Number(m[4] ?? 0)
+    const exp = curveKind === 'e' ? curveValue : null
+
+    if (!Number.isFinite(bar) || !Number.isFinite(value)) continue
+    points.push({
+      bar,
+      value,
+      exp,
+      tokenIndex: t.index,
+      tokenStart: t.start,
+      tokenLength: t.length,
+    })
+  }
+
+  return points
+}
+
+function compilePoints(points: TimelinePoint[]): {
+  segments: TimelineSegment[]
+  totalBars: number
+  endValue: number
+  endTokenIndex: number
+  endTokenStart: number
+  endTokenLength: number
+} {
+  if (points.length === 0) {
+    return { segments: [], totalBars: 0, endValue: 0, endTokenIndex: -1, endTokenStart: -1, endTokenLength: -1 }
+  }
+
+  const pts = points
+    .map(p => ({ ...p, bar: p.bar }))
+    .filter(p => p.bar >= 0)
+
+  if (pts.length === 0) {
+    return { segments: [], totalBars: 0, endValue: 0, endTokenIndex: -1, endTokenStart: -1, endTokenLength: -1 }
+  }
+
+  const hasZeroPoint = pts.some(p => p.bar === 0)
+  if (!hasZeroPoint) {
+    pts.unshift({
+      bar: 0,
+      value: 0,
+      exp: null,
+      tokenIndex: -1,
+      tokenStart: -1,
+      tokenLength: -1,
+    })
+  }
+
+  const segments: TimelineSegment[] = []
+
+  let i = 0
+  let t = 0
+  let v = pts[0]!.value
+  let activeTokenIndex = pts[0]!.tokenIndex
+  let activeTokenStart = pts[0]!.tokenStart
+  let activeTokenLength = pts[0]!.tokenLength
+
+  while (i < pts.length && pts[i]!.bar === 0) {
+    v = pts[i]!.value
+    activeTokenIndex = pts[i]!.tokenIndex
+    activeTokenStart = pts[i]!.tokenStart
+    activeTokenLength = pts[i]!.tokenLength
+    i++
+  }
+
+  let endTokenIndex = activeTokenIndex
+  let endTokenStart = activeTokenStart
+  let endTokenLength = activeTokenLength
+
+  for (; i < pts.length; i++) {
+    const p = pts[i]!
+    const nextT = p.bar
+    const nextV = p.value
+    const dt = nextT - t
+    if (dt < 0) continue
+
+    if (dt === 0) {
+      t = nextT
+      v = nextV
+      activeTokenIndex = p.tokenIndex
+      activeTokenStart = p.tokenStart
+      activeTokenLength = p.tokenLength
+      endTokenIndex = activeTokenIndex
+      endTokenStart = activeTokenStart
+      endTokenLength = activeTokenLength
+      continue
+    }
+
+    const exp = p.exp ?? 1
+    const kind = v === nextV ? TIMELINE_KIND_HOLD : TIMELINE_KIND_GLIDE
+    segments.push({
+      kind,
+      durBars: dt,
+      startValue: v,
+      endValue: nextV,
+      exp,
+      fromTokenIndex: activeTokenIndex,
+      fromTokenStart: activeTokenStart,
+      fromTokenLength: activeTokenLength,
+      toTokenIndex: p.tokenIndex,
+      toTokenStart: p.tokenStart,
+      toTokenLength: p.tokenLength,
+    })
+
+    t = nextT
+    v = nextV
+    activeTokenIndex = p.tokenIndex
+    activeTokenStart = p.tokenStart
+    activeTokenLength = p.tokenLength
+    endTokenIndex = activeTokenIndex
+    endTokenStart = activeTokenStart
+    endTokenLength = activeTokenLength
+  }
+
+  let totalBars = t
+  if (totalBars <= 0) {
+    totalBars = 1
+    segments.push({
+      kind: TIMELINE_KIND_HOLD,
+      durBars: 1,
+      startValue: v,
+      endValue: v,
+      exp: 1,
+      fromTokenIndex: activeTokenIndex,
+      fromTokenStart: activeTokenStart,
+      fromTokenLength: activeTokenLength,
+      toTokenIndex: activeTokenIndex,
+      toTokenStart: activeTokenStart,
+      toTokenLength: activeTokenLength,
+    })
+  }
+
+  return { segments, totalBars, endValue: v, endTokenIndex, endTokenStart, endTokenLength }
+}
+
+export type TimelineSegmentToken = {
+  fromTokenIndex: number
+  fromTokenStart: number
+  fromTokenLength: number
+  toTokenIndex: number
+  toTokenStart: number
+  toTokenLength: number
+}
+
+const cacheBySequence = new Map<string,
+  { bytecode: Float32Array
+    tokens: TimelineSegmentToken[]
+    segments: TimelineSegment[] }>()
+
+export function compileTimelineNotation(input: string, initialBeatDiv: number = 4): {
+  bytecode: Float32Array
+  tokens: TimelineSegmentToken[]
+  segments: TimelineSegment[]
+} {
+  const cached = cacheBySequence.get(input)
+  if (cached) return cached
+
+  if (cacheBySequence.size > 1000) {
+    cacheBySequence.clear()
+  }
+
+  const tokens = tokenizeTimelineNotation(input)
+  const noWrap = tokens.some(t => t.text === '-')
+  const points = parseTimelineNotation(tokens)
+  const compiled = compilePoints(points)
+  const segments = compiled.segments
+  let totalBars = compiled.totalBars
+
+  if (noWrap && segments.length > 0) {
+    const last = segments[segments.length - 1]!
+    const lastValue = last.kind === TIMELINE_KIND_GLIDE ? last.endValue : last.startValue
+    if (lastValue !== compiled.endValue) {
+      segments.push({
+        kind: TIMELINE_KIND_HOLD,
+        durBars: 1,
+        startValue: compiled.endValue,
+        endValue: compiled.endValue,
+        exp: 1,
+        fromTokenIndex: compiled.endTokenIndex,
+        fromTokenStart: compiled.endTokenStart,
+        fromTokenLength: compiled.endTokenLength,
+        toTokenIndex: compiled.endTokenIndex,
+        toTokenStart: compiled.endTokenStart,
+        toTokenLength: compiled.endTokenLength,
+      })
+    }
+  }
+  const beatsPerBar = initialBeatDiv > 0 ? initialBeatDiv : 4
+
+  const segCount = segments.length
+  const opLength = TIMELINE_HEADER_SIZE + segCount * TIMELINE_SEGMENT_SIZE
+  const bytecode = new Float32Array(1 + opLength)
+
+  bytecode[0] = opLength
+  bytecode[1] = TIMELINE_MAGIC
+  bytecode[2] = segCount
+  bytecode[3] = noWrap ? -totalBars : totalBars
+  bytecode[4] = beatsPerBar
+
+  let o = 1 + TIMELINE_HEADER_SIZE
+  for (const s of segments) {
+    bytecode[o++] = s.kind
+    bytecode[o++] = s.durBars
+    bytecode[o++] = s.startValue
+    bytecode[o++] = s.endValue
+    bytecode[o++] = s.exp
+  }
+
+  const segmentTokens: TimelineSegmentToken[] = segments.map(s => ({
+    fromTokenIndex: s.fromTokenIndex,
+    fromTokenStart: s.fromTokenStart,
+    fromTokenLength: s.fromTokenLength,
+    toTokenIndex: s.toTokenIndex,
+    toTokenStart: s.toTokenStart,
+    toTokenLength: s.toTokenLength,
+  }))
+
+  const result = { bytecode, tokens: segmentTokens, segments }
+  cacheBySequence.set(input, result)
+  return result
+}

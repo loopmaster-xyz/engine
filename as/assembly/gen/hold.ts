@@ -1,0 +1,41 @@
+// dprint-ignore-file
+// DO NOT MODIFY DIRECTLY, modify src/dsl/generator.ts to make changes
+import { TWO_PI, applyCurve, clamp, cos, cosNormalized, floor, fract01, log, max, min, polyBlep, pow, sin, sinNormalized, sqrt, warn } from '../util'
+
+export class Hold_default_ {
+  static readonly defaultInstance: Hold_default_ = new Hold_default_()
+
+  last: f32 = 0
+
+  reset(): void {
+    this.copyFrom(Hold_default_.defaultInstance)
+  }
+
+  copyFrom(src: Hold_default_): void {
+    this.last = src.last
+  }
+
+  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize): void {
+
+    let last: f32 = this.last
+    let input: f32
+    let output: f32
+
+    let y: f32
+    for (let i = 0; i < bufferLength; i += 16) {
+      unroll(16, () => {
+        input = load<f32>(input$)
+        y = input
+        if ((y > 0)) {
+          last = y
+        }
+        output = last
+        store<f32>(output$, output)
+        input$ += 4
+        output$ += 4
+      })
+    }
+
+    this.last = last
+  }
+}

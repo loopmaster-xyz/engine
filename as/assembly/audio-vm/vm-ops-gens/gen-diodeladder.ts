@@ -1,0 +1,1253 @@
+// dprint-ignore-file
+// DO NOT MODIFY DIRECTLY, modify src/dsl/generator.ts to make changes
+
+import { Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio, Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar, Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio, Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar, Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio, Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar, Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio, Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar, Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio, Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar, Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio, Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar, Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio, Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar, Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio, Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar } from '../../gen/diodeladder'
+import { VmState, push, downsample, upsample } from '../runner'
+import * as genOpHelpers from '../gen-op-helpers'
+import * as vmOpsVars from '../vm-ops-vars'
+import { AudioVmOp } from '../vm-op'
+import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'
+import { GenSlot } from '../gen-history'
+import { GenPool } from '../gen-pool'
+import { RunParams } from '../run-params'
+
+export function initGenPools_Diodeladder(vm: VmState): void {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar(), 333, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio(), 334, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar(), 335, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio(), 336, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar(), 337, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio(), 338, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar(), 339, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio(), 340, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar(), 341, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio(), 342, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar(), 343, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio(), 344, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar(), 345, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio(), 346, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar(), 347, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar>(dst).reset() }))
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio(), 348, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+    changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio>(src))
+  }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio>(dst).reset() }))
+}
+
+export function handleGenOp_Diodeladder(vm: VmState, op: AudioVmOp, pc: i32, opsPtr: usize, params: RunParams): i32 {
+  switch (op) {
+case AudioVmOp.GenDiodeladder_default: {
+  genOpHelpers.resolveAndPushAbsolutePC(vm, pc)
+  const satTagged: f64 = vm.stack[--vm.stackTop]
+  const kTagged: f64 = vm.stack[--vm.stackTop]
+  const qTagged: f64 = vm.stack[--vm.stackTop]
+  const cutoffTagged: f64 = vm.stack[--vm.stackTop]
+  const inputTagged: f64 = vm.stack[--vm.stackTop]
+  const inputResolved: f64 = vmOpsVars.resolveCellRef(vm, inputTagged)
+  let output: Float32Array = changetype<Float32Array>(0)
+  let modeMask: i32 = 0
+  if (isAudio(cutoffTagged) || genOpHelpers.isStereoAudioArray(vm, cutoffTagged)) {
+    modeMask |= 1
+  }
+  if (isAudio(qTagged) || genOpHelpers.isStereoAudioArray(vm, qTagged)) {
+    modeMask |= 2
+  }
+  if (isAudio(kTagged) || genOpHelpers.isStereoAudioArray(vm, kTagged)) {
+    modeMask |= 4
+  }
+  if (isAudio(satTagged) || genOpHelpers.isStereoAudioArray(vm, satTagged)) {
+    modeMask |= 8
+  }
+  const cutoffValue: f32 = genOpHelpers.scalarOrFirstSample(vm, cutoffTagged)
+  vm.paramScratch[0] = cutoffValue
+  const qValue: f32 = genOpHelpers.scalarOrFirstSample(vm, qTagged)
+  vm.paramScratch[1] = qValue
+  const kValue: f32 = genOpHelpers.scalarOrFirstSample(vm, kTagged)
+  vm.paramScratch[2] = kValue
+  const satValue: f32 = genOpHelpers.scalarOrFirstSample(vm, satTagged)
+  vm.paramScratch[3] = satValue
+  if (isArray(inputResolved)) {
+    const inputArrId: u32 = decodeArray(inputResolved)
+    if (inputArrId > 0 && inputArrId <= u32(vm.arrays.length)) {
+      const inputArr: Float64Array = vm.arrays.get(i32(inputArrId) - 1)
+      const inputArrLen: i32 = vm.arrayLengths.get(i32(inputArrId) - 1)
+      if (inputArrLen >= 2) {
+        const inputLeftTagged: f64 = inputArr[0]
+        const inputRightTagged: f64 = inputArr[1]
+        const inputLeftResolved: f64 = vmOpsVars.resolveCellRef(vm, inputLeftTagged)
+        const inputRightResolved: f64 = vmOpsVars.resolveCellRef(vm, inputRightTagged)
+        let outputL: Float32Array = changetype<Float32Array>(0)
+        let outputR: Float32Array = changetype<Float32Array>(0)
+        switch (modeMask) {
+          case 0: {
+            {
+              const slot: GenSlot = vm.genPools[333].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar>(slot.instance)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, kValue, satValue)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[333].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar>(slot.instance)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, kValue, satValue)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              outputR = output
+            }
+            break
+          }
+          case 8: {
+            {
+              const slot: GenSlot = vm.genPools[334].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio>(slot.instance)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, kValue, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[334].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio>(slot.instance)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, kValue, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 4: {
+            {
+              const slot: GenSlot = vm.genPools[335].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar>(slot.instance)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, satValue, kAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[335].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar>(slot.instance)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, satValue, kAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 12: {
+            {
+              const slot: GenSlot = vm.genPools[336].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio>(slot.instance)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, kAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[336].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio>(slot.instance)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, kAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 2: {
+            {
+              const slot: GenSlot = vm.genPools[337].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar>(slot.instance)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, kValue, satValue, qAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[337].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar>(slot.instance)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, kValue, satValue, qAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 10: {
+            {
+              const slot: GenSlot = vm.genPools[338].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio>(slot.instance)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, kValue, qAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[338].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio>(slot.instance)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, kValue, qAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 6: {
+            {
+              const slot: GenSlot = vm.genPools[339].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar>(slot.instance)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, satValue, qAudioResult.ptr, kAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[339].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar>(slot.instance)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, satValue, qAudioResult.ptr, kAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 14: {
+            {
+              const slot: GenSlot = vm.genPools[340].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio>(slot.instance)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qAudioResult.ptr, kAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[340].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio>(slot.instance)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qAudioResult.ptr, kAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 1: {
+            {
+              const slot: GenSlot = vm.genPools[341].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, kValue, satValue, cutoffAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[341].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, kValue, satValue, cutoffAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 9: {
+            {
+              const slot: GenSlot = vm.genPools[342].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, kValue, cutoffAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[342].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, kValue, cutoffAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 5: {
+            {
+              const slot: GenSlot = vm.genPools[343].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, satValue, cutoffAudioResult.ptr, kAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[343].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, satValue, cutoffAudioResult.ptr, kAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 13: {
+            {
+              const slot: GenSlot = vm.genPools[344].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, cutoffAudioResult.ptr, kAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[344].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, cutoffAudioResult.ptr, kAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 3: {
+            {
+              const slot: GenSlot = vm.genPools[345].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, kValue, satValue, cutoffAudioResult.ptr, qAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[345].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, kValue, satValue, cutoffAudioResult.ptr, qAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 11: {
+            {
+              const slot: GenSlot = vm.genPools[346].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, kValue, cutoffAudioResult.ptr, qAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[346].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, kValue, cutoffAudioResult.ptr, qAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 7: {
+            {
+              const slot: GenSlot = vm.genPools[347].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, satValue, cutoffAudioResult.ptr, qAudioResult.ptr, kAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[347].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, satValue, cutoffAudioResult.ptr, qAudioResult.ptr, kAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              outputR = output
+            }
+            break
+          }
+          case 15: {
+            {
+              const slot: GenSlot = vm.genPools[348].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffAudioResult.ptr, qAudioResult.ptr, kAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputL = output
+            }
+            {
+              const slot: GenSlot = vm.genPools[348].get()
+              genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+              const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+              const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
+              const inputSrcPtr: usize = inputSrcResult.ptr
+              const inputSrcBuf: Float32Array = inputSrcResult.buf
+              genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+              const inputPtr: usize = inputSrcPtr
+              output = vm.arena.get(procLen)
+              const outputPtr: usize = output.dataStart
+              const instance: Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio>(slot.instance)
+              const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+              const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+              const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+              const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+              slot.history.write(params.sampleCount, vm.paramScratch)
+              instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffAudioResult.ptr, qAudioResult.ptr, kAudioResult.ptr, satAudioResult.ptr)
+              genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+              genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+              genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+              outputR = output
+            }
+            break
+          }
+        }
+        const stereoArr: Float64Array = vm.float64Arena.get(2)
+        stereoArr[0] = encodeAudio(outputL.dataStart)
+        stereoArr[1] = encodeAudio(outputR.dataStart)
+        vm.arrays.push(stereoArr)
+        vm.arrayLengths.push(2)
+        vm.arrayRefcounts.push(0)
+        push(vm, encodeArray(u32(vm.arrays.length)))
+        if (inputArrId == u32(vm.arrays.length)) { vm.arrays.length = vm.arrays.length - 1; vm.arrayLengths.length = vm.arrayLengths.length - 1; vm.arrayRefcounts.length = vm.arrayRefcounts.length - 1 } else { vm.arrays.set(i32(inputArrId) - 1, VmState.EMPTY_FLOAT64_ARRAY); vm.arrayLengths.set(i32(inputArrId) - 1, 0); vm.arrayRefcounts.set(i32(inputArrId) - 1, 0) }
+        if (inputArr.length > 0) vm.float64Arena.release(inputArr)
+        if (isAudio(inputLeftResolved)) vm.arena.releaseByPtr(u32(decodeAudio(inputLeftResolved)))
+        if (isAudio(inputRightResolved)) vm.arena.releaseByPtr(u32(decodeAudio(inputRightResolved)))
+        if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
+        return pc
+      }
+    }
+  }
+  switch (modeMask) {
+    case 0: {
+      const slot: GenSlot = vm.genPools[333].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar>(slot.instance)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, kValue, satValue)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      break
+    }
+    case 8: {
+      const slot: GenSlot = vm.genPools[334].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio>(slot.instance)
+      const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, kValue, satAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+      break
+    }
+    case 4: {
+      const slot: GenSlot = vm.genPools[335].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar>(slot.instance)
+      const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, satValue, kAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+      break
+    }
+    case 12: {
+      const slot: GenSlot = vm.genPools[336].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio>(slot.instance)
+      const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+      const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qValue, kAudioResult.ptr, satAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+      break
+    }
+    case 2: {
+      const slot: GenSlot = vm.genPools[337].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar>(slot.instance)
+      const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, kValue, satValue, qAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+      break
+    }
+    case 10: {
+      const slot: GenSlot = vm.genPools[338].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio>(slot.instance)
+      const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+      const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, kValue, qAudioResult.ptr, satAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+      break
+    }
+    case 6: {
+      const slot: GenSlot = vm.genPools[339].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar>(slot.instance)
+      const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+      const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, satValue, qAudioResult.ptr, kAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+      break
+    }
+    case 14: {
+      const slot: GenSlot = vm.genPools[340].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio>(slot.instance)
+      const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+      const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+      const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffValue, qAudioResult.ptr, kAudioResult.ptr, satAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+      break
+    }
+    case 1: {
+      const slot: GenSlot = vm.genPools[341].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar>(slot.instance)
+      const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, kValue, satValue, cutoffAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+      break
+    }
+    case 9: {
+      const slot: GenSlot = vm.genPools[342].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio>(slot.instance)
+      const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+      const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, kValue, cutoffAudioResult.ptr, satAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+      break
+    }
+    case 5: {
+      const slot: GenSlot = vm.genPools[343].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar>(slot.instance)
+      const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+      const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, satValue, cutoffAudioResult.ptr, kAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+      break
+    }
+    case 13: {
+      const slot: GenSlot = vm.genPools[344].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio>(slot.instance)
+      const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+      const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+      const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, qValue, cutoffAudioResult.ptr, kAudioResult.ptr, satAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+      break
+    }
+    case 3: {
+      const slot: GenSlot = vm.genPools[345].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar>(slot.instance)
+      const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+      const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, kValue, satValue, cutoffAudioResult.ptr, qAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+      break
+    }
+    case 11: {
+      const slot: GenSlot = vm.genPools[346].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio>(slot.instance)
+      const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+      const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+      const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, kValue, cutoffAudioResult.ptr, qAudioResult.ptr, satAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+      break
+    }
+    case 7: {
+      const slot: GenSlot = vm.genPools[347].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar = changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar>(slot.instance)
+      const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+      const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+      const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, satValue, cutoffAudioResult.ptr, qAudioResult.ptr, kAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+      break
+    }
+    case 15: {
+      const slot: GenSlot = vm.genPools[348].get()
+      genOpHelpers.writeCallStackMetaToSlot(vm, slot)
+      const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
+      const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+      const inputSrcPtr: usize = inputSrcResult.ptr
+      const inputSrcBuf: Float32Array = inputSrcResult.buf
+      genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
+      const inputPtr: usize = inputSrcPtr
+      output = vm.arena.get(procLen)
+      const outputPtr: usize = output.dataStart
+      const instance: Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio = changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio>(slot.instance)
+      const cutoffAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, cutoffTagged, procLen)
+      const qAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, qTagged, procLen)
+      const kAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, kTagged, procLen)
+      const satAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, satTagged, procLen)
+      slot.history.write(params.sampleCount, vm.paramScratch)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, cutoffAudioResult.ptr, qAudioResult.ptr, kAudioResult.ptr, satAudioResult.ptr)
+      genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
+      genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, cutoffAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, qAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, kAudioResult)
+      genOpHelpers.releaseTaggedAudioParamResult(vm, satAudioResult)
+      break
+    }
+    default: {
+      const procLen: i32 = (params.bufferLength + 15) & ~15
+      output = vm.arena.get(procLen)
+      memory.fill(output.dataStart, 0, usize(procLen) << 2)
+      break
+    }
+  }
+  if (isAudio(inputResolved)) vm.arena.releaseByPtr(u32(decodeAudio(inputResolved)))
+  push(vm, encodeAudio(output.dataStart), true)
+  if (isAudio(cutoffTagged)) vm.arena.releaseByPtr(u32(decodeAudio(cutoffTagged)))
+  if (isAudio(qTagged)) vm.arena.releaseByPtr(u32(decodeAudio(qTagged)))
+  if (isAudio(kTagged)) vm.arena.releaseByPtr(u32(decodeAudio(kTagged)))
+  if (isAudio(satTagged)) vm.arena.releaseByPtr(u32(decodeAudio(satTagged)))
+  if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
+  return pc
+}
+
+    default: {
+      throw new Error(`Unknown gen op: ${op}`)
+    }
+  }
+}

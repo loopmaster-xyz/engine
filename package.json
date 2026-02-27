@@ -1,0 +1,34 @@
+{
+  "name": "@loopmaster/engine",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "NODE_OPTIONS=\"--import ./loader.mjs\" vite --open",
+    "build": "bun run src/cli.ts dsl",
+    "as:build": "asc as/assembly/index.ts --target debug --transform ./vendor/as-transform-unroll.js",
+    "as:build:release": "asc as/assembly/index.ts --target release -O --noAssert --transform ./vendor/as-transform-unroll.js"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.3",
+    "@types/audioworklet": "^0.0.92",
+    "@types/bun": "latest",
+    "assemblyscript": "^0.28.9",
+    "editor": "github:loopmaster-xyz/editor",
+    "utils": "github:stagas/utils",
+    "visitor-as": "^0.11.4",
+    "vite": "npm:rolldown-vite@7.3.1",
+    "vite-plugin-assemblyscript": "github:stagas/vite-plugin-assemblyscript",
+    "vite-plugin-coop-coep": "github:stagas/vite-plugin-coop-coep",
+    "vite-plugin-open-in-editor": "github:stagas/vite-plugin-open-in-editor",
+    "vite-plugin-watch": "^0.3.1"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.8.1",
+    "preact": "^10.28.4",
+    "sam-js": "^0.3.1"
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@7.3.1"
+  }
+}

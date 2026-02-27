@@ -1,0 +1,107 @@
+import { MINI_CYCLE_END_SIZE, MINI_CYCLE_START_SIZE, MINI_EVENT_BASE_SIZE, MINI_GROUP_END_SIZE, MINI_GROUP_START_SIZE,
+  MINI_OCTAVE_SIZE, MINI_SCALE_SIZE, MINI_SWING_SIZE, MINI_TRANSPOSE_SIZE,
+  MiniOp } from '../../as/assembly/mini/constants.ts'
+import type { Node } from './tokenizer.ts'
+
+export interface SourceLocation {
+  text: string
+  start: number
+  end: number
+}
+
+function buildSourceMapFromNodes(
+  nodes: Node[],
+  _bytecode: Float32Array,
+  offset: number,
+  map: Map<number, SourceLocation>,
+): number {
+  let currentOffset = offset
+
+  for (const node of nodes) {
+    if (node.type === 'event') {
+      const opIndex = currentOffset
+      map.set(opIndex, {
+        text: node.source.text,
+        start: node.source.start,
+        end: node.source.start + node.source.length,
+      })
+      currentOffset += MINI_EVENT_BASE_SIZE
+    }
+    else if (node.type === 'rest') {
+      // Rests are encoded as value-less events so they still occupy a timed slot.
+      const opIndex = currentOffset
+      map.set(opIndex, {
+        text: node.source.text,
+        start: node.source.start,
+        end: node.source.start + node.source.length,
+      })
+      currentOffset += MINI_EVENT_BASE_SIZE
+    }
+    else if (node.type === 'octave') {
+      const opIndex = currentOffset
+      map.set(opIndex, {
+        text: node.source.text,
+        start: node.source.start,
+        end: node.source.start + node.source.length,
+      })
+      currentOffset += MINI_OCTAVE_SIZE
+    }
+    else if (node.type === 'transpose') {
+      const opIndex = currentOffset
+      map.set(opIndex, {
+        text: node.source.text,
+        start: node.source.start,
+        end: node.source.start + node.source.length,
+      })
+      currentOffset += MINI_TRANSPOSE_SIZE
+    }
+    else if (node.type === 'scale') {
+      const opIndex = currentOffset
+      map.set(opIndex, {
+        text: node.source.text,
+        start: node.source.start,
+        end: node.source.start + node.source.length,
+      })
+      currentOffset += MINI_SCALE_SIZE
+    }
+    else if (node.type === 'swing') {
+      const opIndex = currentOffset
+      map.set(opIndex, {
+        text: node.source.text,
+        start: node.source.start,
+        end: node.source.start + node.source.length,
+      })
+      currentOffset += MINI_SWING_SIZE
+    }
+    else if (node.type === 'group') {
+      currentOffset += MINI_GROUP_START_SIZE
+      currentOffset = buildSourceMapFromNodes(node.children, _bytecode, currentOffset, map)
+      currentOffset += MINI_GROUP_END_SIZE
+    }
+    else if (node.type === 'at') {
+      currentOffset += MINI_CYCLE_START_SIZE
+      currentOffset = buildSourceMapFromNodes(node.children, _bytecode, currentOffset, map)
+      currentOffset += MINI_CYCLE_END_SIZE
+    }
+  }
+
+  return currentOffset
+}
+
+const cacheByMiniSourceMap = new Map<string, Map<number, SourceLocation>>()
+
+export function buildMiniSourceMap(src: string, nodes: Node[], bytecode: Float32Array): Map<number, SourceLocation> {
+  const cached = cacheByMiniSourceMap.get(src)
+  if (cached) return cached
+
+  if (cacheByMiniSourceMap.size > 1000) {
+    cacheByMiniSourceMap.clear()
+  }
+
+  const map = new Map<number, SourceLocation>()
+  buildSourceMapFromNodes(nodes, bytecode, MINI_GROUP_START_SIZE, map)
+
+  const result = map
+  cacheByMiniSourceMap.set(src, result)
+  return result
+}

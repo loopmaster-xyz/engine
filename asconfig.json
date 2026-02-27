@@ -1,0 +1,49 @@
+{
+  "targets": {
+    "test": {
+      "outFile": "as/build/index.wasm",
+      "textFile": "as/build/index.wat",
+      "optimizeLevel": 0,
+      "converge": false,
+      "sourceMap": true,
+      "debug": true,
+      "noAssert": false,
+      "uncheckedBehavior": "never"
+    },
+    "debug": {
+      "outFile": "as/build/index.wasm",
+      "textFile": "as/build/index.wat",
+      "optimizeLevel": 0,
+      "converge": false,
+      "sourceMap": true,
+      "debug": true,
+      "noAssert": true,
+      "uncheckedBehavior": "always"
+    },
+    "release": {
+      "outFile": "as/build/index.wasm",
+      "textFile": "as/build/index.wat",
+      "optimizeLevel": 3,
+      "shrinkLevel": 2,
+      "converge": false,
+      "sourceMap": true,
+      "debug": true,
+      "noAssert": true,
+      "uncheckedBehavior": "always"
+    }
+  },
+  "options": {
+    "enable": [
+      "simd",
+      "relaxed-simd",
+      "threads"
+    ],
+    "importMemory": true,
+    "initialMemory": 64,
+    "maximumMemory": 16384,
+    "sharedMemory": true,
+    "bindings": "esm",
+    "runtime": "minimal",
+    "exportRuntime": true
+  }
+}

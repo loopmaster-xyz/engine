@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+# Overview
+
+To test things if needed create tests in `test` and run with `bun test`.
+
+To eval dsp source you run `bun run src/eval-dsp.ts "source"` with zsh string escaping.
+
+The files `as/assembly/audio-vm/vm-ops-gens.ts`, all `as/assembly/audio-vm/vm-ops-gens/gen-*.ts`, `as/assembly/audio-vm/vm-op.ts`, `src/audio-vm-bindings.ts` and files in `as/assembly/gen/` are generated and we do NOT modify directly. We modify the `src/dsl/generator/*.ts` files instead.
+
+The new files are auto-generated and the AssemblyScript auto-builds. After changes to generator or AssemblyScript code, to test new things you have to `sleep` for a `30` seconds to let the automatic compilation finish.
