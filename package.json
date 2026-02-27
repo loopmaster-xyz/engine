@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "main": "src/index.ts",
+  "license": "MIT",
   "scripts": {
     "dev": "NODE_OPTIONS=\"--import ./loader.mjs\" vite --open",
     "build": "bun run src/cli.ts dsl",
