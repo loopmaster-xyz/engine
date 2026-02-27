@@ -16,7 +16,6 @@
     "@types/bun": "latest",
     "assemblyscript": "^0.28.9",
     "editor": "github:loopmaster-xyz/editor",
-    "utils": "github:stagas/utils",
     "visitor-as": "^0.11.4",
     "vite": "npm:rolldown-vite@7.3.1",
     "vite-plugin-assemblyscript": "github:stagas/vite-plugin-assemblyscript",
@@ -27,7 +26,8 @@
   "dependencies": {
     "@preact/signals": "^2.8.1",
     "preact": "^10.28.4",
-    "sam-js": "^0.3.1"
+    "sam-js": "^0.3.1",
+    "utils": "github:stagas/utils"
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.3.1"
