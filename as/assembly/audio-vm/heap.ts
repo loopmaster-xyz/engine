@@ -1,3 +1,5 @@
+// dprint-ignore-file
+
 import {
   decodeArray,
   decodeAudio,
@@ -14,12 +16,14 @@ import { Cell } from './vm-types'
 
 /** Central resource manager: alloc/retain/release for audio, arrays, cells. */
 
-// @inline
+// @ts-ignore
+@inline
 export function retainAudio(vm: VmState, ptr: u32): void {
   vm.arena.retain(ptr)
 }
 
-// @inline
+// @ts-ignore
+@inline
 export function releaseAudio(vm: VmState, ptr: u32): void {
   vm.arena.releaseByPtr(ptr)
 }
@@ -53,12 +57,16 @@ export function releaseArray(vm: VmState, arrId: u32): void {
   }
 }
 
+// @ts-ignore
+@inline
 export function retainCell(vm: VmState, cellIdx: i32): void {
   if (cellIdx < 0 || cellIdx >= vm.cells.length) return
   const cell: Cell = vm.cells.get(cellIdx)
   cell.refcount++
 }
 
+// @ts-ignore
+@inline
 export function releaseCell(vm: VmState, cellIdx: i32): void {
   if (cellIdx < 0 || cellIdx >= vm.cells.length) return
   const cell: Cell = vm.cells.get(cellIdx)
@@ -71,6 +79,8 @@ export function releaseCell(vm: VmState, cellIdx: i32): void {
   }
 }
 
+// @ts-ignore
+@inline
 export function retainValue(vm: VmState, tagged: f64): void {
   if (isScalar(tagged) || isUndefined(tagged) || isFunction(tagged)) return
   if (isAudio(tagged)) vm.arena.retain(u32(decodeAudio(tagged)))
@@ -78,6 +88,8 @@ export function retainValue(vm: VmState, tagged: f64): void {
   else if (isCellRef(tagged)) retainCell(vm, decodeCellRef(tagged))
 }
 
+// @ts-ignore
+@inline
 export function releaseValue(vm: VmState, tagged: f64): void {
   if (isScalar(tagged) || isUndefined(tagged) || isFunction(tagged)) return
   if (isAudio(tagged)) vm.arena.releaseByPtr(u32(decodeAudio(tagged)))

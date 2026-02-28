@@ -30,12 +30,12 @@ export function compileTram(state: State, callExpr: Extract<Expr, { type: 'call'
   }
 
   if (!seqExpr) {
-    error(state, 'tram() requires a sequence string argument', callExpr.loc.line, callExpr.loc.column)
+    error(state, 'tram() requires a sequence string argument', callExpr.loc)
     return
   }
 
   if (seqExpr.type !== 'string') {
-    error(state, 'tram() sequence argument must be a string literal', callExpr.loc.line, callExpr.loc.column)
+    error(state, 'tram() sequence argument must be a string literal', callExpr.loc)
     return
   }
 
@@ -44,7 +44,7 @@ export function compileTram(state: State, callExpr: Extract<Expr, { type: 'call'
   // Parse the sequence string
   const parseResult = parseTramSequence(sequence)
   if (parseResult.bytecode.length === 0) {
-    error(state, 'tram() sequence is empty', callExpr.loc.line, callExpr.loc.column)
+    error(state, 'tram() sequence is empty', callExpr.loc)
     return
   }
 
@@ -94,13 +94,13 @@ export function compileTram(state: State, callExpr: Extract<Expr, { type: 'call'
   const bytecode = parseResult.bytecode
   const tramLen = bytecode.length
   if (!Number.isInteger(tramLen) || tramLen <= 0) {
-    error(state, 'tram() bytecode length invalid', callExpr.loc.line, callExpr.loc.column)
+    error(state, 'tram() bytecode length invalid', callExpr.loc)
     return
   }
   for (let b = 0; b < tramLen; b++) {
     const v = bytecode[b]!
     if (typeof v !== 'number' || !Number.isFinite(v)) {
-      error(state, 'tram() bytecode contains invalid value', callExpr.loc.line, callExpr.loc.column)
+      error(state, 'tram() bytecode contains invalid value', callExpr.loc)
       return
     }
   }

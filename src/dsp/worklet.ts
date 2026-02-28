@@ -34,6 +34,15 @@ type ProgramVmSlot = {
   controlOpsLength: number
 }
 
+type LimiterState = {
+  currentGain: number
+  lastThreshold: number
+  lastRelease: number
+  lastSampleRate: number
+  releaseCoeff: number
+  thresholdLinear: number
+}
+
 function createProgramRuntime(opts: {
   vmIds: [number, number]
   vms: [AudioVm, AudioVm]
@@ -61,6 +70,7 @@ function createProgramRuntime(opts: {
     slots,
     id: opts.id,
     activeSlot: 0 as 0 | 1,
+    gain: 1,
     swapFadeRemaining: 0,
     swapFadeTotal: 0,
     swapFadeFrom: 0 as 0 | 1,
@@ -178,12 +188,16 @@ function applyProgramSeek(
   }
 }
 
-function copyHistoryMetaToProgramShared(runtime: WasmRuntime, p: ProgramRuntime, vm: AudioVm): void {
+function copyHistoryMetaToProgramShared(
+  runtime: WasmRuntime,
+  p: ProgramRuntime,
+  vm: AudioVm,
+  info?: Uint32Array,
+): void {
   if (!p.historyMetaBuffers) return
-  const infoPtr = vm.infoPtr
-  const info = new Uint32Array(runtime.buffer, infoPtr, 10)
-  const historyMetaPtr = info[5] ?? 0
-  const historyCount = info[6] ?? 0
+  const view = info ?? new Uint32Array(runtime.buffer, vm.infoPtr, 10)
+  const historyMetaPtr = view[5] ?? 0
+  const historyCount = view[6] ?? 0
   if (historyCount <= 0 || historyMetaPtr <= 0) return
   const currentIndex = Atomics.load(p.stateU32, SharedProgramStateIndex.HistoryPackIndex) >>> 0
   const nextIndex = currentIndex ^ 1
@@ -225,9 +239,9 @@ function runProgram(
     piOverNyquist,
     bpmOverrideValue || bpm,
   )
-  if (copyHistory) copyHistoryMetaToProgramShared(runtime, p, slot.vm)
   const infoPtr = slot.vm.infoPtr
   const info = new Uint32Array(runtime.buffer, infoPtr, 10)
+  if (copyHistory) copyHistoryMetaToProgramShared(runtime, p, slot.vm, info)
   const outputLeftPtr = info[8] ?? 0
   const outputRightPtr = info[9] ?? 0
   if (!outputLeftPtr || !outputRightPtr) {
@@ -270,6 +284,24 @@ export async function createProcessorState(
   const PREVIEW_SEEK_CHUNKS = 32
   let scheduleProgramsSeek: number[] = []
   let scheduleProgramsSeekChunks = 0
+  const limiterThresholdDb = 0
+  const limiterReleaseSeconds = 0.1
+  const limiterL: LimiterState = {
+    currentGain: 1,
+    lastThreshold: Infinity,
+    lastRelease: Infinity,
+    lastSampleRate: Infinity,
+    releaseCoeff: 0,
+    thresholdLinear: 1,
+  }
+  const limiterR: LimiterState = {
+    currentGain: 1,
+    lastThreshold: Infinity,
+    lastRelease: Infinity,
+    lastSampleRate: Infinity,
+    releaseCoeff: 0,
+    thresholdLinear: 1,
+  }
   let hadError = false
   let wasPlaying = false
   let isPlaying = false
@@ -277,6 +309,63 @@ export async function createProcessorState(
   let idsWasPlaying = new Set<number>()
 
   // let count = 0
+
+  function applyLimiter(
+    buffer: Float32Array,
+    state: LimiterState,
+  ): void {
+    const thresholdClamped = Math.max(-80, Math.min(limiterThresholdDb, 0))
+    const releaseClamped = Math.max(0.0001, Math.min(limiterReleaseSeconds, 5))
+    const thresholdChanged = thresholdClamped !== state.lastThreshold
+    const releaseChanged = releaseClamped !== state.lastRelease
+    const sampleRateChanged = sampleRate !== state.lastSampleRate
+
+    if (thresholdChanged) {
+      const th = Math.max(-80, Math.min(thresholdClamped, 0))
+      state.thresholdLinear = 10 ** (th / 20)
+      state.lastThreshold = thresholdClamped
+    }
+
+    if (releaseChanged) {
+      state.lastRelease = releaseClamped
+    }
+
+    if (releaseChanged || sampleRateChanged) {
+      const rel = Math.max(0.0001, Math.min(releaseClamped, 5))
+      state.releaseCoeff = Math.exp(-3 / (rel * sampleRate))
+      state.lastSampleRate = sampleRate
+    }
+
+    let currentGain = state.currentGain
+    const thresholdLinear = state.thresholdLinear
+    const releaseCoeff = state.releaseCoeff
+    const len = buffer.length
+
+    for (let i = 0; i < len; i++) {
+      const input = buffer[i] ?? 0
+      const inputLevel = Math.abs(input)
+      const targetGain = inputLevel > thresholdLinear ? thresholdLinear / inputLevel : 1
+
+      if (currentGain > targetGain) {
+        currentGain = targetGain + (currentGain - targetGain) * releaseCoeff
+      }
+      else {
+        currentGain = targetGain
+      }
+
+      currentGain = Math.max(0, Math.min(1, currentGain))
+
+      let outSample = input * currentGain
+      if (Math.abs(outSample) > thresholdLinear) {
+        outSample = thresholdLinear * Math.sign(outSample || 1)
+        currentGain = targetGain
+      }
+
+      buffer[i] = outSample
+    }
+
+    state.currentGain = currentGain
+  }
 
   function processBuffer(outputs: Float32Array[][], dsp: Dsp | null): boolean {
     const bufferLength = outputs[0]?.[0]?.length ?? 0
@@ -313,6 +402,7 @@ export async function createProcessorState(
       core.wasm.__collect()
       for (const p of programsById.values()) {
         const slot = p.slots[p.activeSlot]
+        core.wasm.resetAudioVmAt(slot.vm.id)
         copyHistoryMetaToProgramShared(runtime, p, slot.vm)
       }
       wasPlaying = false
@@ -380,7 +470,7 @@ export async function createProcessorState(
             baseSampleCount,
             outputL,
             outputR,
-            1 - t,
+            (1 - t) * (p.gain || 0),
             false,
           )
           runProgram(
@@ -395,7 +485,7 @@ export async function createProcessorState(
             baseSampleCount,
             outputL,
             outputR,
-            t,
+            t * (p.gain || 0),
             true,
           )
           p.swapFadeRemaining = Math.max(0, p.swapFadeRemaining - bufferLength)
@@ -413,7 +503,7 @@ export async function createProcessorState(
             baseSampleCount,
             outputL,
             outputR,
-            1,
+            p.gain || 0,
             true,
           )
         }
@@ -443,6 +533,9 @@ export async function createProcessorState(
         idsNowPlaying.add(p.id)
         isPlaying = true
       }
+
+      applyLimiter(outputL, limiterL)
+      applyLimiter(outputR, limiterR)
 
       if (hadError) {
         hadError = false
@@ -1002,6 +1095,25 @@ export class DspProcessor extends AudioWorkletProcessor {
     s.applyTransportSeek(opts.sampleCount)
     s.applyProgramSeek(opts.sampleCount, opts.programIds, opts.preview)
     return this.getInits()
+  }
+
+  async seekPrograms(opts: {
+    sampleCount: number
+    programIds: number[]
+    preview: boolean
+  }) {
+    const s = this.state
+    if (!s) throw new Error('No state')
+    s.applyProgramSeek(opts.sampleCount, opts.programIds, opts.preview)
+    return this.getInits()
+  }
+
+  async setProgramGain(opts: { programId: number; gain: number }): Promise<void> {
+    const s = this.state
+    if (!s) throw new Error('No state')
+    const p = s.getProgramById(opts.programId)
+    if (!p) throw new Error('Program not found with id: ' + opts.programId)
+    p.gain = Number(opts.gain) || 0
   }
 
   async swapPrograms(programIds1: number[], programIds2: number[]): Promise<ProgramSharedInit[]> {

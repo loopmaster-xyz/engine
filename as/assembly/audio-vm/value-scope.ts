@@ -13,16 +13,18 @@ export class ValueScope {
     this.values = new FastArray<f64>(16, bufferPool)
   }
 
-  // @inline
+  @inline
   init(vm: VmState): void {
     this.vm = vm
     this.values.clear()
   }
 
+  @inline
   track(tagged: f64): void {
     this.values.push(tagged)
   }
 
+  @inline
   releaseAll(): void {
     for (let i: i32 = 0; i < this.values.length; i++) {
       heap.releaseValue(this.vm, this.values.get(i))

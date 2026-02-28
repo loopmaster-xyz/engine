@@ -70,10 +70,23 @@ export async function createDsp(state: DspState) {
     })
   }
 
+  function seekPrograms(sampleCount: number, programs: DspProgram[], preview: boolean) {
+    return control(async () => {
+      const inits = await core.worklet.seekPrograms({ sampleCount, programIds: programs.map(p => p.id), preview })
+      await rebindAllPrograms(inits)
+    })
+  }
+
   function swapPrograms(program1: DspProgram, program2: DspProgram) {
     return control(async () => {
       const inits = await core.worklet.swapPrograms([program1.id], [program2.id])
       await rebindAllPrograms(inits)
+    })
+  }
+
+  function setProgramGain(program: DspProgram, gain: number) {
+    return control(async () => {
+      await core.worklet.setProgramGain({ programId: program.id, gain })
     })
   }
 
@@ -174,6 +187,8 @@ export async function createDsp(state: DspState) {
     pause,
     stop,
     seek,
+    seekPrograms,
+    setProgramGain,
     bpmOverride,
 
     createProgram,

@@ -1,3 +1,5 @@
+// dprint-ignore-file
+
 import {
   decodeArray,
   decodeAudio,
@@ -29,6 +31,8 @@ export function seededRandom01(baseSeed: u32, cycle: f64, opIndex: i32, valueInd
 }
 
 /** Wrap index into [0, length); length <= 0 returns 0. */
+// @ts-ignore
+@inline
 export function wrapIndex(i: i32, length: i32): i32 {
   if (length <= 0) return 0
   let r: i32 = i % length
