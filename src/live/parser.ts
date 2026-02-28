@@ -731,6 +731,17 @@ class Parser {
     }
 
     if (t.type === 'keyword') {
+      if (t.value === 'if') {
+        const start = t
+        this.pos++
+        this.expect('punct', '(', 'Expected "(" after if')
+        const test = this.parseExpr()
+        this.expect('punct', ')', 'Expected ")" after if condition')
+        const then = this.parseExpr()
+        this.expect('keyword', 'else', 'Expected "else" in if expression')
+        const elseExpr = this.parseExpr()
+        return { type: 'ternary', test, then, else: elseExpr, loc: this.locFrom(start, this.prev()) }
+      }
       if (t.value === 'true' || t.value === 'false' || t.value === 'null') {
         this.pos++
         const v = t.value === 'true'
