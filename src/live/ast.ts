@@ -11,6 +11,8 @@ export type Program = {
   loc: Loc
 }
 
+export type SwitchCase = { test: Expr | null; body: Stmt[] } // test null = default
+
 export type Stmt =
   | { type: 'block'; body: Stmt[]; loc: Loc }
   | { type: 'if'; test: Expr; then: Stmt; else?: Stmt; loc: Loc }
@@ -18,6 +20,7 @@ export type Stmt =
   | { type: 'do'; body: Stmt; test: Expr; loc: Loc }
   | { type: 'for'; init: string; from: Expr; to: Expr; body: Stmt; loc: Loc }
   | { type: 'for-of'; value: string; index?: string; length?: string; iterable: Expr; body: Stmt; loc: Loc }
+  | { type: 'switch'; test: Expr; cases: SwitchCase[]; loc: Loc }
   | { type: 'return'; value?: Expr; loc: Loc }
   | { type: 'break'; label?: string; loc: Loc }
   | { type: 'continue'; label?: string; loc: Loc }

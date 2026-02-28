@@ -383,6 +383,11 @@ export function compileContinue(state: State, stmt: Extract<Stmt, { type: 'conti
     targetLoop = state.loopStack[state.loopStack.length - 1]
   }
 
+  if (targetLoop.isSwitch) {
+    error(state, 'continue statement not allowed in switch', stmt.loc)
+    return
+  }
+
   // Emit jump and record patch index
   state.ops.push(AudioVmOp.Jump)
   const patchIndex = state.ops.length
@@ -390,7 +395,80 @@ export function compileContinue(state: State, stmt: Extract<Stmt, { type: 'conti
   targetLoop.continueTargets.push(patchIndex)
 }
 
+export function compileSwitch(state: State, stmt: Extract<Stmt, { type: 'switch' }>): void {
+  const loopContext: LoopContext = { breakTargets: [], continueTargets: [], isSwitch: true }
+  state.loopStack.push(loopContext)
+
+  compileExpr(state, stmt.test)
+  if (state.stack.length === 0) {
+    error(state, 'switch expression has no value', stmt.loc)
+    state.loopStack.pop()
+    return
+  }
+
+  const tempId = state.nextTempId++
+  const tempName = `__switch_${tempId}`
+  const tempVar = declareVariable(state, tempName, stmt.loc)
+  compileSetVariable(state, tempVar, stmt.test)
+  state.stack.pop()
+
+  const jumpToEndPatchIndices: number[] = []
+  for (const c of stmt.cases) {
+    if (c.test !== null) {
+      compileGetVariable(state, tempVar)
+      state.stack.push({ expr: stmt.test })
+      compileExpr(state, c.test)
+      state.ops.push(AudioVmOp.Equal)
+      state.stack.pop()
+      state.stack.pop()
+      state.stack.push({ expr: c.test })
+      state.ops.push(AudioVmOp.JumpIfFalse)
+      const jumpToNextIndex = state.ops.length
+      state.ops.push(0)
+      state.stack.pop()
+
+      pushScope(state)
+      for (const s of c.body) compileStmt(state, s)
+      popScope(state)
+
+      state.ops.push(AudioVmOp.Jump)
+      jumpToEndPatchIndices.push(state.ops.length)
+      state.ops.push(0)
+
+      const nextCaseTarget = state.ops.length
+      state.ops[jumpToNextIndex] = nextCaseTarget
+    }
+    else {
+      pushScope(state)
+      for (const s of c.body) compileStmt(state, s)
+      popScope(state)
+    }
+  }
+
+  const endTarget = state.ops.length
+  for (const idx of jumpToEndPatchIndices) {
+    state.ops[idx] = endTarget
+  }
+  for (const idx of loopContext.breakTargets) {
+    state.ops[idx] = endTarget
+  }
+
+  state.loopStack.pop()
+}
+
 export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }>): void {
+  if (stmt.stmt.type === 'switch') {
+    const labelContext: LoopContext = { label: stmt.name, breakTargets: [], continueTargets: [] }
+    state.loopStack.push(labelContext)
+    compileSwitch(state, stmt.stmt)
+    const endTarget = state.ops.length
+    for (const idx of labelContext.breakTargets) {
+      state.ops[idx] = endTarget
+    }
+    state.loopStack.pop()
+    return
+  }
+
   // Check if the labeled statement is a loop
   if (stmt.stmt.type === 'while' || stmt.stmt.type === 'do' || stmt.stmt.type === 'for'
     || stmt.stmt.type === 'for-of')

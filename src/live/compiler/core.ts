@@ -11,6 +11,7 @@ import {
   compileForOf,
   compileIf,
   compileLabel,
+  compileSwitch,
   compileThrow,
   compileTry,
   compileWhile,
@@ -427,6 +428,9 @@ export function compileStmt(state: State, stmt: Stmt): void {
       break
     case 'for-of':
       compileForOf(state, stmt)
+      break
+    case 'switch':
+      compileSwitch(state, stmt)
       break
     case 'break':
       compileBreak(state, stmt)

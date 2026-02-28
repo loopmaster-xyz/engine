@@ -3049,6 +3049,44 @@ describe('control flow', () => {
     expect(audio('x = (1 > 0 ? 5 : 10) + 3; x |> out($)')).toMatchAudio([[8, 8, 8], [8, 8, 8]])
   })
 
+  it('if expression equivalent to ternary', () => {
+    expect(audio('x = if (1 > 0) 10 else 20; x |> out($)')).toMatchAudio([[10, 10, 10], [10, 10, 10]])
+  })
+
+  it('if expression false branch', () => {
+    expect(audio('x = if (0 > 1) 10 else 20; x |> out($)')).toMatchAudio([[20, 20, 20], [20, 20, 20]])
+  })
+
+  it('if expression in call argument', () => {
+    const withIf = audio('sine(if (1 > 0) 440 else 220) |> out($)')
+    const withTernary = audio('sine(1 > 0 ? 440 : 220) |> out($)')
+    expect(withIf).toMatchAudio(withTernary)
+  })
+
+  it('if expression in call with variable', () => {
+    const withIf = audio('ok = 1; sine(if (ok) 440 else 220) |> out($)')
+    const withTernary = audio('ok = 1; sine(ok ? 440 : 220) |> out($)')
+    expect(withIf).toMatchAudio(withTernary)
+  })
+
+  it('parses if expression as ternary in call argument', () => {
+    const result = parse('sine(if (ok) 440 else 220);')
+    expect(result.errors).toEqual([])
+    expect(result.program).not.toBeNull()
+    const stmt = result.program!.body.find(s => s.type === 'expr' && s.expr?.type === 'call')
+    const call = stmt?.type === 'expr' ? stmt.expr : null
+    const arg = call?.type === 'call' ? call.args[0]?.value : null
+    expect(arg?.type).toBe('ternary')
+    if (arg?.type === 'ternary') {
+      expect(arg.test.type).toBe('identifier')
+      if (arg.test.type === 'identifier') expect(arg.test.name).toBe('ok')
+      expect(arg.then.type).toBe('number')
+      if (arg.then.type === 'number') expect(arg.then.value).toBe(440)
+      expect(arg.else.type).toBe('number')
+      if (arg.else.type === 'number') expect(arg.else.value).toBe(220)
+    }
+  })
+
   it('if statement true', () => {
     expect(audio('x = 0; if (1 > 0) x = 10; x |> out($)')).toMatchAudio([[10, 10, 10], [10, 10, 10]])
   })
@@ -3097,6 +3135,36 @@ describe('control flow', () => {
 
   it('if with audio assignment', () => {
     expect(audio('x = sine(220); if (1 > 0) x = sine(440); x |> out($)')).toMatchAudio(audio('sine(440) |> out($)'))
+  })
+
+  it('switch case 1', () => {
+    expect(audio('x = 0; switch(1){case 1: x = 10; break; case 2: x = 20; break; default: x = 0}; x |> out($)'))
+      .toMatchAudio([[10, 10, 10], [10, 10, 10]])
+  })
+
+  it('switch case 2', () => {
+    expect(audio('x = 0; switch(2){case 1: x = 10; break; case 2: x = 20; break; default: x = 0}; x |> out($)'))
+      .toMatchAudio([[20, 20, 20], [20, 20, 20]])
+  })
+
+  it('switch default', () => {
+    expect(audio('x = 0; switch(99){case 1: x = 10; break; case 2: x = 20; break; default: x = 99}; x |> out($)'))
+      .toMatchAudio([[99, 99, 99], [99, 99, 99]])
+  })
+
+  it('switch with break', () => {
+    expect(audio('x = 0; switch(1){case 1: x = 1; break; case 2: x = 2}; x |> out($)'))
+      .toMatchAudio([[1, 1, 1], [1, 1, 1]])
+  })
+
+  it('switch in function', () => {
+    expect(audio('f = n -> { x = 0; switch(n){case 1: x = 1; case 2: x = 2; default: x = 0}; x }; f(2) |> out($)'))
+      .toMatchAudio([[2, 2, 2], [2, 2, 2]])
+  })
+
+  it('switch with expression test', () => {
+    expect(audio('x = 0; switch(1+1){case 2: x = 42; break; default: x = 0}; x |> out($)'))
+      .toMatchAudio([[42, 42, 42], [42, 42, 42]])
   })
 
   it('return audio from function', () => {

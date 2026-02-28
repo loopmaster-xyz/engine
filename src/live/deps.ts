@@ -137,6 +137,12 @@ export function collectClosureVarNames(
         walkExpr(s.iterable)
         walkStmt(s.body)
         return
+      case 'switch':
+        walkExpr(s.test)
+        for (const c of s.cases) {
+          for (const st of c.body) walkStmt(st)
+        }
+        return
       case 'return':
         if (s.value) walkExpr(s.value)
         return
@@ -264,6 +270,12 @@ export function collectCapturedVarNames(body: Expr | Stmt, opts: CollectOpts): s
         walkExpr(s.iterable)
         walkStmt(s.body)
         return
+      case 'switch':
+        walkExpr(s.test)
+        for (const c of s.cases) {
+          for (const st of c.body) walkStmt(st)
+        }
+        return
       case 'return':
         if (s.value) walkExpr(s.value)
         return
@@ -363,6 +375,9 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         return checkForRecord(s.from) || checkForRecord(s.to) || checkStmtForRecord(s.body)
       case 'for-of':
         return checkForRecord(s.iterable) || checkStmtForRecord(s.body)
+      case 'switch':
+        return checkForRecord(s.test)
+          || s.cases.some(c => c.body.some(st => checkStmtForRecord(st)))
       case 'return':
         return s.value ? checkForRecord(s.value) : false
       case 'throw':
@@ -446,6 +461,17 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         return findRecordCallLoc(s.from) || findRecordCallLoc(s.to) || findRecordCallLocInStmt(s.body)
       case 'for-of':
         return findRecordCallLoc(s.iterable) || findRecordCallLocInStmt(s.body)
+      case 'switch': {
+        const loc = findRecordCallLoc(s.test)
+        if (loc) return loc
+        for (const c of s.cases) {
+          for (const st of c.body) {
+            const stLoc = findRecordCallLocInStmt(st)
+            if (stLoc) return stLoc
+          }
+        }
+        return null
+      }
       case 'return':
         return s.value ? findRecordCallLoc(s.value) : null
       case 'throw':
@@ -549,6 +575,12 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         case 'for-of':
           walkExpr(s.iterable)
           walkStmt(s.body)
+          return
+        case 'switch':
+          walkExpr(s.test)
+          for (const c of s.cases) {
+            for (const st of c.body) walkStmt(st)
+          }
           return
         case 'return':
           if (s.value) walkExpr(s.value)
@@ -665,6 +697,12 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
       case 'for-of':
         walkExpr(s.iterable)
         walkStmt(s.body)
+        return
+      case 'switch':
+        walkExpr(s.test)
+        for (const c of s.cases) {
+          for (const st of c.body) walkStmt(st)
+        }
         return
       case 'return':
         if (s.value) walkExpr(s.value)

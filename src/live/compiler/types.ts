@@ -117,6 +117,7 @@ export type LoopContext = {
   label?: string
   breakTargets: number[] // Indices in ops array to patch with break target
   continueTargets: number[] // Indices in ops array to patch with continue target
+  isSwitch?: boolean // true = break allowed, continue disallowed
 }
 
 export const SYSTEM_VARS = new Set(['t', 'samplesPerBeat', 'samplesPerBar', 'co', 'undefined'])
