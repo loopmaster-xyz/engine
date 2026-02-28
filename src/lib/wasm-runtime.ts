@@ -21,6 +21,9 @@ export function createAudioVm(
     reset(): void {
       runtime.resetAudioVmAt(vmId)
     },
+    softReset(): void {
+      runtime.softResetAudioVmAt(vmId)
+    },
     dispose(): void {
       runtime.freeFloat32Buffer(localControlOpsPtr0)
       runtime.freeFloat32Buffer(localControlOpsPtr1)
@@ -95,6 +98,9 @@ export function createWasmRuntime(core: WasmSetup<typeof WasmExports>) {
     },
     resetAudioVmAt(vmId: number): void {
       wasm.resetAudioVmAt(vmId)
+    },
+    softResetAudioVmAt(vmId: number): void {
+      wasm.softResetAudioVmAt(vmId)
     },
     gc(): void {
       wasm.__collect()

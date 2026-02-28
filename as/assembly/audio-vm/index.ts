@@ -1,4 +1,4 @@
-import { createVmState, resetState } from './runner'
+import { createVmState, resetState, softResetState } from './runner'
 import { initGenPools } from './vm-ops-gens'
 import { VmState } from './vm-state'
 
@@ -27,6 +27,16 @@ class AudioVmManager {
       this.vms.push(state)
     }
     resetState(this.vms[vmId])
+  }
+
+  softReset(vmId: i32): void {
+    if (vmId < 0) vmId = 0
+    while (this.vms.length <= vmId) {
+      const state = createVmState()
+      initGenPools(state)
+      this.vms.push(state)
+    }
+    softResetState(this.vms[vmId])
   }
 }
 

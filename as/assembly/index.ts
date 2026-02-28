@@ -155,6 +155,10 @@ export function resetAudioVmAt(vmId: i32): void {
   audioVms.reset(vmId)
 }
 
+export function softResetAudioVmAt(vmId: i32): void {
+  audioVms.softReset(vmId)
+}
+
 export function getAudioVmGlobalAt(vmId: i32, index: i32): f32 {
   return getScalarGlobal(audioVms.get(vmId), index)
 }

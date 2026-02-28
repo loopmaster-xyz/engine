@@ -403,6 +403,7 @@ export async function createProcessorState(
       for (const p of programsById.values()) {
         const slot = p.slots[p.activeSlot]
         copyHistoryMetaToProgramShared(runtime, p, slot.vm)
+        slot.vm.softReset()
       }
       wasPlaying = false
       isPlaying = false

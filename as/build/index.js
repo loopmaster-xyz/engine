@@ -113,6 +113,7 @@ export const {
   releaseAudioVmOutputsAt,
   copyAudioVmState,
   resetAudioVmAt,
+  softResetAudioVmAt,
   getAudioVmGlobalAt,
   setAudioVmGlobalAt,
   setAudioVmGlobalUndefined,

@@ -34,17 +34,17 @@ import * as vmOpsArray from './vm-ops-array'
 import * as vmOpsBuffer from './vm-ops-buffer'
 import * as vmOpsControl from './vm-ops-control'
 import { handleGenOp } from './vm-ops-gens'
+import * as vmOpsGlide from './vm-ops-glide'
 import * as vmOpsKernels from './vm-ops-kernels'
 import * as vmOpsMath from './vm-ops-math'
 import * as vmOpsOutput from './vm-ops-output'
-import * as vmOpsStack from './vm-ops-stack'
 import * as vmOpsRandom from './vm-ops-random'
+import * as vmOpsStack from './vm-ops-stack'
 import * as vmOpsStep from './vm-ops-step'
 import * as vmOpsTable from './vm-ops-table'
 import * as vmOpsTime from './vm-ops-time'
 import * as vmOpsType from './vm-ops-type'
 import * as vmOpsVars from './vm-ops-vars'
-import * as vmOpsGlide from './vm-ops-glide'
 import * as vmOpsWalk from './vm-ops-walk'
 import * as vmStack from './vm-stack'
 import { VmState } from './vm-state'
@@ -861,6 +861,12 @@ export function releaseOutputs(vm: VmState): void {
   vmStack.releaseStackAndOutsValues(vm)
   vm.outTop = 0
   vm.stackTop = 0
+}
+
+export function softResetState(vm: VmState): void {
+  for (let i: i32 = 0; i < vm.genPools.length; i++) {
+    vm.genPools[i].resetAll()
+  }
 }
 
 /** Release outs and reset VM for next run (buffers, call stack, etc.). */

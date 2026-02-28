@@ -92,6 +92,11 @@ export declare function copyAudioVmState(fromVmId: number, toVmId: number): void
  */
 export declare function resetAudioVmAt(vmId: number): void;
 /**
+ * as/assembly/index/softResetAudioVmAt
+ * @param vmId `i32`
+ */
+export declare function softResetAudioVmAt(vmId: number): void;
+/**
  * as/assembly/index/getAudioVmGlobalAt
  * @param vmId `i32`
  * @param index `i32`
