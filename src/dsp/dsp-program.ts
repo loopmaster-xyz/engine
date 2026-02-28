@@ -4,7 +4,7 @@ import { track } from '../lib/memory-registry.ts'
 import { sampleManager } from '../lib/sample-manager.ts'
 import type { HistorySourceMap, RecordCallback } from '../live/compiler/index.ts'
 import type { SampleRegistration } from '../live/compiler/types.ts'
-import { controlPipeline } from '../live/pipeline.ts'
+import { type ControlCompileSnapshot, controlPipeline } from '../live/pipeline.ts'
 import type { TypedHistory } from './audio-vm-bindings.ts'
 import type { UserCallHistory } from './audio-vm-helpers.ts'
 import { AudioVmHistoryView, AudioVmView, createTypedHistories } from './audio-vm-helpers.ts'
@@ -287,8 +287,8 @@ async function rebindProgram(
   return bindProgramShared(dspState.buffer!, init, shared.historyMetaU32)
 }
 
-const setCodeImpl = atomic(async (
-  src: string,
+const setControlCompileSnapshotImpl = atomic(async (
+  ccs: ControlCompileSnapshot,
   shared: SharedProgramViews,
   dspState: DspState,
   worklet: DspWorklet,
@@ -304,16 +304,8 @@ const setCodeImpl = atomic(async (
   freesoundIds: Set<number>,
   opts?: { fullResync?: boolean; projectId?: string | null },
 ) => {
-  // console.log(`[dsp] Setting code for program ${shared.id}... source:\n${src}`)
   const token = (setCodeToken + 1) >>> 0
   setCodeToken = token
-
-  const result = compileAndValidate(src, { projectId: opts?.projectId })
-  if (result.errors.length > 0) {
-    return {
-      result,
-    }
-  }
 
   const {
     mainBytecode,
@@ -322,7 +314,7 @@ const setCodeImpl = atomic(async (
     historySourceMap: newHistorySourceMap,
     functionReturnPcs: newFunctionReturnPcs,
     arrayGetHistoryCount,
-  } = applyCompileState(result)
+  } = applyCompileState(ccs)
 
   const historySourceMap = newHistorySourceMap
   const functionReturnPcs = newFunctionReturnPcs
@@ -352,7 +344,7 @@ const setCodeImpl = atomic(async (
   let freesoundsChanged = false
   let inlineSamplesPresent = false
   let espeakSamplesPresent = false
-  for (const reg of result.compile.sampleRegistrations) {
+  for (const reg of ccs.compile.sampleRegistrations) {
     if (reg.type === 'record' && reg.recordCallbackId != null && reg.recordSeconds != null) {
       if (lastRecordSecondsByCallbackId.get(reg.recordCallbackId) !== reg.recordSeconds) {
         recordDurationChanged = true
@@ -386,7 +378,6 @@ const setCodeImpl = atomic(async (
     if (nextShared) shared = nextShared
     await setControlOps(dspState, worklet, program, mainBytecode)
     return {
-      result,
       shared,
       historySourceMap,
       functionReturnPcs,
@@ -405,7 +396,7 @@ const setCodeImpl = atomic(async (
   const invalidatedHandles = invalidateHandlesForChangedCallbacks(
     shared.id,
     changedCallbackIds,
-    result.compile.sampleRegistrations,
+    ccs.compile.sampleRegistrations,
     dspState,
   )
 
@@ -414,18 +405,18 @@ const setCodeImpl = atomic(async (
   lastCallbackBytecodeHashes.clear()
   for (const [k, v] of newBytecodeHashes) lastCallbackBytecodeHashes.set(k, v)
   lastRecordSecondsByCallbackId.clear()
-  for (const reg of result.compile.sampleRegistrations) {
+  for (const reg of ccs.compile.sampleRegistrations) {
     if (reg.type === 'record' && reg.recordCallbackId != null && reg.recordSeconds != null) {
       lastRecordSecondsByCallbackId.set(reg.recordCallbackId, reg.recordSeconds)
     }
   }
 
   await worklet.syncSampleRegistrations({
-    registrations: result.compile.sampleRegistrations,
+    registrations: ccs.compile.sampleRegistrations,
     invalidatedHandles: invalidatedHandles.length > 0 ? invalidatedHandles : undefined,
   })
 
-  for (const reg of result.compile.sampleRegistrations) {
+  for (const reg of ccs.compile.sampleRegistrations) {
     if (reg.type === 'inline' && reg.inlineChannels && reg.inlineSampleRate != null) {
       await worklet.setSampleDataDirect({
         handle: reg.handle,
@@ -488,7 +479,6 @@ const setCodeImpl = atomic(async (
   await setControlOpsSwap(dspState, worklet, program, mainBytecode)
 
   return {
-    result,
     shared,
     historySourceMap,
     functionReturnPcs,
@@ -536,10 +526,11 @@ export function createDspProgram(
     currentChunkPos: 0,
   }
 
-  async function setCode(src: string, opts?: { fullResync?: boolean; projectId?: string | null }) {
-    // console.log('set code', src, opts)
-    const result = await setCodeImpl(
-      src,
+  async function setControlCompileSnapshot(ccs: ControlCompileSnapshot,
+    opts?: { fullResync?: boolean; projectId?: string | null })
+  {
+    const result = await setControlCompileSnapshotImpl(
+      ccs,
       shared,
       dspState,
       worklet,
@@ -560,7 +551,6 @@ export function createDspProgram(
     if (result.historySourceMap) historySourceMap = result.historySourceMap
     if (result.functionReturnPcs) functionReturnPcs = result.functionReturnPcs
     if (result.shared) shared = result.shared
-    return result.result
   }
 
   function updateHistoriesFromCurrentPack(): boolean {
@@ -670,7 +660,7 @@ export function createDspProgram(
     async rebind() {
       shared = await rebindProgram(worklet, shared, dspState)
     },
-    setCode,
+    setControlCompileSnapshot,
     start() {
       setProgramState(shared, DspProgramState.Start)
     },

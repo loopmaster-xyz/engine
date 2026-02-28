@@ -104,25 +104,15 @@ export function createDspPreview(runtime: WasmRuntime) {
   }
 
   return {
-    setCode(code: string, opts?: { projectId?: string | null }) {
-      const t0 = DEBUG_PREVIEW_TIMING ? performance.now() : 0
-      const result = controlPipeline.compileSource(code, opts)
-      if (DEBUG_PREVIEW_TIMING) console.log('[preview] setCode', (performance.now() - t0).toFixed(2), 'ms')
-      if (result.errors.length > 0) {
-        console.error(new Error(`Compilation failed:\n${result.errors.join('\n')}`))
-      }
-      if (!result.compile.bytecode) {
-        console.error(new Error('No bytecode generated'))
-      }
-      state.result = result
-      state.bytecode = result.compile.bytecode
-      state.historySourceMap = result.compile.historySourceMap || []
+    setControlCompileSnapshot(ccs: ControlCompileSnapshot) {
+      state.result = ccs
+      state.bytecode = ccs.compile.bytecode
+      state.historySourceMap = ccs.compile.historySourceMap || []
       if (state.bytecode) state.structureHash = bytecodeStructureHash(state.bytecode)
-      if (result.compile.sampleRegistrations?.length) {
+      if (ccs.compile.sampleRegistrations?.length) {
         // Fire and forget – sampler widgets will pick up data when ready
-        void ensurePreviewSamples(result.compile.sampleRegistrations)
+        void ensurePreviewSamples(ccs.compile.sampleRegistrations)
       }
-      return result
     },
     runPreview(vmId = 0, sampleCount = 0, bufferLength = 128) {
       const t0 = DEBUG_PREVIEW_TIMING ? performance.now() : 0
@@ -236,10 +226,11 @@ export function createDspPreview(runtime: WasmRuntime) {
       beatsPerBar = 4,
       vmId = 999,
     ): Generator<number, { left: Float32Array; right: Float32Array }, void> {
-      const result = this.setCode(code)
-      if (result.errors.length > 0) throw new Error(`Compilation failed:\n${result.errors.join('\n')}`)
+      const ccs = controlPipeline.compileSource(code)
+      this.setControlCompileSnapshot(ccs)
+      if (ccs.errors.length > 0) throw new Error(`Compilation failed:\n${ccs.errors.join('\n')}`)
       if (!state.bytecode) throw new Error('No bytecode generated')
-      const bpm = result.compile.bpm
+      const bpm = ccs.compile.bpm
       const totalSamples = Math.floor((bars * beatsPerBar * 60 / bpm) * state.sampleRate)
       const chunk = 128
       const numChunks = Math.ceil(totalSamples / chunk)
