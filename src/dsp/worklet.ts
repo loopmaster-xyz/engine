@@ -1021,6 +1021,7 @@ export class DspProcessor extends AudioWorkletProcessor {
       freesoundId?: number
       recordSeconds?: number
       recordCallbackId?: number
+      recordProjectId?: string | null
     }>
     invalidatedHandles?: number[]
   }): Promise<void> {
@@ -1032,7 +1033,7 @@ export class DspProcessor extends AudioWorkletProcessor {
         sampleManager.ensureFreesoundHandle(reg.handle, reg.freesoundId)
       }
       else if (reg.type === 'record' && reg.recordSeconds !== undefined && reg.recordCallbackId !== undefined) {
-        sampleManager.ensureRecordHandle(reg.handle, reg.recordSeconds, reg.recordCallbackId)
+        sampleManager.ensureRecordHandle(reg.handle, reg.recordSeconds, reg.recordCallbackId, reg.recordProjectId ?? null)
       }
       else if (reg.type === 'inline' || reg.type === 'espeak') {
         sampleManager.ensureInlineHandle(reg.handle)

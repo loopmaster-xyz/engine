@@ -355,6 +355,7 @@ export function compile(state: State, program: Program, preludeLines: number = 0
               type: 'record',
               recordSeconds: seconds,
               recordCallbackId: callSiteId,
+              recordProjectId: state.projectId,
             })
           }
         }

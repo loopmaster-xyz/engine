@@ -144,7 +144,13 @@ export function addCallSiteToSampleRegistrations(
       && reg.recordSeconds === seconds,
   )
   if (!alreadyInRegistrations) {
-    state.sampleRegistrations.push({ handle, type: 'record', recordSeconds: seconds, recordCallbackId: scopeId })
+    state.sampleRegistrations.push({
+      handle,
+      type: 'record',
+      recordSeconds: seconds,
+      recordCallbackId: scopeId,
+      recordProjectId: state.projectId,
+    })
   }
 }
 
@@ -571,7 +577,13 @@ export function processRecordCall(
   }
   else {
     handle = sampleManager.registerRecord(state.projectId, seconds, scopeId)
-    state.sampleRegistrations.push({ handle, type: 'record', recordSeconds: seconds, recordCallbackId: scopeId })
+    state.sampleRegistrations.push({
+      handle,
+      type: 'record',
+      recordSeconds: seconds,
+      recordCallbackId: scopeId,
+      recordProjectId: state.projectId,
+    })
     state.ops.push(AudioVmOp.Pop)
     state.ops.push(AudioVmOp.Pop)
     if (state.stack.length >= 2) {

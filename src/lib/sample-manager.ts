@@ -86,9 +86,9 @@ export class SampleManager {
     return handle
   }
 
-  ensureRecordHandle(handle: number, seconds: number, callbackId: number): void {
+  ensureRecordHandle(handle: number, seconds: number, callbackId: number, projectId: string | null = null): void {
     if (this.samples.has(handle)) return
-    this.recordRequests.set(handle, { projectId: null, seconds, callbackId })
+    this.recordRequests.set(handle, { projectId, seconds, callbackId })
     this.samples.set(handle, {
       id: handle,
       channels: [],

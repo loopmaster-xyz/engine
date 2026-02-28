@@ -19,6 +19,7 @@ export type SampleRegistration = {
   freesoundId?: number
   recordSeconds?: number
   recordCallbackId?: number
+  recordProjectId?: string | null
   inlineChannels?: Float32Array[]
   inlineSampleRate?: number
   espeakText?: string
