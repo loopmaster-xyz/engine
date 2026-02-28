@@ -487,7 +487,7 @@ const setControlCompileSnapshotImpl = atomic(async (
     lastStructureHash,
     lastMainBytecodeHash,
   }
-}, { timeout: 1000 })
+}, { timeout: 5000 })
 
 export type DspProgram = ReturnType<typeof createDspProgram>
 
