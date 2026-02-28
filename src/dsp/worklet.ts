@@ -417,8 +417,22 @@ export async function createProcessorState(
             true,
           )
         }
-        if (advanceSampleCount) p.sampleCount = baseSampleCount + bufferLength
-        else p.seekSampleCount = baseSampleCount + bufferLength
+        if (advanceSampleCount) {
+          p.sampleCount = baseSampleCount + bufferLength
+          if (state.loopBeginSamples >= 0 && state.loopEndSamples > 0) {
+            if (p.sampleCount >= state.loopEndSamples) {
+              p.sampleCount = state.loopBeginSamples + (p.sampleCount - state.loopEndSamples)
+            }
+          }
+          if (state.projectEndSamples > 0) {
+            if (p.sampleCount >= state.projectEndSamples) {
+              p.sampleCount = 0 + (p.sampleCount - state.projectEndSamples)
+            }
+          }
+        }
+        else {
+          p.seekSampleCount = baseSampleCount + bufferLength
+        }
         const pending = pendingProgramApplied.get(p.id)
         const pendingSlot = pendingProgramAppliedSlot.get(p.id)
         if (pending && pendingSlot === p.activeSlot) {
@@ -449,6 +463,16 @@ export async function createProcessorState(
     }
 
     state.sampleCount = state.sampleCount + bufferLength
+    if (state.loopBeginSamples >= 0 && state.loopEndSamples > 0) {
+      if (state.sampleCount >= state.loopEndSamples) {
+        state.sampleCount = state.loopBeginSamples + (state.sampleCount - state.loopEndSamples)
+      }
+    }
+    if (state.projectEndSamples > 0) {
+      if (state.sampleCount >= state.projectEndSamples) {
+        state.sampleCount = 0 + (state.sampleCount - state.projectEndSamples)
+      }
+    }
     state.transportSampleCount = state.sampleCount
 
     if (idsNowPlaying.symmetricDifference(idsWasPlaying).size !== 0) {
@@ -529,6 +553,15 @@ export async function createProcessorState(
     },
     set transportActuallyPlaying(v: number) {
       Atomics.store(transportU32, SharedTransportIndex.ActuallyPlaying, v)
+    },
+    get loopBeginSamples(): number {
+      return Atomics.load(transportU32, SharedTransportIndex.LoopBeginSamples)
+    },
+    get loopEndSamples(): number {
+      return Atomics.load(transportU32, SharedTransportIndex.LoopEndSamples)
+    },
+    get projectEndSamples(): number {
+      return Atomics.load(transportU32, SharedTransportIndex.ProjectEndSamples)
     },
     get sampleCount(): number {
       return sampleCountRef.value

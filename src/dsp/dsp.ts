@@ -211,6 +211,22 @@ export async function createDsp(state: DspState) {
         === SharedTransportRunningState.Stop
     },
 
+    get loopBeginSamples(): number {
+      return Atomics.load(transport.transportU32, SharedTransportIndex.LoopBeginSamples)
+    },
+    set loopBeginSamples(v: number) {
+      Atomics.store(transport.transportU32, SharedTransportIndex.LoopBeginSamples, v)
+    },
+    get loopEndSamples(): number {
+      return Atomics.load(transport.transportU32, SharedTransportIndex.LoopEndSamples)
+    },
+    set loopEndSamples(v: number) {
+      Atomics.store(transport.transportU32, SharedTransportIndex.LoopEndSamples, v)
+    },
+    set projectEndSamples(v: number) {
+      Atomics.store(transport.transportU32, SharedTransportIndex.ProjectEndSamples, v)
+    },
+
     togglePause(programs: DspProgram[]) {
       if (this.isPlaying) this.pause(programs)
       else this.start(programs)

@@ -4,17 +4,15 @@ export enum DspProgramState {
   Pause,
 }
 
-export const SHARED_PROGRAM_STATE_SLOTS = 7
+export const SHARED_PROGRAM_STATE_SLOTS = 5
 export const SHARED_PROGRAM_STATE_BYTE_LENGTH = SHARED_PROGRAM_STATE_SLOTS * 4
 
 export enum SharedProgramStateIndex {
-  _Unused0,
   HistoryPackIndex,
   HistoryPackEpoch,
   Bpm,
   State,
   SampleCount,
-  _Unused6,
 }
 
 export type SharedProgramStateViews = {
@@ -38,7 +36,7 @@ export enum SharedTransportRunningState {
   Pause,
 }
 
-export const SHARED_TRANSPORT_SLOTS = 6
+export const SHARED_TRANSPORT_SLOTS = 9
 export const SHARED_TRANSPORT_BYTE_LENGTH = SHARED_TRANSPORT_SLOTS * 4
 
 export enum SharedTransportIndex {
@@ -48,6 +46,9 @@ export enum SharedTransportIndex {
   StopAndSeekToZero,
   ActuallyPlaying,
   HistorySyncRequested,
+  LoopBeginSamples,
+  LoopEndSamples,
+  ProjectEndSamples,
 }
 
 export type SharedTransportViews = {
