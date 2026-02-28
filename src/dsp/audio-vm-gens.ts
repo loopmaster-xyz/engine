@@ -22,12 +22,12 @@ export type GenDescriptor = {
 export const gens: Record<string, GenDescriptor> = {
   Phasor: {
     name: 'Phasor',
-    description: 'Phase ramp 0..1 with trigger reset',
+    description: 'Phase ramp 0..1',
     category: 'generators',
     parameters: [
       { name: 'hz', default: 440, min: 0, unit: 'hz', description: 'Frequency' },
       { name: 'offset', min: 0, max: 1, description: 'Offset phase' },
-      { name: 'trig', description: 'Trigger impulse' }
+      { name: 'trig', description: 'Trigger impulse, resets to offset phase' }
     ]
   },
   Every: {
@@ -92,7 +92,7 @@ export const gens: Record<string, GenDescriptor> = {
     parameters: [
       { name: 'hz', default: 440, min: 0, unit: 'hz', description: 'Frequency' },
       { name: 'offset', min: 0, max: 1, description: 'Offset phase' },
-      { name: 'trig', description: 'Trigger impulse' }
+      { name: 'trig', description: 'Trigger impulse, resets to offset phase' }
     ]
   },
   TestGain: {
@@ -121,7 +121,7 @@ export const gens: Record<string, GenDescriptor> = {
     parameters: [
       { name: 'hz', default: 440, min: 0, unit: 'hz', description: 'Frequency' },
       { name: 'offset', min: 0, max: 1, description: 'Offset phase' },
-      { name: 'trig', description: 'Trigger impulse' }
+      { name: 'trig', description: 'Trigger impulse, resets to offset phase' }
     ]
   },
   TestOversample: {
@@ -138,7 +138,7 @@ export const gens: Record<string, GenDescriptor> = {
     parameters: [
       { name: 'hz', default: 440, min: 0, unit: 'hz', description: 'Frequency' },
       { name: 'offset', min: 0, max: 1, unit: 'phase', description: 'Offset phase' },
-      { name: 'trig', unit: 'impulse', description: 'Trigger impulse' }
+      { name: 'trig', unit: 'impulse', description: 'Trigger impulse, resets to offset phase' }
     ]
   },
   Lfosine: {
@@ -193,7 +193,7 @@ export const gens: Record<string, GenDescriptor> = {
       { name: 'hz', default: 440, min: 0, unit: 'hz', description: 'Frequency' },
       { name: 'width', default: 0.5, min: 0, max: 1, description: 'Pulse width' },
       { name: 'offset', min: 0, max: 1, description: 'Offset phase' },
-      { name: 'trig', description: 'Trigger impulse' }
+      { name: 'trig', description: 'Trigger impulse, resets to offset phase' }
     ]
   },
   Ad: {
@@ -227,7 +227,7 @@ export const gens: Record<string, GenDescriptor> = {
     parameters: [
       { name: 'hz', default: 440, min: 0, unit: 'hz', description: 'Frequency' },
       { name: 'offset', min: 0, max: 1, description: 'Offset phase' },
-      { name: 'trig', description: 'Trigger impulse' }
+      { name: 'trig', description: 'Trigger impulse, resets to offset phase' }
     ]
   },
   Hold: {
@@ -299,7 +299,7 @@ export const gens: Record<string, GenDescriptor> = {
     parameters: [
       { name: 'hz', default: 440, min: 0, unit: 'hz', description: 'Frequency' },
       { name: 'offset', min: 0, max: 1, description: 'Offset phase' },
-      { name: 'trig', description: 'Trigger impulse' }
+      { name: 'trig', description: 'Trigger impulse, resets to offset phase' }
     ]
   },
   Pitchshift: {
@@ -359,7 +359,7 @@ export const gens: Record<string, GenDescriptor> = {
     parameters: [
       { name: 'hz', default: 440, min: 0, unit: 'hz', description: 'Frequency' },
       { name: 'offset', min: 0, max: 1, description: 'Offset phase' },
-      { name: 'trig', description: 'Trigger impulse' }
+      { name: 'trig', description: 'Trigger impulse, resets to offset phase' }
     ]
   },
   Smooth: {
@@ -511,13 +511,13 @@ export const gens: Record<string, GenDescriptor> = {
   },
   Inc: {
     name: 'Inc',
-    description: 'Ramp from offset to ceil at hz rate, trigger reset',
+    description: 'Ramp from offset to ceil at hz rate',
     category: 'generators',
     parameters: [
       { name: 'hz', default: 1, min: 0, unit: 'hz', description: 'Rate' },
       { name: 'ceil', default: 1, min: 0, description: 'Ceiling value' },
       { name: 'offset', default: 0, min: 0, description: 'Value on trigger' },
-      { name: 'trig', description: 'Trigger impulse' }
+      { name: 'trig', description: 'Trigger impulse, resets to offset value' }
     ]
   },
   Biquadshelf: {

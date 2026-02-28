@@ -1,5 +1,5 @@
 name: Inc
-description: "Ramp from offset to ceil at hz rate, trigger reset"
+description: "Ramp from offset to ceil at hz rate"
 category: "generators"
 
 parameters {
@@ -9,7 +9,7 @@ parameters {
           description: "Ceiling value" }
   offset { default: 0, min: 0,
            description: "Value on trigger" }
-  trig  { description: "Trigger impulse" }
+  trig  { description: "Trigger impulse, resets to offset value" }
 }
 
 fields {

@@ -7,7 +7,7 @@ parameters {
            description: "Frequency" }
   offset { min: 0, max: 1, unit: "phase",
            description: "Offset phase" }
-  trig   { description: "Trigger impulse", unit: "impulse" }
+  trig   { description: "Trigger impulse, resets to offset phase", unit: "impulse" }
 }
 
 fields {

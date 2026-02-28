@@ -9,7 +9,7 @@ parameters {
            description: "Pulse width" }
   offset { min: 0, max: 1,
            description: "Offset phase" }
-  trig   { description: "Trigger impulse" }
+  trig   { description: "Trigger impulse, resets to offset phase" }
 }
 
 fields {

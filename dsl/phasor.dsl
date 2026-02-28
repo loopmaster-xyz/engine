@@ -1,5 +1,5 @@
 name: Phasor
-description: "Phase ramp 0..1 with trigger reset"
+description: "Phase ramp 0..1"
 category: "generators"
 
 parameters {
@@ -7,7 +7,7 @@ parameters {
            description: "Frequency" }
   offset { min: 0, max: 1,
            description: "Offset phase" }
-  trig   { description: "Trigger impulse" }
+  trig   { description: "Trigger impulse, resets to offset phase" }
 }
 
 fields {
