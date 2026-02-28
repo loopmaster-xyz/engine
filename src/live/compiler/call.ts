@@ -301,6 +301,17 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
       compileCallWithArgs(state, syntheticCall, syntheticCall.args, -1)
       return
     }
+    if (memberExpr.property === 'reduce') {
+      if (!expr.args.length || !expr.args[0]?.value) error(state, 'reduce requires a reducer function', expr.loc)
+      const syntheticCall: Extract<Expr, { type: 'call' }> = {
+        type: 'call',
+        callee: { type: 'identifier', name: 'reduce', loc: expr.loc },
+        args: [{ type: 'arg', value: memberExpr.object, loc: memberExpr.object.loc }, ...expr.args],
+        loc: expr.loc,
+      }
+      compileCallWithArgs(state, syntheticCall, syntheticCall.args, -1)
+      return
+    }
     if (memberExpr.property === 'walk') {
       const syntheticCall: Extract<Expr, { type: 'call' }> = {
         type: 'call',

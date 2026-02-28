@@ -38,7 +38,7 @@ export function compileMember(state: State, expr: Extract<Expr, { type: 'member'
     return
   }
   else if (expr.property === 'avg' || expr.property === 'push' || expr.property === 'shuffle'
-    || expr.property === 'map')
+    || expr.property === 'map' || expr.property === 'reduce')
   {
     // These are handled as method calls
     return

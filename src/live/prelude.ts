@@ -48,6 +48,15 @@ reverse=array->{
   copy
 }
 
+reduce=(arr,reducer,initial=0)->{
+  acc:=initial
+  for (i in 0..arr.length-1) {
+    item:=arr[i]
+    acc=reducer(acc, item, i)
+  }
+  acc
+}
+
 /**
  * effects
  */
