@@ -402,7 +402,6 @@ export async function createProcessorState(
       core.wasm.__collect()
       for (const p of programsById.values()) {
         const slot = p.slots[p.activeSlot]
-        core.wasm.resetAudioVmAt(slot.vm.id)
         copyHistoryMetaToProgramShared(runtime, p, slot.vm)
       }
       wasPlaying = false
