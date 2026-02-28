@@ -376,7 +376,9 @@ const setControlCompileSnapshotImpl = atomic(async (
     lastMainBytecodeHash = hashResult.newHash
     const nextShared = await ensureSharedBound(dspState, worklet, shared)
     if (nextShared) shared = nextShared
+    console.log('set control ops')
     await setControlOps(dspState, worklet, program, mainBytecode)
+    console.log('set control ops done')
     return {
       shared,
       historySourceMap,
@@ -485,7 +487,7 @@ const setControlCompileSnapshotImpl = atomic(async (
     lastStructureHash,
     lastMainBytecodeHash,
   }
-}, { dropInbetween: true, timeout: 1000 })
+}, { timeout: 1000 })
 
 export type DspProgram = ReturnType<typeof createDspProgram>
 
