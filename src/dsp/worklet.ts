@@ -409,6 +409,16 @@ export async function createProcessorState(
       isPlaying = false
       return true
     }
+    else if (state.scheduleStopAndSeekToZero.length > 0) {
+      setProgramsState(programsById, DspProgramState.Stop, state.scheduleStopAndSeekToZero)
+      applyProgramSeek(programsById, 0, state.scheduleStopAndSeekToZero)
+      for (const p of [...programsById.values()].filter(p => state.scheduleStopAndSeekToZero.includes(p.id))) {
+        const slot = p.slots[p.activeSlot]
+        copyHistoryMetaToProgramShared(runtime, p, slot.vm)
+        slot.vm.softReset()
+      }
+      state.scheduleStopAndSeekToZero = []
+    }
     const seekVersion = state.transportSeekVersion
     const next = Math.round(state.transportSampleCount)
     if (seekVersion !== state.transportSeekVersion) {
@@ -509,6 +519,7 @@ export async function createProcessorState(
         }
         if (advanceSampleCount) {
           p.sampleCount = baseSampleCount + bufferLength
+
           if (state.loopBeginSamples >= 0 && state.loopEndSamples > 0) {
             if (p.sampleCount >= state.loopEndSamples) {
               p.sampleCount = state.loopBeginSamples + (p.sampleCount - state.loopEndSamples)
@@ -517,6 +528,31 @@ export async function createProcessorState(
           if (state.projectEndSamples > 0) {
             if (p.sampleCount >= state.projectEndSamples) {
               p.sampleCount = 0 + (p.sampleCount - state.projectEndSamples)
+            }
+          }
+
+          if (p.id === state.programAId) {
+            if (state.loopBeginSamplesA >= 0 && state.loopEndSamplesA > 0) {
+              if (p.sampleCount >= state.loopEndSamplesA) {
+                p.sampleCount = state.loopBeginSamplesA + (p.sampleCount - state.loopEndSamplesA)
+              }
+            }
+            if (state.projectEndSamplesA > 0) {
+              if (p.sampleCount >= state.projectEndSamplesA) {
+                p.sampleCount = 0 + (p.sampleCount - state.projectEndSamplesA)
+              }
+            }
+          }
+          else if (p.id === state.programBId) {
+            if (state.loopBeginSamplesB >= 0 && state.loopEndSamplesB > 0) {
+              if (p.sampleCount >= state.loopEndSamplesB) {
+                p.sampleCount = state.loopBeginSamplesB + (p.sampleCount - state.loopEndSamplesB)
+              }
+            }
+            if (state.projectEndSamplesB > 0) {
+              if (p.sampleCount >= state.projectEndSamplesB) {
+                p.sampleCount = 0 + (p.sampleCount - state.projectEndSamplesB)
+              }
             }
           }
         }
@@ -615,6 +651,9 @@ export async function createProcessorState(
     nyquist,
     piOverNyquist,
 
+    programAId: -1,
+    programBId: -1,
+
     scheduleStopAndSeekToZero: [] as number[],
 
     get transportSampleCount(): number {
@@ -647,6 +686,7 @@ export async function createProcessorState(
     set transportActuallyPlaying(v: number) {
       Atomics.store(transportU32, SharedTransportIndex.ActuallyPlaying, v)
     },
+
     get loopBeginSamples(): number {
       return Atomics.load(transportU32, SharedTransportIndex.LoopBeginSamples)
     },
@@ -656,6 +696,27 @@ export async function createProcessorState(
     get projectEndSamples(): number {
       return Atomics.load(transportU32, SharedTransportIndex.ProjectEndSamples)
     },
+
+    get loopBeginSamplesA(): number {
+      return Atomics.load(transportU32, SharedTransportIndex.LoopBeginSamplesA)
+    },
+    get loopEndSamplesA(): number {
+      return Atomics.load(transportU32, SharedTransportIndex.LoopEndSamplesA)
+    },
+    get projectEndSamplesA(): number {
+      return Atomics.load(transportU32, SharedTransportIndex.ProjectEndSamplesA)
+    },
+
+    get loopBeginSamplesB(): number {
+      return Atomics.load(transportU32, SharedTransportIndex.LoopBeginSamplesB)
+    },
+    get loopEndSamplesB(): number {
+      return Atomics.load(transportU32, SharedTransportIndex.LoopEndSamplesB)
+    },
+    get projectEndSamplesB(): number {
+      return Atomics.load(transportU32, SharedTransportIndex.ProjectEndSamplesB)
+    },
+
     get sampleCount(): number {
       return sampleCountRef.value
     },
@@ -1033,7 +1094,8 @@ export class DspProcessor extends AudioWorkletProcessor {
         sampleManager.ensureFreesoundHandle(reg.handle, reg.freesoundId)
       }
       else if (reg.type === 'record' && reg.recordSeconds !== undefined && reg.recordCallbackId !== undefined) {
-        sampleManager.ensureRecordHandle(reg.handle, reg.recordSeconds, reg.recordCallbackId, reg.recordProjectId ?? null)
+        sampleManager.ensureRecordHandle(reg.handle, reg.recordSeconds, reg.recordCallbackId,
+          reg.recordProjectId ?? null)
       }
       else if (reg.type === 'inline' || reg.type === 'espeak') {
         sampleManager.ensureInlineHandle(reg.handle)
@@ -1065,12 +1127,36 @@ export class DspProcessor extends AudioWorkletProcessor {
     return this.getInits()
   }
 
+  async startSync(programIds: number[]) {
+    const s = this.state
+    if (!s) throw new Error('No state')
+    const sampleCount = [...s.programsById.values()].find(p => p.state === DspProgramState.Start)?.sampleCount
+    if (sampleCount != null) {
+      const co = sampleRate * 60 * 4 / s.bpm
+      const currentMusicalPosition = sampleCount / co
+      const currentBar = Math.floor(currentMusicalPosition)
+      const offset = currentMusicalPosition - currentBar
+      for (const program of [...s.programsById.values()].filter(p => programIds.includes(p.id))) {
+        const programMusicalPosition = program.sampleCount / co
+        const programBar = Math.floor(programMusicalPosition)
+        program.sampleCount = (programBar + offset) * co
+      }
+    }
+    s.setProgramsState(DspProgramState.Start, programIds)
+    s.transportRunning = SharedTransportRunningState.Start
+    return this.getInits()
+  }
+
   async stop(programIds: number[]) {
     const s = this.state
     if (!s) throw new Error('No state')
     s.scheduleStopAndSeekToZero = programIds
-    s.transportStopAndSeekToZero = 1
-    s.transportRunning = SharedTransportRunningState.Stop
+    if (![...s.programsById.values()].filter(p => !programIds.includes(p.id)).some(p =>
+      p.state === DspProgramState.Start
+    )) {
+      s.transportStopAndSeekToZero = 1
+      s.transportRunning = SharedTransportRunningState.Stop
+    }
     return this.getInits()
   }
 
@@ -1123,6 +1209,18 @@ export class DspProcessor extends AudioWorkletProcessor {
     s.setProgramsState(DspProgramState.Stop, programIds1)
     s.setProgramsState(DspProgramState.Start, programIds2)
     return this.getInits()
+  }
+
+  async setProgramA(programId: number) {
+    const s = this.state
+    if (!s) throw new Error('No state')
+    s.programAId = programId
+  }
+
+  async setProgramB(programId: number) {
+    const s = this.state
+    if (!s) throw new Error('No state')
+    s.programBId = programId
   }
 
   process(_inputs: Float32Array[][], outputs: Float32Array[][]): boolean {

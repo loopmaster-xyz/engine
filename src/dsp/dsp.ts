@@ -49,6 +49,13 @@ export async function createDsp(state: DspState) {
     })
   }
 
+  function startSync(programs: DspProgram[]) {
+    return control(async () => {
+      const inits = await core.worklet.startSync(programs.map(p => p.id))
+      await rebindAllPrograms(inits)
+    })
+  }
+
   function pause(programs: DspProgram[]) {
     return control(async () => {
       const inits = await core.worklet.pause(programs.map(p => p.id))
@@ -87,6 +94,18 @@ export async function createDsp(state: DspState) {
   function setProgramGain(program: DspProgram, gain: number) {
     return control(async () => {
       await core.worklet.setProgramGain({ programId: program.id, gain })
+    })
+  }
+
+  function setProgramA(program: DspProgram) {
+    return control(async () => {
+      await core.worklet.setProgramA(program.id)
+    })
+  }
+
+  function setProgramB(program: DspProgram) {
+    return control(async () => {
+      await core.worklet.setProgramB(program.id)
     })
   }
 
@@ -184,6 +203,7 @@ export async function createDsp(state: DspState) {
     sampleManager,
 
     start,
+    startSync,
     pause,
     stop,
     seek,
@@ -202,6 +222,9 @@ export async function createDsp(state: DspState) {
     refreshUntilHistories,
 
     setWorkletError,
+
+    setProgramA,
+    setProgramB,
 
     get isPlaying() {
       return Atomics.load(transport.transportU32, SharedTransportIndex.Running) === SharedTransportRunningState.Start
@@ -240,6 +263,38 @@ export async function createDsp(state: DspState) {
     },
     set projectEndSamples(v: number) {
       Atomics.store(transport.transportU32, SharedTransportIndex.ProjectEndSamples, v)
+    },
+
+    get loopBeginSamplesA(): number {
+      return Atomics.load(transport.transportU32, SharedTransportIndex.LoopBeginSamplesA)
+    },
+    set loopBeginSamplesA(v: number) {
+      Atomics.store(transport.transportU32, SharedTransportIndex.LoopBeginSamplesA, v)
+    },
+    get loopEndSamplesA(): number {
+      return Atomics.load(transport.transportU32, SharedTransportIndex.LoopEndSamplesA)
+    },
+    set loopEndSamplesA(v: number) {
+      Atomics.store(transport.transportU32, SharedTransportIndex.LoopEndSamplesA, v)
+    },
+    set projectEndSamplesA(v: number) {
+      Atomics.store(transport.transportU32, SharedTransportIndex.ProjectEndSamplesA, v)
+    },
+
+    get loopBeginSamplesB(): number {
+      return Atomics.load(transport.transportU32, SharedTransportIndex.LoopBeginSamplesB)
+    },
+    set loopBeginSamplesB(v: number) {
+      Atomics.store(transport.transportU32, SharedTransportIndex.LoopBeginSamplesB, v)
+    },
+    get loopEndSamplesB(): number {
+      return Atomics.load(transport.transportU32, SharedTransportIndex.LoopEndSamplesB)
+    },
+    set loopEndSamplesB(v: number) {
+      Atomics.store(transport.transportU32, SharedTransportIndex.LoopEndSamplesB, v)
+    },
+    set projectEndSamplesB(v: number) {
+      Atomics.store(transport.transportU32, SharedTransportIndex.ProjectEndSamplesB, v)
     },
 
     togglePause(programs: DspProgram[]) {

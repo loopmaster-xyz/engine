@@ -36,7 +36,7 @@ export enum SharedTransportRunningState {
   Pause,
 }
 
-export const SHARED_TRANSPORT_SLOTS = 9
+export const SHARED_TRANSPORT_SLOTS = 15
 export const SHARED_TRANSPORT_BYTE_LENGTH = SHARED_TRANSPORT_SLOTS * 4
 
 export enum SharedTransportIndex {
@@ -46,9 +46,18 @@ export enum SharedTransportIndex {
   StopAndSeekToZero,
   ActuallyPlaying,
   HistorySyncRequested,
+
   LoopBeginSamples,
   LoopEndSamples,
   ProjectEndSamples,
+
+  LoopBeginSamplesA,
+  LoopEndSamplesA,
+  ProjectEndSamplesA,
+
+  LoopBeginSamplesB,
+  LoopEndSamplesB,
+  ProjectEndSamplesB,
 }
 
 export type SharedTransportViews = {
