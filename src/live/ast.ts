@@ -48,6 +48,7 @@ export type Expr =
   | { type: 'member'; object: Expr; property: string; loc: Loc }
   | { type: 'destructure'; names: string[]; loc: Loc }
   | { type: 'assign'; op: '=' | ':=' | '=>' | '+=' | '-=' | '*=' | '/=' | '%=' | '**='; left: Expr; right: Expr; loc: Loc }
+  | { type: 'switch'; test: Expr; cases: SwitchCase[]; loc: Loc }
 
 export type Arg =
   | { type: 'arg'; value: Expr; name?: string; shorthand?: boolean; loc: Loc }

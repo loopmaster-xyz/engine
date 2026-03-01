@@ -104,6 +104,13 @@ export function collectClosureVarNames(
         if (e.body.type === 'block') walkStmt(e.body)
         else walkExpr(e.body)
         return
+      case 'switch':
+        walkExpr(e.test)
+        for (const c of e.cases) {
+          if (c.test) walkExpr(c.test)
+          for (const st of c.body) walkStmt(st)
+        }
+        return
     }
   }
 
@@ -237,6 +244,13 @@ export function collectCapturedVarNames(body: Expr | Stmt, opts: CollectOpts): s
       case 'fn':
         // Nested function has its own capture.
         return
+      case 'switch':
+        walkExpr(e.test)
+        for (const c of e.cases) {
+          if (c.test) walkExpr(c.test)
+          for (const st of c.body) walkStmt(st)
+        }
+        return
     }
   }
 
@@ -355,6 +369,13 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         return checkForRecord(expr.left) || checkForRecord(expr.right)
       case 'fn':
         return false
+      case 'switch':
+        if (checkForRecord(expr.test)) return true
+        for (const c of expr.cases) {
+          if (c.test && checkForRecord(c.test)) return true
+          for (const st of c.body) { if (checkStmtForRecord(st)) return true }
+        }
+        return false
     }
   }
 
@@ -436,6 +457,21 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         return null
       case 'fn':
         return null // Don't recurse into nested functions
+      case 'switch': {
+        const testLoc = findRecordCallLoc(expr.test)
+        if (testLoc) return testLoc
+        for (const c of expr.cases) {
+          if (c.test) {
+            const loc = findRecordCallLoc(c.test)
+            if (loc) return loc
+          }
+          for (const st of c.body) {
+            const loc = findRecordCallLocInStmt(st)
+            if (loc) return loc
+          }
+        }
+        return null
+      }
     }
   }
 
@@ -543,6 +579,13 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         case 'fn':
           if (e.body.type === 'block') walkStmt(e.body)
           else walkExpr(e.body)
+          return
+        case 'switch':
+          walkExpr(e.test)
+          for (const c of e.cases) {
+            if (c.test) walkExpr(c.test)
+            for (const st of c.body) walkStmt(st)
+          }
           return
       }
     }
@@ -657,6 +700,13 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         walkExpr(e.right)
         return
       case 'destructure':
+        return
+      case 'switch':
+        walkExpr(e.test)
+        for (const c of e.cases) {
+          if (c.test) walkExpr(c.test)
+          for (const st of c.body) walkStmt(st)
+        }
         return
       case 'fn':
         const savedInFunctionBody = inFunctionBody

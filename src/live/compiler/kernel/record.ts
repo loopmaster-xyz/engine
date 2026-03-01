@@ -106,11 +106,26 @@ function collectCalleeNamesFromBody(expr: Expr, out: Set<string>): void {
       return
     case 'destructure':
       return
+    case 'switch':
+      collectCalleeNamesFromBody(expr.test, out)
+      for (const c of expr.cases) {
+        if (c.test) collectCalleeNamesFromBody(c.test, out)
+        for (const st of c.body) collectCalleeNamesFromStmt(st, out)
+      }
+      return
   }
 }
 
 function collectCalleeNamesFromStmt(stmt: Stmt, out: Set<string>): void {
   if (stmt.type === 'expr') return collectCalleeNamesFromBody(stmt.expr, out)
+  if (stmt.type === 'switch') {
+    collectCalleeNamesFromBody(stmt.test, out)
+    for (const c of stmt.cases) {
+      if (c.test) collectCalleeNamesFromBody(c.test, out)
+      for (const st of c.body) collectCalleeNamesFromStmt(st, out)
+    }
+    return
+  }
   if (stmt.type === 'block') {
     for (const s of stmt.body) collectCalleeNamesFromStmt(s, out)
     return

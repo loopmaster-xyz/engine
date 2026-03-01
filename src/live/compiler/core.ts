@@ -431,6 +431,8 @@ export function compileStmt(state: State, stmt: Stmt): void {
       break
     case 'switch':
       compileSwitch(state, stmt)
+      state.ops.push(AudioVmOp.Pop)
+      state.stack.pop()
       break
     case 'break':
       compileBreak(state, stmt)
@@ -634,6 +636,10 @@ export function compileExpr(state: State, expr: Expr): void {
       // Destructure patterns should only appear as the left side of assignments
       // If we're compiling one as a standalone expression, that's an error
       error(state, 'Destructuring pattern can only be used in assignments', expr.loc)
+      break
+
+    case 'switch':
+      compileSwitch(state, expr as Extract<Stmt, { type: 'switch' }>)
       break
 
     default:

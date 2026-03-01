@@ -376,9 +376,7 @@ const setControlCompileSnapshotImpl = atomic(async (
     lastMainBytecodeHash = hashResult.newHash
     const nextShared = await ensureSharedBound(dspState, worklet, shared)
     if (nextShared) shared = nextShared
-    console.log('set control ops')
     await setControlOps(dspState, worklet, program, mainBytecode)
-    console.log('set control ops done')
     return {
       shared,
       historySourceMap,
@@ -528,6 +526,10 @@ export function createDspProgram(
     currentChunkPos: 0,
   }
 
+  async function setControlCompileSnapshotFast(ccs: ControlCompileSnapshot) {
+    void setControlOps(dspState, worklet, program, ccs.compile.bytecode!)
+  }
+
   async function setControlCompileSnapshot(ccs: ControlCompileSnapshot,
     opts?: { fullResync?: boolean; projectId?: string | null })
   {
@@ -662,6 +664,7 @@ export function createDspProgram(
     async rebind() {
       shared = await rebindProgram(worklet, shared, dspState)
     },
+    setControlCompileSnapshotFast,
     setControlCompileSnapshot,
     start() {
       setProgramState(shared, DspProgramState.Start)

@@ -430,6 +430,7 @@ export function compileSwitch(state: State, stmt: Extract<Stmt, { type: 'switch'
       pushScope(state)
       for (const s of c.body) compileStmt(state, s)
       popScope(state)
+      ensureCaseValue(state, c.body)
 
       state.ops.push(AudioVmOp.Jump)
       jumpToEndPatchIndices.push(state.ops.length)
@@ -442,6 +443,7 @@ export function compileSwitch(state: State, stmt: Extract<Stmt, { type: 'switch'
       pushScope(state)
       for (const s of c.body) compileStmt(state, s)
       popScope(state)
+      ensureCaseValue(state, c.body)
     }
   }
 
@@ -456,12 +458,30 @@ export function compileSwitch(state: State, stmt: Extract<Stmt, { type: 'switch'
   state.loopStack.pop()
 }
 
+function ensureCaseValue(state: State, body: Stmt[]): void {
+  const n = body.filter(s => s.type === 'expr').length
+  if (n === 0) {
+    state.ops.push(AudioVmOp.PushScalar)
+    state.ops.push(0)
+    state.stack.push({ expr: { type: 'number', value: 0, loc: { start: 0, end: 0, line: 0, column: 0 } } })
+  }
+  else {
+    for (let i = 0; i < n - 1; i++) {
+      state.ops.push(AudioVmOp.Pop)
+      state.stack.pop()
+    }
+  }
+}
+
 export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }>): void {
-  if (stmt.stmt.type === 'switch') {
+  const inner = stmt.stmt.type === 'expr' && stmt.stmt.expr.type === 'switch' ? stmt.stmt.expr : stmt.stmt
+  if (inner.type === 'switch') {
     const labelContext: LoopContext = { label: stmt.name, breakTargets: [], continueTargets: [] }
     state.loopStack.push(labelContext)
-    compileSwitch(state, stmt.stmt)
+    compileSwitch(state, inner)
     const endTarget = state.ops.length
+    state.ops.push(AudioVmOp.Pop)
+    state.stack.pop()
     for (const idx of labelContext.breakTargets) {
       state.ops[idx] = endTarget
     }

@@ -3167,6 +3167,23 @@ describe('control flow', () => {
       .toMatchAudio([[42, 42, 42], [42, 42, 42]])
   })
 
+  it('switch expression returns value', () => {
+    expect(audio('switch(0){case 0: 10; case 1: 20; default: 0} |> out($)')).toMatchAudio([[10, 10, 10], [10, 10, 10]])
+  })
+
+  it('switch expression case 1', () => {
+    expect(audio('switch(1){case 0: 10; case 1: 20; default: 0} |> out($)')).toMatchAudio([[20, 20, 20], [20, 20, 20]])
+  })
+
+  it('switch expression default', () => {
+    expect(audio('switch(99){case 0: 10; case 1: 20; default: 42} |> out($)')).toMatchAudio([[42, 42, 42], [42, 42, 42]])
+  })
+
+  it('switch expression in pipe with audio', () => {
+    const src = 'x = step(4, dec()); switch (x % 4) { case 0: saw(c4); case 1: tri(e4); case 2: sqr(g#4); default: saw(c4) } |> out($)'
+    expect(audio(src, { ticks: 8 })).toBeDefined()
+  })
+
   it('return audio from function', () => {
     expect(audio('f = () -> { return sine(440) }; f() |> out($)')).toMatchAudio(audio('sine(440) |> out($)'))
   })

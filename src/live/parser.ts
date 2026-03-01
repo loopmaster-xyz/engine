@@ -115,6 +115,13 @@ export function collectNumberLiterals(program: Program): Extract<Expr, { type: '
         if (e.body.type === 'block') walkStmt(e.body)
         else walkExpr(e.body)
         return
+      case 'switch':
+        walkExpr(e.test)
+        for (const c of e.cases) {
+          if (c.test) walkExpr(c.test)
+          for (const st of c.body) walkStmt(st)
+        }
+        return
       default:
         return
     }
@@ -507,57 +514,6 @@ class Parser {
       return { type: 'throw', value, loc: this.locFrom(start, this.prev()) }
     }
 
-    if (this.eat('keyword', 'switch')) {
-      const start = t
-      this.expect('punct', '(', 'Expected "(" after switch')
-      const test = this.parseExpr()
-      this.expect('punct', ')', 'Expected ")" after switch expression')
-      this.expect('punct', '{', 'Expected "{" after switch')
-      const cases: Array<{ test: Expr | null; body: Stmt[] }> = []
-      while (!this.is('eof') && !this.is('punct', '}') && !this.hasFatalError) {
-        this.tick()
-        if (this.eat('keyword', 'case')) {
-          const caseTest = this.parseExpr()
-          this.expect('punct', ':', 'Expected ":" after case value')
-          const body: Stmt[] = []
-          while (!this.is('eof') && !this.is('punct', '}') && !this.is('keyword', 'case') && !this.is('keyword', 'default') && !this.hasFatalError) {
-            this.tick()
-            if (this.is('punct', ';')) {
-              this.pos++
-              continue
-            }
-            const stmt = this.parseStmt()
-            if (stmt) body.push(stmt)
-            this.eat('punct', ';')
-          }
-          cases.push({ test: caseTest, body })
-          continue
-        }
-        if (this.eat('keyword', 'default')) {
-          this.expect('punct', ':', 'Expected ":" after default')
-          const body: Stmt[] = []
-          while (!this.is('eof') && !this.is('punct', '}') && !this.is('keyword', 'case') && !this.hasFatalError) {
-            this.tick()
-            if (this.is('punct', ';')) {
-              this.pos++
-              continue
-            }
-            const stmt = this.parseStmt()
-            if (stmt) body.push(stmt)
-            this.eat('punct', ';')
-          }
-          cases.push({ test: null, body })
-          continue
-        }
-        if (this.is('punct', ';')) {
-          this.pos++
-          continue
-        }
-        break
-      }
-      const endTok = this.expect('punct', '}', 'Unclosed switch block')
-      return { type: 'switch', test, cases, loc: this.locFrom(start, endTok) }
-    }
 
     if (this.eat('keyword', 'try')) {
       const start = t
@@ -629,6 +585,57 @@ class Parser {
       this.syncStmt()
       return null
     }
+  }
+
+  private parseSwitch(start: Token): Extract<Stmt, { type: 'switch' }> {
+    this.expect('punct', '(', 'Expected "(" after switch')
+    const test = this.parseExpr()
+    this.expect('punct', ')', 'Expected ")" after switch expression')
+    this.expect('punct', '{', 'Expected "{" after switch')
+    const cases: Array<{ test: Expr | null; body: Stmt[] }> = []
+    while (!this.is('eof') && !this.is('punct', '}') && !this.hasFatalError) {
+      this.tick()
+      if (this.eat('keyword', 'case')) {
+        const caseTest = this.parseExpr()
+        this.expect('punct', ':', 'Expected ":" after case value')
+        const body: Stmt[] = []
+        while (!this.is('eof') && !this.is('punct', '}') && !this.is('keyword', 'case') && !this.is('keyword', 'default') && !this.hasFatalError) {
+          this.tick()
+          if (this.is('punct', ';')) {
+            this.pos++
+            continue
+          }
+          const stmt = this.parseStmt()
+          if (stmt) body.push(stmt)
+          this.eat('punct', ';')
+        }
+        cases.push({ test: caseTest, body })
+        continue
+      }
+      if (this.eat('keyword', 'default')) {
+        this.expect('punct', ':', 'Expected ":" after default')
+        const body: Stmt[] = []
+        while (!this.is('eof') && !this.is('punct', '}') && !this.is('keyword', 'case') && !this.hasFatalError) {
+          this.tick()
+          if (this.is('punct', ';')) {
+            this.pos++
+            continue
+          }
+          const stmt = this.parseStmt()
+          if (stmt) body.push(stmt)
+          this.eat('punct', ';')
+        }
+        cases.push({ test: null, body })
+        continue
+      }
+      if (this.is('punct', ';')) {
+        this.pos++
+        continue
+      }
+      break
+    }
+    const endTok = this.expect('punct', '}', 'Unclosed switch block')
+    return { type: 'switch', test, cases, loc: this.locFrom(start, endTok) }
   }
 
   private parseExpr(): Expr {
@@ -799,6 +806,10 @@ class Parser {
         this.expect('keyword', 'else', 'Expected "else" in if expression')
         const elseExpr = this.parseExpr()
         return { type: 'ternary', test, then, else: elseExpr, loc: this.locFrom(start, this.prev()) }
+      }
+      if (t.value === 'switch') {
+        this.pos++
+        return this.parseSwitch(t)
       }
       if (t.value === 'true' || t.value === 'false' || t.value === 'null') {
         this.pos++
