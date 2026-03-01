@@ -298,8 +298,8 @@ export async function createDsp(state: DspState) {
     },
 
     togglePause(programs: DspProgram[]) {
-      if (this.isPlaying) this.pause(programs)
-      else this.start(programs)
+      if (this.isPlaying) return this.pause(programs)
+      else return this.start(programs)
     },
   }
 
