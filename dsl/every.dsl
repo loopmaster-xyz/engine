@@ -11,7 +11,6 @@ parameters {
 fields {
   lastPeriodIndex: f32 = -1.0
   isLateStart: f32 = 0.0
-  isDiscontinuous: f32 = 0.0
   fired: f32 = 0.0
 }
 
@@ -22,8 +21,7 @@ emit {
 control {
   periodSamples = samplesPerBar * bars
   isLateStart = f32(sampleCount > 0 && lastPeriodIndex < 0.0)
-  isDiscontinuous = f32(sampleCount != nextSampleCount && !isLateStart && sampleCount > 0.0)
-  nextSampleCount = sampleCount + f32(bufferLength)
+  nextSampleCount = f32(sampleCount) + f32(bufferLength)
   if fired {
     fired = 0.0
   }
@@ -33,11 +31,10 @@ audio {
   periodIndex = floor(sampleCount / periodSamples)
   prevSamplePeriodIndex = floor((sampleCount - 1.0) / periodSamples)
   isBoundary = f32(prevSamplePeriodIndex != periodIndex)
-  shouldTrigger = f32(!isDiscontinuous && isBoundary)
+  shouldTrigger = f32(isBoundary)
   output = shouldTrigger ? 1.0 : 0.0
   if shouldTrigger > 0.0 {
     fired = 1.0
   }
   lastPeriodIndex = periodIndex
-  isDiscontinuous = 0
 }

@@ -522,36 +522,36 @@ export async function createProcessorState(
 
           if (state.loopBeginSamples >= 0 && state.loopEndSamples > 0) {
             if (p.sampleCount >= state.loopEndSamples) {
-              p.sampleCount = state.loopBeginSamples + (p.sampleCount - state.loopEndSamples)
+              p.sampleCount = state.loopBeginSamples
             }
           }
           if (state.projectEndSamples > 0) {
             if (p.sampleCount >= state.projectEndSamples) {
-              p.sampleCount = 0 + (p.sampleCount - state.projectEndSamples)
+              p.sampleCount = 0
             }
           }
 
           if (p.id === state.programAId) {
             if (state.loopBeginSamplesA >= 0 && state.loopEndSamplesA > 0) {
               if (p.sampleCount >= state.loopEndSamplesA) {
-                p.sampleCount = state.loopBeginSamplesA + (p.sampleCount - state.loopEndSamplesA)
+                p.sampleCount = state.loopBeginSamplesA
               }
             }
             if (state.projectEndSamplesA > 0) {
               if (p.sampleCount >= state.projectEndSamplesA) {
-                p.sampleCount = 0 + (p.sampleCount - state.projectEndSamplesA)
+                p.sampleCount = 0
               }
             }
           }
           else if (p.id === state.programBId) {
             if (state.loopBeginSamplesB >= 0 && state.loopEndSamplesB > 0) {
               if (p.sampleCount >= state.loopEndSamplesB) {
-                p.sampleCount = state.loopBeginSamplesB + (p.sampleCount - state.loopEndSamplesB)
+                p.sampleCount = state.loopBeginSamplesB
               }
             }
             if (state.projectEndSamplesB > 0) {
               if (p.sampleCount >= state.projectEndSamplesB) {
-                p.sampleCount = 0 + (p.sampleCount - state.projectEndSamplesB)
+                p.sampleCount = 0
               }
             }
           }
@@ -594,12 +594,12 @@ export async function createProcessorState(
     state.sampleCount = state.sampleCount + bufferLength
     if (state.loopBeginSamples >= 0 && state.loopEndSamples > 0) {
       if (state.sampleCount >= state.loopEndSamples) {
-        state.sampleCount = state.loopBeginSamples + (state.sampleCount - state.loopEndSamples)
+        state.sampleCount = state.loopBeginSamples
       }
     }
     if (state.projectEndSamples > 0) {
       if (state.sampleCount >= state.projectEndSamples) {
-        state.sampleCount = 0 + (state.sampleCount - state.projectEndSamples)
+        state.sampleCount = 0
       }
     }
     state.transportSampleCount = state.sampleCount

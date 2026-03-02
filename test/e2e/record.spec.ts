@@ -505,4 +505,24 @@ kick(52,1/4) |> out($)`
     expect(actual).not.toMatchAudio([[0, 0, 0], [0, 0, 0]])
     expect(actual).toMatchAudio(expected)
   })
+
+  it('record with fn default param override', async () => {
+    const actual = await audioAsync(`
+      f=(x=()->1)->{
+        sample=record(0.1,()->x())
+        sampler(sample,trig:1)
+      }
+      f(x:()->2) |> out($)
+    `)
+
+    const expected = await audioAsync(`
+      f=()->{
+        sample=record(0.1,()->2)
+        sampler(sample,trig:1)
+      }
+      f() |> out($)
+    `)
+
+    expect(actual).toMatchAudio(expected)
+  })
 })
