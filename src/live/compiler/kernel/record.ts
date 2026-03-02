@@ -145,6 +145,86 @@ function collectCalleeNamesFromStmt(stmt: Stmt, out: Set<string>): void {
   }
 }
 
+function matchCallArgsToParams(callExpr: Extract<Expr, { type: 'call' }>, params: string[]): Array<Expr | null> {
+  const paramCount = params.length
+  const matchedArgs: Array<Expr | null> = new Array(paramCount).fill(null)
+  let positionalIndex = 0
+
+  for (let i = 0; i < callExpr.args.length; i++) {
+    const arg = callExpr.args[i]
+    if (!arg || arg.type !== 'arg') continue
+
+    if (arg.name) {
+      // Named argument with prefix matching.
+      let matchedParamIndex = -1
+      for (let j = 0; j < params.length; j++) {
+        if (params[j].startsWith(arg.name)) {
+          matchedParamIndex = j
+          break
+        }
+      }
+      if (matchedParamIndex === -1 || matchedArgs[matchedParamIndex] !== null) continue
+      matchedArgs[matchedParamIndex] = arg.value
+      continue
+    }
+
+    if (arg.shorthand && arg.value.type === 'identifier') {
+      // Shorthand named argument when exact parameter exists.
+      const shorthandParamIndex = params.indexOf(arg.value.name)
+      if (shorthandParamIndex !== -1 && matchedArgs[shorthandParamIndex] === null) {
+        matchedArgs[shorthandParamIndex] = arg.value
+        continue
+      }
+    }
+
+    while (positionalIndex < paramCount && matchedArgs[positionalIndex] !== null) positionalIndex++
+    if (positionalIndex >= paramCount) continue
+    matchedArgs[positionalIndex] = arg.value
+    positionalIndex++
+  }
+
+  return matchedArgs
+}
+
+function compileRecordSetupOverride(state: State, expr: Expr, recordGlobalIdx: number): number[] | null {
+  // Only support direct function literals for robust record-VM transfer.
+  if (expr.type !== 'fn') return null
+
+  const savedOps = state.ops
+  const savedStack = state.stack
+  const savedLocals = state.locals
+  const savedClosureVars = state.closureVars
+  const savedParamMap = state.paramNameToLocalIndex
+  const savedErrorsLen = state.errors.length
+
+  const overrideOps: number[] = []
+  state.ops = overrideOps
+  state.stack = []
+  state.locals = [new Map()]
+  state.closureVars = []
+  state.paramNameToLocalIndex = null
+
+  compileExpr(state, expr)
+  if (state.errors.length > savedErrorsLen) {
+    state.errors.length = savedErrorsLen
+    state.ops = savedOps
+    state.stack = savedStack
+    state.locals = savedLocals
+    state.closureVars = savedClosureVars
+    state.paramNameToLocalIndex = savedParamMap
+    return null
+  }
+  state.ops.push(AudioVmOp.SetGlobal)
+  state.ops.push(recordGlobalIdx)
+
+  state.ops = savedOps
+  state.stack = savedStack
+  state.locals = savedLocals
+  state.closureVars = savedClosureVars
+  state.paramNameToLocalIndex = savedParamMap
+  return overrideOps
+}
+
 export function addCallSiteToSampleRegistrations(
   state: State,
   handle: number,
@@ -370,8 +450,7 @@ export function processRecordCall(
     if (hasGlobalFn(name) || hasGlobalFn(canonical)) continue
     if (calleeNames.has(name) && info.scope === 'global') continue
 
-    // Check if this is an enclosing scope default param (captured as local)
-    // Only these get name-based lookup to avoid collision with globals of same name
+    // Preserve dedicated default-param function slots for enclosing-scope params.
     if (info.scope === 'local' && enclosingDefaultParamNameToSlot.has(name)) {
       const recordGlobalIdx = enclosingDefaultParamNameToSlot.get(name)!
       dependencies.push({ name, scope: info.scope, sourceIndex: info.index })
@@ -567,6 +646,8 @@ export function processRecordCall(
     recordGlobalIndices,
     captureStoreGlobalIdx,
     defaultParamRecordGlobals,
+    defaultParamRecordGlobalsByName:
+      enclosingDefaultParamNameToSlot.size > 0 ? Object.fromEntries(enclosingDefaultParamNameToSlot) : undefined,
     maxSetupGlobalIndex: maxSetupGlobalIndexFinal,
   }
   if (callbackId !== -1) {
@@ -633,6 +714,31 @@ export function processRecordCallSite(
   const template = state.recordCallbackTemplates.get(recordCallLocKey)
   if (!template) return
 
+  let setupBytecode = template.setup
+  const defaultParamSlotsByName = template.defaultParamRecordGlobalsByName
+  if (defaultParamSlotsByName && Object.keys(defaultParamSlotsByName).length > 0) {
+    const matchedArgs = matchCallArgsToParams(callExpr, funcInfo.params)
+    const overrideOps: number[] = []
+    for (let i = 0; i < funcInfo.params.length; i++) {
+      const paramName = funcInfo.params[i]!
+      const slot = defaultParamSlotsByName[paramName]
+      if (slot === undefined) continue
+      const overrideExpr = matchedArgs[i]
+      if (!overrideExpr) continue
+
+      const ops = compileRecordSetupOverride(state, overrideExpr, slot)
+      if (!ops || ops.length === 0) continue
+      for (let j = 0; j < ops.length; j++) overrideOps.push(ops[j]!)
+    }
+    if (overrideOps.length > 0) {
+      const encodedOverrides = encodeCallbackBytecode(overrideOps)
+      const merged = new Float32Array(setupBytecode.length + encodedOverrides.length)
+      merged.set(setupBytecode)
+      merged.set(encodedOverrides, setupBytecode.length)
+      setupBytecode = merged
+    }
+  }
+
   const scopeId = callSiteId
   if (state.recordCaptureStoresByScopeGlobal === null) {
     state.recordCaptureStoresByScopeGlobal = state.nextGlobalIndex++
@@ -657,6 +763,7 @@ export function processRecordCallSite(
 
   state.recordCallbacks.set(scopeId, {
     ...template,
+    setup: setupBytecode,
     captureStoreGlobalIdx,
     useNestedCaptureStore: true,
   })
