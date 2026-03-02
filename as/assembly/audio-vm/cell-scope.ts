@@ -11,12 +11,12 @@ export class CellScope {
     this.cells = new FastArray<i32>(16, bufferPool)
   }
 
-  @inline
+  // @inline
   register(vm: VmState, cellIdx: i32): void {
     this.cells.push(cellIdx)
   }
 
-  @inline
+  // @inline
   releaseAll(vm: VmState, excludeCellIdx: i32 = -1): void {
     for (let i: i32 = 0; i < this.cells.length; i++) {
       const idx: i32 = this.cells.get(i)
@@ -26,7 +26,7 @@ export class CellScope {
     this.cells.clear()
   }
 
-  @inline
+  // @inline
   clear(): void {
     this.cells.clear()
   }

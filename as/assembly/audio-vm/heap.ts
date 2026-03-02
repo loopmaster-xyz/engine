@@ -17,13 +17,13 @@ import { Cell } from './vm-types'
 /** Central resource manager: alloc/retain/release for audio, arrays, cells. */
 
 // @ts-ignore
-@inline
+// @inline
 export function retainAudio(vm: VmState, ptr: u32): void {
   vm.arena.retain(ptr)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function releaseAudio(vm: VmState, ptr: u32): void {
   vm.arena.releaseByPtr(ptr)
 }
@@ -58,7 +58,7 @@ export function releaseArray(vm: VmState, arrId: u32): void {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function retainCell(vm: VmState, cellIdx: i32): void {
   if (cellIdx < 0 || cellIdx >= vm.cells.length) return
   const cell: Cell = vm.cells.get(cellIdx)
@@ -66,7 +66,7 @@ export function retainCell(vm: VmState, cellIdx: i32): void {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function releaseCell(vm: VmState, cellIdx: i32): void {
   if (cellIdx < 0 || cellIdx >= vm.cells.length) return
   const cell: Cell = vm.cells.get(cellIdx)
@@ -80,7 +80,7 @@ export function releaseCell(vm: VmState, cellIdx: i32): void {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function retainValue(vm: VmState, tagged: f64): void {
   if (isScalar(tagged) || isUndefined(tagged) || isFunction(tagged)) return
   if (isAudio(tagged)) vm.arena.retain(u32(decodeAudio(tagged)))
@@ -89,7 +89,7 @@ export function retainValue(vm: VmState, tagged: f64): void {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function releaseValue(vm: VmState, tagged: f64): void {
   if (isScalar(tagged) || isUndefined(tagged) || isFunction(tagged)) return
   if (isAudio(tagged)) vm.arena.releaseByPtr(u32(decodeAudio(tagged)))

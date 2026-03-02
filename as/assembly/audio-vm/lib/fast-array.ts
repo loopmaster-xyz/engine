@@ -19,7 +19,7 @@ export class FastArray<T> {
   }
 
   /** Push a value, growing if needed */
-  @inline
+  // @inline
   push(value: T): void {
     if (this.length >= this.buf.length) {
       const newCap: i32 = this.buf.length << 1
@@ -42,25 +42,25 @@ export class FastArray<T> {
   }
 
   /** Push a value without checking capacity (ensure enough capacity first) */
-  @inline
+  // @inline
   pushUnchecked(value: T): void {
     this.buf[this.length++] = value
   }
 
   /** Get value at index */
-  @inline
+  // @inline
   get(index: i32): T {
     return this.buf[index]
   }
 
   /** Set value at index */
-  @inline
+  // @inline
   set(index: i32, value: T): void {
     this.buf[index] = value
   }
 
   /** Remove and return last element */
-  @inline
+  // @inline
   pop(): T {
     // Handle empty array case
     assert(this.length > 0, 'Cannot pop from empty array')
@@ -70,7 +70,7 @@ export class FastArray<T> {
   }
 
   /** Reset array length to zero */
-  @inline
+  // @inline
   clear(): void {
     this.length = 0
   }
@@ -96,7 +96,7 @@ export class FastArray<T> {
     }
   }
 
-  @inline
+  // @inline
   resetCounters(): void {
     this.growCountRaw = 0
   }

@@ -7,7 +7,7 @@ import { VmState } from './vm-state'
 
 /** Push value onto stack; retain unless move. */
 // @ts-ignore
-@inline
+// @inline
 export function push(vm: VmState, value: f64, move: bool = false): void {
   if (vm.stackTop >= vm.stackCapacity) {
     ensureStackCapacity(vm, vm.stackTop + 1)
@@ -27,7 +27,7 @@ export function push(vm: VmState, value: f64, move: bool = false): void {
 
 /** Pop and return top of stack. */
 // @ts-ignore
-@inline
+// @inline
 export function pop(vm: VmState): f64 {
   if (vm.stackTop < 0) {
     stackDump(vm)
@@ -42,7 +42,7 @@ export function pop(vm: VmState): f64 {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function ensureStackCapacity(vm: VmState, required: i32): void {
   if (required < 1) required = 1
   if (required <= vm.stackCapacity) return
@@ -115,14 +115,14 @@ export function releaseAudioIfUnreferenced(vm: VmState, tagged: f64): void {
 
 /** Release tagged value (audio, array, cell-ref). */
 // @ts-ignore
-@inline
+// @inline
 export function releaseValueTagged(vm: VmState, tagged: f64): void {
   heap.releaseValue(vm, vmOpsVars.resolveCellRef(vm, tagged))
 }
 
 /** Retain tagged value (audio, array, cell-ref). */
 // @ts-ignore
-@inline
+// @inline
 export function retainValueTagged(vm: VmState, tagged: f64): void {
   heap.retainValue(vm, vmOpsVars.resolveCellRef(vm, tagged))
 }
@@ -137,7 +137,7 @@ export function pushAudioCopy(vm: VmState, audioTagged: f64, length: i32): void 
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function releaseOutsRange(vm: VmState, from: i32, to: i32): void {
   if (from < 0) from = 0
   if (to <= from) return
@@ -150,7 +150,7 @@ export function releaseOutsRange(vm: VmState, from: i32, to: i32): void {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function releaseStackAndOutsValues(vm: VmState): void {
   for (let i: i32 = 0; i < vm.stackTop; i++) {
     heap.releaseValue(vm, vm.stack[i])
@@ -161,7 +161,7 @@ export function releaseStackAndOutsValues(vm: VmState): void {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function releaseStackRange(vm: VmState, from: i32, to: i32): void {
   if (from < 0) from = 0
   if (to <= from) return

@@ -23,29 +23,29 @@ export enum AudioValueKind {
 
 // Type tags stored in high 16 bits
 // @ts-ignore
-@inline
+// @inline
 export const TAG_SCALAR: u64 = 0x0001000000000000
 // @ts-ignore
-@inline
+// @inline
 export const TAG_AUDIO: u64 = 0x0002000000000000
 // @ts-ignore
-@inline
+// @inline
 export const TAG_ARRAY: u64 = 0x0003000000000000
 // @ts-ignore
-@inline
+// @inline
 export const TAG_FUNCTION: u64 = 0x0004000000000000
 // @ts-ignore
-@inline
+// @inline
 export const TAG_UNDEFINED: u64 = 0x0005000000000000
 // @ts-ignore
-@inline
+// @inline
 export const TAG_CELL_REF: u64 = 0x0006000000000000
 
 // @ts-ignore
-@inline
+// @inline
 export const TAG_MASK: u64 = 0xFFFF000000000000
 // @ts-ignore
-@inline
+// @inline
 export const VALUE_MASK: u64 = 0x0000FFFFFFFFFFFF
 
 let bpmOverrideValue: f32 = 0.0
@@ -60,7 +60,7 @@ export function getBpmOverride(): f32 {
 
 // Encode a scalar value as tagged f64
 // @ts-ignore
-@inline
+// @inline
 export function encodeScalar(value: f32): f64 {
   const u: u64 = u64(reinterpret<u32>(value))
   return reinterpret<f64>(TAG_SCALAR | u)
@@ -68,7 +68,7 @@ export function encodeScalar(value: f32): f64 {
 
 // Encode an audio buffer pointer as tagged f64
 // @ts-ignore
-@inline
+// @inline
 export function encodeAudio(ptr: usize): f64 {
   const u: u64 = u64(u32(ptr))
   return reinterpret<f64>(TAG_AUDIO | u)
@@ -76,7 +76,7 @@ export function encodeAudio(ptr: usize): f64 {
 
 // Encode an array ID as tagged f64
 // @ts-ignore
-@inline
+// @inline
 export function encodeArray(arrayId: u32): f64 {
   const u: u64 = u64(arrayId)
   return reinterpret<f64>(TAG_ARRAY | u)
@@ -84,7 +84,7 @@ export function encodeArray(arrayId: u32): f64 {
 
 // Encode a function instance ID as tagged f64
 // @ts-ignore
-@inline
+// @inline
 export function encodeFunction(instanceId: u32): f64 {
   const u: u64 = u64(instanceId)
   return reinterpret<f64>(TAG_FUNCTION | u)
@@ -92,21 +92,21 @@ export function encodeFunction(instanceId: u32): f64 {
 
 // Encode undefined
 // @ts-ignore
-@inline
+// @inline
 export function encodeUndefined(): f64 {
   return reinterpret<f64>(TAG_UNDEFINED)
 }
 
 // Get the type tag from a tagged value
 // @ts-ignore
-@inline
+// @inline
 export function getTag(tagged: f64): u64 {
   return reinterpret<u64>(tagged) & TAG_MASK
 }
 
 // Decode scalar value from tagged f64
 // @ts-ignore
-@inline
+// @inline
 export function decodeScalar(tagged: f64): f32 {
   const bits: u64 = reinterpret<u64>(tagged) & VALUE_MASK
   return reinterpret<f32>(u32(bits))
@@ -114,7 +114,7 @@ export function decodeScalar(tagged: f64): f32 {
 
 // Decode audio buffer pointer from tagged f64
 // @ts-ignore
-@inline
+// @inline
 export function decodeAudio(tagged: f64): usize {
   const bits: u64 = reinterpret<u64>(tagged) & VALUE_MASK
   return usize(u32(bits))
@@ -122,7 +122,7 @@ export function decodeAudio(tagged: f64): usize {
 
 // Decode array ID from tagged f64
 // @ts-ignore
-@inline
+// @inline
 export function decodeArray(tagged: f64): u32 {
   const bits: u64 = reinterpret<u64>(tagged) & VALUE_MASK
   return u32(bits)
@@ -130,7 +130,7 @@ export function decodeArray(tagged: f64): u32 {
 
 // Decode function instance ID from tagged f64
 // @ts-ignore
-@inline
+// @inline
 export function decodeFunction(tagged: f64): u32 {
   const bits: u64 = reinterpret<u64>(tagged) & VALUE_MASK
   return u32(bits)
@@ -138,59 +138,59 @@ export function decodeFunction(tagged: f64): u32 {
 
 // Runtime type check functions
 // @ts-ignore
-@inline
+// @inline
 export function isUndefined(tagged: f64): bool {
   return getTag(tagged) == TAG_UNDEFINED
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function isScalar(tagged: f64): bool {
   return getTag(tagged) == TAG_SCALAR
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function isAudio(tagged: f64): bool {
   return getTag(tagged) == TAG_AUDIO
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function isArray(tagged: f64): bool {
   return getTag(tagged) == TAG_ARRAY
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function isFunction(tagged: f64): bool {
   return getTag(tagged) == TAG_FUNCTION
 }
 
 // Cell ref: encoded on stack when capturing closure vars (index into VM cell pool)
 // @ts-ignore
-@inline
+// @inline
 export function encodeCellRef(cellIndex: i32): f64 {
   const u: u64 = u64(u32(cellIndex))
   return reinterpret<f64>(TAG_CELL_REF | u)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function decodeCellRef(tagged: f64): i32 {
   const bits: u64 = reinterpret<u64>(tagged) & VALUE_MASK
   return i32(u32(bits))
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function isCellRef(tagged: f64): bool {
   return getTag(tagged) == TAG_CELL_REF
 }
 
 /** True if tagged is audio and its ptr equals ptr. */
 // @ts-ignore
-@inline
+// @inline
 export function taggedIsAudioWithPtr(tagged: f64, ptr: usize): bool {
   return isAudio(tagged) && decodeAudio(tagged) == ptr
 }

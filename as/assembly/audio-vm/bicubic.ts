@@ -6,7 +6,7 @@ import { wrapIndex } from './util'
 
 /** Return interpolated sample at fractional index. Index can be negative or >= length; it is wrapped. */
 // @ts-ignore
-@inline
+// @inline
 export function bicubicAt(ptr: usize, length: i32, index: f32): f32 {
   if (length <= 0) return 0.0
   const idx: i32 = i32(Mathf.floor(index))
