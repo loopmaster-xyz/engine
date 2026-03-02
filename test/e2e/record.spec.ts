@@ -525,4 +525,46 @@ kick(52,1/4) |> out($)`
 
     expect(actual).toMatchAudio(expected)
   })
+
+  it('record preserves undefined function captures for downstream defaults', async () => {
+    const result = await audioAsync(`
+      bd() |> out($)
+    `, { ticks: 1 })
+
+    const [left] = result
+    const hasSignal = Array.from(left).some(v => Math.abs(v) > 0.0001)
+    expect(hasSignal).toBe(true)
+  })
+
+  it('record with fn default param override with skipped parameters', async () => {
+    const actual = await audioAsync(`
+      f=(x=()->1,y=()->2)->{
+        sample=record(0.1,()->x()+y())
+        sampler(sample,trig:1)
+      }
+      f(x:()->2) |> out($)
+    `)
+
+    const expected = await audioAsync(`
+      f=()->{
+        sample=record(0.1,()->4)
+        sampler(sample,trig:1)
+      }
+      f() |> out($)
+    `)
+
+    expect(actual).toMatchAudio(expected)
+  })
+
+  it('record edge case callee is not a function', async () => {
+    const result = await audioAsync(`
+      bpm=144 transpose=-2
+
+      bd(punch:4k,cutoff:5k,q:.2,fm:trig->ad(.01,.1,trig)) |> out($)
+    `)
+
+    const [left] = result
+    const hasSignal = Array.from(left).some(v => Math.abs(v) > 0.0001)
+    expect(hasSignal).toBe(true)
+  })
 })

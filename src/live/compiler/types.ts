@@ -69,6 +69,8 @@ export type RecordCallback = {
   captureStoreGlobalIdx: number
   /** When true, capture store is array of arrays; host reads via getAudioVmNestedArrayElementAt(..., callbackId, i). */
   useNestedCaptureStore?: boolean
+  /** Captured callback dependencies by name -> record global slot (for call-site override wiring). */
+  capturedRecordGlobalsByName?: Record<string, number>
   defaultParamRecordGlobals?: number[]
   /** Enclosing function default-parameter function slots by parameter name. */
   defaultParamRecordGlobalsByName?: Record<string, number>

@@ -645,6 +645,7 @@ export function processRecordCall(
     dependencies,
     recordGlobalIndices,
     captureStoreGlobalIdx,
+    capturedRecordGlobalsByName: capturedVarMapping.size > 0 ? Object.fromEntries(capturedVarMapping) : undefined,
     defaultParamRecordGlobals,
     defaultParamRecordGlobalsByName:
       enclosingDefaultParamNameToSlot.size > 0 ? Object.fromEntries(enclosingDefaultParamNameToSlot) : undefined,
@@ -716,19 +717,33 @@ export function processRecordCallSite(
 
   let setupBytecode = template.setup
   const defaultParamSlotsByName = template.defaultParamRecordGlobalsByName
-  if (defaultParamSlotsByName && Object.keys(defaultParamSlotsByName).length > 0) {
+  const capturedSlotsByName = template.capturedRecordGlobalsByName
+  if (
+    (defaultParamSlotsByName && Object.keys(defaultParamSlotsByName).length > 0)
+    || (capturedSlotsByName && Object.keys(capturedSlotsByName).length > 0)
+  ) {
     const matchedArgs = matchCallArgsToParams(callExpr, funcInfo.params)
     const overrideOps: number[] = []
     for (let i = 0; i < funcInfo.params.length; i++) {
       const paramName = funcInfo.params[i]!
-      const slot = defaultParamSlotsByName[paramName]
-      if (slot === undefined) continue
       const overrideExpr = matchedArgs[i]
       if (!overrideExpr) continue
 
-      const ops = compileRecordSetupOverride(state, overrideExpr, slot)
-      if (!ops || ops.length === 0) continue
-      for (let j = 0; j < ops.length; j++) overrideOps.push(ops[j]!)
+      const defaultSlot = defaultParamSlotsByName?.[paramName]
+      if (defaultSlot !== undefined) {
+        const ops = compileRecordSetupOverride(state, overrideExpr, defaultSlot)
+        if (ops && ops.length > 0) {
+          for (let j = 0; j < ops.length; j++) overrideOps.push(ops[j]!)
+        }
+      }
+
+      const capturedSlot = capturedSlotsByName?.[paramName]
+      if (capturedSlot !== undefined) {
+        const ops = compileRecordSetupOverride(state, overrideExpr, capturedSlot)
+        if (ops && ops.length > 0) {
+          for (let j = 0; j < ops.length; j++) overrideOps.push(ops[j]!)
+        }
+      }
     }
     if (overrideOps.length > 0) {
       const encodedOverrides = encodeCallbackBytecode(overrideOps)

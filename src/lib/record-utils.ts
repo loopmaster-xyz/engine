@@ -168,12 +168,19 @@ function preSizeGlobalsArray(core: WasmSetup<typeof WasmExports>, minSize: numbe
   core.wasm.ensureSampleRecordGlobalsSize(minSize)
 }
 
-function setCapturedValues(core: WasmSetup<typeof WasmExports>, recordGlobalIndices: number[], capturedValues: number[],
-  skipRecordGlobals: Set<number>, recordVmId: number): void
+function setCapturedValues(
+  core: WasmSetup<typeof WasmExports>,
+  recordGlobalIndices: number[],
+  capturedValues: number[],
+  undefinedRecordGlobals: Set<number>,
+): void
 {
   for (let i = 0; i < recordGlobalIndices.length; i++) {
     const recordGlobalIdx = recordGlobalIndices[i]!
-    if (skipRecordGlobals.has(recordGlobalIdx)) continue
+    if (undefinedRecordGlobals.has(recordGlobalIdx)) {
+      core.wasm.setSampleRecordGlobalUndefined(recordGlobalIdx)
+      continue
+    }
     const value = capturedValues[i] ?? 0
     core.wasm.setSampleRecordGlobal(recordGlobalIdx, value)
   }
@@ -241,9 +248,8 @@ export function executeRecordCallbackWithSampleRecord(opts: {
   const maxRecordGlobalIdx = findMaxRecordGlobalIdx(recordGlobalIndices)
   const maxGlobalIdx = Math.max(maxRecordGlobalIdx, opts.maxSetupGlobalIndex ?? -1)
   preSizeGlobalsArray(core, maxGlobalIdx + 1)
-  // Skip only undefined slots so setup can set default-param slots when the captured value was undefined.
-  const skipRecordGlobals = new Set(undefinedRecordGlobals ?? [])
-  setCapturedValues(core, recordGlobalIndices, capturedValues, skipRecordGlobals, 1)
+  const undefinedGlobals = new Set(undefinedRecordGlobals ?? [])
+  setCapturedValues(core, recordGlobalIndices, capturedValues, undefinedGlobals)
   runRecordSetup(core)
 
   executeRecordLoop(core)
