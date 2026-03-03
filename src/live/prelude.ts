@@ -193,6 +193,34 @@ pan=([L,R],balance=0.5)->{
   return [L*(1-p),R*p]
 }
 
+// Vocoder effect using bandpass filters and envelope following
+vocoder=(carrier,modulator,bands=16,attack=.008,release=.04,freqMin=80,freqMax=7700)->{
+  logRange = log(freqMax / freqMin)
+  step     = logRange / (bands - 1)
+  r = exp(step)
+  Q = clamp(1 / (r - 1), 8, 20)
+  s = 0
+  for (i in 0 .. bands-1) {
+    freq = freqMin * exp(i * step)
+    modBand = bp(modulator, freq, Q)
+    env     = envfollow(abs(modBand), attack, release)
+    carBand = bp(carrier, freq, Q)
+    s += carBand * env
+  }
+  s/bands
+}
+
+// Granular synthesis-inspired trigger generator based on speed
+grain=(speed=1,seed)->step(.999+.001*((1-clamp(speed,0,1))**.293),random(seed))
+
+// 3-band equalizer with low/mid/high controls
+eq3=(in,low=0,mid=0,high=0,lf=500,mf=2000,hf=8000)->{
+  lo=ls(in,cutoff:lf,gain:low)
+  mi=peak(in,cutoff:mf,q:1,gain:mid)
+  hi=hs(in,cutoff:hf,gain:high)
+  lo+mi+hi
+}
+
 /**
  * aliases
  */
