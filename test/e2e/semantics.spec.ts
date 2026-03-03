@@ -181,41 +181,52 @@ describe('solo() equivalence', () => {
 describe('automatic stereo lifting', () => {
   describe('mono function with "in" parameter', () => {
     it('lifts stereo array to dual mono calls', () => {
-      const f = 'f = (in) -> in * 2; out(f([3, 5]))'
-      const expected = 'out([3 * 2, 5 * 2])'
+      const f = 'f = (in) -> in * 2; [3, 5] |> f($) |> out($)'
+      const expected = '[3 * 2, 5 * 2] |> out($)'
       expect(audio(f)).toMatchAudio(audio(expected))
     })
 
     it('processes scalar normally without lifting', () => {
-      expect(audio('f = (in) -> in * 2; out(f(5))')).toMatchAudio([[10, 10, 10], [10, 10, 10]])
+      expect(audio('f = (in) -> in * 2; 5 |> f($) |> out($)')).toMatchAudio([[10, 10, 10], [10, 10, 10]])
     })
 
     it('processes signal normally without lifting', () => {
-      expect(audio('f = (in) -> in * 2; out(f(sine(440)))')).toMatchAudio(audio('out(sine(440) * 2)'))
+      expect(audio('f = (in) -> in * 2; sine(440) |> f($) |> out($)')).toMatchAudio(audio('sine(440) * 2 |> out($)'))
     })
 
     it('lifts stereo with different values', () => {
-      expect(audio('f = (in) -> in + 10; out(f([1, 2]))')).toMatchAudio([[11, 11, 11], [12, 12, 12]])
+      expect(audio('f = (in) -> in + 10; [1, 2] |> f($) |> out($)')).toMatchAudio([[11, 11, 11], [12, 12, 12]])
     })
 
     it('lifts stereo with signals', () => {
-      const f = 'f = (in) -> in * 0.5; out(f([sine(440), sine(880)]))'
-      const expected = 'out([sine(440) * 0.5, sine(880) * 0.5])'
+      const f = 'f = (in) -> in * 0.5; [sine(440), sine(880)] |> f($) |> out($)'
+      const expected = '[sine(440) * 0.5, sine(880) * 0.5] |> out($)'
       expect(audio(f)).toMatchAudio(audio(expected))
     })
 
     it('lifts stereo with mixed scalar and signal', () => {
-      const f = 'f = (in) -> in + 1; out(f([5, sine(440)]))'
-      const expected = 'out([5 + 1, sine(440) + 1])'
+      const f = 'f = (in) -> in + 1; [5, sine(440)] |> f($) |> out($)'
+      const expected = '[5 + 1, sine(440) + 1] |> out($)'
       expect(audio(f)).toMatchAudio(audio(expected))
     })
 
     it('lifts with complex processing', () => {
-      expect(audio('gain = (in) -> in * 0.5; out(gain([10, 20]))')).toMatchAudio([[5, 5, 5], [10, 10, 10]])
+      expect(audio('gain = (in) -> in * 0.5; [10, 20] |> gain($) |> out($)')).toMatchAudio([[5, 5, 5], [10, 10, 10]])
     })
 
     it('lifts with nested operations', () => {
-      expect(audio('f = (in) -> in * 2 + 1; out(f([3, 4]))')).toMatchAudio([[7, 7, 7], [9, 9, 9]])
+      expect(audio('f = (in) -> in * 2 + 1; [3, 4] |> f($) |> out($)')).toMatchAudio([[7, 7, 7], [9, 9, 9]])
+    })
+
+    it('lifts with the result of another function', () => {
+      expect(audio('f = in -> in + 1; g = () -> [1, 2]; g() |> f($) |> out($)')).toMatchAudio([[2, 2, 2], [3, 3, 3]])
+    })
+
+    it('edge case - delay', () => {
+      const result = audio('[1,2] |> delay($,0) |> out($)', { ticks: 2 })
+      const left = result[0]
+      console.log(left)
+      expect(left.some(v => Math.abs(v) > 0.0001)).toBe(true)
     })
   })
 

@@ -318,9 +318,9 @@ bdsynth=(
   trig=tram('x-x-x-x-'),
 )->sine(base+punch*fm(trig),offset,trig)*amp(trig) |> lps($,base+cutoff*filter(trig),q) |> limiter($)
 
-bd=(base,punch,offset,cutoff,q,amp,fm,filter,trig=tram('x-x-x-x-'))->{
+bd=(base,punch,offset,sampleOffset=0,cutoff,q,amp,fm,filter,trig=tram('x-x-x-x-'))->{
   sample=record(.2,()->bdsynth(base,punch,offset,cutoff,q,amp,fm,filter,trig:1))
-  sampler(sample,trig)
+  sampler(sample,offset:sampleOffset,trig)
 }
 
 hhsynth=(width=.4,trig)->{
