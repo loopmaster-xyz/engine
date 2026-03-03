@@ -363,6 +363,20 @@ drums=(seed=1)->{
   bd()+sd(seed)+ch(chw)+oh(ohw) |> limiter($)
 }
 
+piano=(hz,trig=every(1/8))->{
+  s := 0
+  for (i in 0 .. 7) {
+    s += sine(hz*(1+i**2)+lfotri(1/4,offset:i*0.2)*hz/50)*(i%2==1?3:1)*(7-i**.82)*(i==0?7:1)
+  }
+  s /= 300
+  s += pink()*ad(.001,.3,e:3,trig)*.15 |> bp($,100,3)
+
+  s = s |> lp($,1000+6k*ad(.0003,.8,e:1.5,trig))
+  s = s |> $+chorus($,voices:2,base:.0003,depth:.00009,rate:.25,spread:.6)
+
+  s *= adsr(.003,.2,.3,.6,e:1.5,trig)
+}
+
 ;
 `
 

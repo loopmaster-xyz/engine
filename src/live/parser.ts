@@ -668,7 +668,10 @@ class Parser {
 
       this.pos++
       const op = String(opTok.value)
-      const right = op === '=>' ? this.parsePipe() : this.parseAssign()
+      // Parse assignment RHS via parsePipe so both forms bind correctly:
+      // - `a = b |> f($)` -> `a = (b |> f($))`
+      // - `a |> b = $`    -> `a |> (b = $)`
+      const right = this.parsePipe()
       return {
         type: 'assign',
         op: op as any,

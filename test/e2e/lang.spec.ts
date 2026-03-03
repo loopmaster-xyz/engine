@@ -1372,6 +1372,38 @@ describe('functions', () => {
   })
 
   describe('pipe and arrow precedence', () => {
+    it('assignment captures pipe on RHS', () => {
+      const src = 's = s |> chorus($,voices:2,base:.3,depth:.002,rate:.4,spread:.1)'
+      const { program, errors } = parseTokens(src, tokenize(src).tokens)
+      expect(errors).toEqual([])
+      expect(program).not.toBeNull()
+      const stmt = program!.body[0]
+      expect(stmt.type).toBe('expr')
+      const expr = (stmt as Extract<typeof stmt, { type: 'expr' }>).expr
+      expect(expr.type).toBe('assign')
+      const assign = expr as Extract<typeof expr, { type: 'assign' }>
+      expect(assign.op).toBe('=')
+      expect(assign.left.type).toBe('identifier')
+      expect((assign.left as Extract<typeof assign.left, { type: 'identifier' }>).name).toBe('s')
+      expect(assign.right.type).toBe('binary')
+      expect((assign.right as Extract<typeof assign.right, { type: 'binary' }>).op).toBe('|>')
+    })
+
+    it('pipe can still parse assignment on RHS', () => {
+      const src = 'x |> hz = $'
+      const { program, errors } = parseTokens(src, tokenize(src).tokens)
+      expect(errors).toEqual([])
+      expect(program).not.toBeNull()
+      const stmt = program!.body[0]
+      expect(stmt.type).toBe('expr')
+      const expr = (stmt as Extract<typeof stmt, { type: 'expr' }>).expr
+      expect(expr.type).toBe('binary')
+      const pipe = expr as Extract<typeof expr, { type: 'binary' }>
+      expect(pipe.op).toBe('|>')
+      expect(pipe.right.type).toBe('assign')
+      expect((pipe.right as Extract<typeof pipe.right, { type: 'assign' }>).op).toBe('=')
+    })
+
     it('=> body includes pipe (pipe binds inside arrow)', () => {
       const src = 'fm=>sine($)*ad(trig:every(1/8)) |> lp($,cutoff:1000,q:1)'
       const { program, errors } = parseTokens(src, tokenize(src).tokens)
