@@ -97,6 +97,7 @@ export enum AudioVmOp {
   GenSlicer_default,
   GenBrown_default,
   GenEuclid_default,
+  GenMarkov_default,
   GenPwm_default,
   GenAd_default,
   GenSustain_default,

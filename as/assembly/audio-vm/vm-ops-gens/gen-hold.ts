@@ -13,7 +13,7 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Hold(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Hold_default_(), 215, 0, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Hold_default_(), 279, 0, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Hold_default_>(dst).copyFrom(changetype<Hold_default_>(src))
   }, (dst: Object) => { changetype<Hold_default_>(dst).reset() }))
 }
@@ -41,7 +41,7 @@ case AudioVmOp.GenHold_default: {
         switch (modeMask) {
           case 0: {
             {
-              const slot: GenSlot = vm.genPools[215].get()
+              const slot: GenSlot = vm.genPools[279].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -59,7 +59,7 @@ case AudioVmOp.GenHold_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[215].get()
+              const slot: GenSlot = vm.genPools[279].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -94,7 +94,7 @@ case AudioVmOp.GenHold_default: {
   }
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[215].get()
+      const slot: GenSlot = vm.genPools[279].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)

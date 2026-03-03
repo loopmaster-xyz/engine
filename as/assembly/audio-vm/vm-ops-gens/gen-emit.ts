@@ -13,10 +13,10 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Emit(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Emit_default_value_scalar(), 288, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Emit_default_value_scalar(), 352, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Emit_default_value_scalar>(dst).copyFrom(changetype<Emit_default_value_scalar>(src))
   }, (dst: Object) => { changetype<Emit_default_value_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Emit_default_value_audio(), 289, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Emit_default_value_audio(), 353, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Emit_default_value_audio>(dst).copyFrom(changetype<Emit_default_value_audio>(src))
   }, (dst: Object) => { changetype<Emit_default_value_audio>(dst).reset() }))
 }
@@ -35,7 +35,7 @@ case AudioVmOp.GenEmit_default: {
   vm.paramScratch[0] = valueValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[288].get()
+      const slot: GenSlot = vm.genPools[352].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -49,7 +49,7 @@ case AudioVmOp.GenEmit_default: {
       break
     }
     case 1: {
-      const slot: GenSlot = vm.genPools[289].get()
+      const slot: GenSlot = vm.genPools[353].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

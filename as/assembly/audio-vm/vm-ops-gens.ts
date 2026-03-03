@@ -18,6 +18,7 @@ import { handleGenOp_Lfosine, initGenPools_Lfosine } from './vm-ops-gens/gen-lfo
 import { handleGenOp_Slicer, initGenPools_Slicer } from './vm-ops-gens/gen-slicer'
 import { handleGenOp_Brown, initGenPools_Brown } from './vm-ops-gens/gen-brown'
 import { handleGenOp_Euclid, initGenPools_Euclid } from './vm-ops-gens/gen-euclid'
+import { handleGenOp_Markov, initGenPools_Markov } from './vm-ops-gens/gen-markov'
 import { handleGenOp_Pwm, initGenPools_Pwm } from './vm-ops-gens/gen-pwm'
 import { handleGenOp_Ad, initGenPools_Ad } from './vm-ops-gens/gen-ad'
 import { handleGenOp_Sustain, initGenPools_Sustain } from './vm-ops-gens/gen-sustain'
@@ -81,6 +82,7 @@ export function initGenPools(vm: VmState): void {
   initGenPools_Slicer(vm)
   initGenPools_Brown(vm)
   initGenPools_Euclid(vm)
+  initGenPools_Markov(vm)
   initGenPools_Pwm(vm)
   initGenPools_Ad(vm)
   initGenPools_Sustain(vm)
@@ -117,26 +119,26 @@ export function initGenPools(vm: VmState): void {
   initGenPools_Sampler(vm)
   initGenPools_Moog(vm)
   initGenPools_Svf(vm)
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 619, 2, vm.genPoolManager))
-  vm.genPools.push(new GenPool(() => new TramKernel(), 620, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 683, 2, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => new TramKernel(), 684, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TramKernel>(dst).reset()
   }, (dst: Object) => { changetype<TramKernel>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new MiniKernel(), 621, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new MiniKernel(), 685, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<MiniKernel>(dst).reset()
   }, (dst: Object) => { changetype<MiniKernel>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new TimelineKernel(), 622, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new TimelineKernel(), 686, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TimelineKernel>(dst).reset()
   }, (dst: Object) => { changetype<TimelineKernel>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 623, 0, vm.genPoolManager))
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 624, 0, vm.genPoolManager))
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 625, 1, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 687, 0, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 688, 0, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 689, 1, vm.genPoolManager))
   vm.arrayGetGenPoolIndex = vm.genPools.length - 1
-  vm.tableGenPoolIndex = 619
-  vm.tramGenPoolIndex = 620
-  vm.miniGenPoolIndex = 621
-  vm.timelineGenPoolIndex = 622
-  vm.outGenPoolIndex = 623
-  vm.mixGenPoolIndex = 624
+  vm.tableGenPoolIndex = 683
+  vm.tramGenPoolIndex = 684
+  vm.miniGenPoolIndex = 685
+  vm.timelineGenPoolIndex = 686
+  vm.outGenPoolIndex = 687
+  vm.mixGenPoolIndex = 688
 }
 
 export function handleGenOp(vm: VmState, op: AudioVmOp, pc: i32, opsPtr: usize, params: RunParams): i32 {
@@ -157,6 +159,7 @@ export function handleGenOp(vm: VmState, op: AudioVmOp, pc: i32, opsPtr: usize, 
   if (op >= AudioVmOp.GenSlicer_default && op <= AudioVmOp.GenSlicer_default) return handleGenOp_Slicer(vm, op, pc, opsPtr, params)
   if (op >= AudioVmOp.GenBrown_default && op <= AudioVmOp.GenBrown_default) return handleGenOp_Brown(vm, op, pc, opsPtr, params)
   if (op >= AudioVmOp.GenEuclid_default && op <= AudioVmOp.GenEuclid_default) return handleGenOp_Euclid(vm, op, pc, opsPtr, params)
+  if (op >= AudioVmOp.GenMarkov_default && op <= AudioVmOp.GenMarkov_default) return handleGenOp_Markov(vm, op, pc, opsPtr, params)
   if (op >= AudioVmOp.GenPwm_default && op <= AudioVmOp.GenPwm_default) return handleGenOp_Pwm(vm, op, pc, opsPtr, params)
   if (op >= AudioVmOp.GenAd_default && op <= AudioVmOp.GenAd_default) return handleGenOp_Ad(vm, op, pc, opsPtr, params)
   if (op >= AudioVmOp.GenSustain_default && op <= AudioVmOp.GenSustain_default) return handleGenOp_Sustain(vm, op, pc, opsPtr, params)

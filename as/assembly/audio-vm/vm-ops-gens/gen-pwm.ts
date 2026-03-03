@@ -13,52 +13,52 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Pwm(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_scalar(), 167, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_scalar(), 231, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_audio(), 168, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_audio(), 232, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_audio>(dst).copyFrom(changetype<Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_scalar_width_scalar_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_scalar_offset_audio_trig_scalar(), 169, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_scalar_offset_audio_trig_scalar(), 233, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_scalar_width_scalar_offset_audio_trig_scalar>(dst).copyFrom(changetype<Pwm_default_hz_scalar_width_scalar_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_scalar_width_scalar_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_scalar_offset_audio_trig_audio(), 170, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_scalar_offset_audio_trig_audio(), 234, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_scalar_width_scalar_offset_audio_trig_audio>(dst).copyFrom(changetype<Pwm_default_hz_scalar_width_scalar_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_scalar_width_scalar_offset_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_audio_offset_scalar_trig_scalar(), 171, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_audio_offset_scalar_trig_scalar(), 235, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_scalar_width_audio_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Pwm_default_hz_scalar_width_audio_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_scalar_width_audio_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_audio_offset_scalar_trig_audio(), 172, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_audio_offset_scalar_trig_audio(), 236, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_scalar_width_audio_offset_scalar_trig_audio>(dst).copyFrom(changetype<Pwm_default_hz_scalar_width_audio_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_scalar_width_audio_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_audio_offset_audio_trig_scalar(), 173, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_audio_offset_audio_trig_scalar(), 237, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_scalar_width_audio_offset_audio_trig_scalar>(dst).copyFrom(changetype<Pwm_default_hz_scalar_width_audio_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_scalar_width_audio_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_audio_offset_audio_trig_audio(), 174, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_scalar_width_audio_offset_audio_trig_audio(), 238, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_scalar_width_audio_offset_audio_trig_audio>(dst).copyFrom(changetype<Pwm_default_hz_scalar_width_audio_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_scalar_width_audio_offset_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_scalar_offset_scalar_trig_scalar(), 175, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_scalar_offset_scalar_trig_scalar(), 239, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_audio_width_scalar_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Pwm_default_hz_audio_width_scalar_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_audio_width_scalar_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_scalar_offset_scalar_trig_audio(), 176, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_scalar_offset_scalar_trig_audio(), 240, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_audio_width_scalar_offset_scalar_trig_audio>(dst).copyFrom(changetype<Pwm_default_hz_audio_width_scalar_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_audio_width_scalar_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_scalar_offset_audio_trig_scalar(), 177, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_scalar_offset_audio_trig_scalar(), 241, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_audio_width_scalar_offset_audio_trig_scalar>(dst).copyFrom(changetype<Pwm_default_hz_audio_width_scalar_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_audio_width_scalar_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_scalar_offset_audio_trig_audio(), 178, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_scalar_offset_audio_trig_audio(), 242, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_audio_width_scalar_offset_audio_trig_audio>(dst).copyFrom(changetype<Pwm_default_hz_audio_width_scalar_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_audio_width_scalar_offset_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_audio_offset_scalar_trig_scalar(), 179, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_audio_offset_scalar_trig_scalar(), 243, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_audio_width_audio_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Pwm_default_hz_audio_width_audio_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_audio_width_audio_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_audio_offset_scalar_trig_audio(), 180, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_audio_offset_scalar_trig_audio(), 244, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_audio_width_audio_offset_scalar_trig_audio>(dst).copyFrom(changetype<Pwm_default_hz_audio_width_audio_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_audio_width_audio_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_audio_offset_audio_trig_scalar(), 181, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_audio_offset_audio_trig_scalar(), 245, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_audio_width_audio_offset_audio_trig_scalar>(dst).copyFrom(changetype<Pwm_default_hz_audio_width_audio_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_audio_width_audio_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_audio_offset_audio_trig_audio(), 182, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pwm_default_hz_audio_width_audio_offset_audio_trig_audio(), 246, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pwm_default_hz_audio_width_audio_offset_audio_trig_audio>(dst).copyFrom(changetype<Pwm_default_hz_audio_width_audio_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Pwm_default_hz_audio_width_audio_offset_audio_trig_audio>(dst).reset() }))
 }
@@ -95,7 +95,7 @@ case AudioVmOp.GenPwm_default: {
   vm.paramScratch[3] = trigValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[167].get()
+      const slot: GenSlot = vm.genPools[231].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -109,7 +109,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 8: {
-      const slot: GenSlot = vm.genPools[168].get()
+      const slot: GenSlot = vm.genPools[232].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -125,7 +125,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 4: {
-      const slot: GenSlot = vm.genPools[169].get()
+      const slot: GenSlot = vm.genPools[233].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -141,7 +141,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 12: {
-      const slot: GenSlot = vm.genPools[170].get()
+      const slot: GenSlot = vm.genPools[234].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -159,7 +159,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[171].get()
+      const slot: GenSlot = vm.genPools[235].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -175,7 +175,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 10: {
-      const slot: GenSlot = vm.genPools[172].get()
+      const slot: GenSlot = vm.genPools[236].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -193,7 +193,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 6: {
-      const slot: GenSlot = vm.genPools[173].get()
+      const slot: GenSlot = vm.genPools[237].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -211,7 +211,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 14: {
-      const slot: GenSlot = vm.genPools[174].get()
+      const slot: GenSlot = vm.genPools[238].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -231,7 +231,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 1: {
-      const slot: GenSlot = vm.genPools[175].get()
+      const slot: GenSlot = vm.genPools[239].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -247,7 +247,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 9: {
-      const slot: GenSlot = vm.genPools[176].get()
+      const slot: GenSlot = vm.genPools[240].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -265,7 +265,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 5: {
-      const slot: GenSlot = vm.genPools[177].get()
+      const slot: GenSlot = vm.genPools[241].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -283,7 +283,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 13: {
-      const slot: GenSlot = vm.genPools[178].get()
+      const slot: GenSlot = vm.genPools[242].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -303,7 +303,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 3: {
-      const slot: GenSlot = vm.genPools[179].get()
+      const slot: GenSlot = vm.genPools[243].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -321,7 +321,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 11: {
-      const slot: GenSlot = vm.genPools[180].get()
+      const slot: GenSlot = vm.genPools[244].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -341,7 +341,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 7: {
-      const slot: GenSlot = vm.genPools[181].get()
+      const slot: GenSlot = vm.genPools[245].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -361,7 +361,7 @@ case AudioVmOp.GenPwm_default: {
       break
     }
     case 15: {
-      const slot: GenSlot = vm.genPools[182].get()
+      const slot: GenSlot = vm.genPools[246].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

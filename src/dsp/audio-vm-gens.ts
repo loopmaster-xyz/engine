@@ -185,6 +185,19 @@ export const gens: Record<string, GenDescriptor> = {
       { name: 'bar', default: 1, min: 0, unit: 'bars', description: 'Pattern length in bars' }
     ]
   },
+  Markov: {
+    name: 'Markov',
+    description: 'Markov chain state sequencer with weighted transition probabilities',
+    category: 'sequencers',
+    parameters: [
+      { name: 'states', default: 4, min: 2, max: 16, description: 'Number of states' },
+      { name: 'stay', default: 0.3, min: 0, max: 1, description: 'Probability of staying on current state' },
+      { name: 'step', default: 0.5, min: 0, max: 1, description: 'Probability of stepping to an adjacent state (remainder is random jump)' },
+      { name: 'bias', default: 0.5, min: 0, max: 1, description: 'Step direction bias (0=always down, 0.5=equal, 1=always up)' },
+      { name: 'seed', default: 1, description: 'Random seed' },
+      { name: 'trig', description: 'Advance trigger' }
+    ]
+  },
   Pwm: {
     name: 'Pwm',
     description: 'Band-limited PWM oscillator',

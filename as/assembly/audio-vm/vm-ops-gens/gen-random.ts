@@ -13,7 +13,7 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Random(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Random_default_seed_scalar(), 534, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Random_default_seed_scalar(), 598, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Random_default_seed_scalar>(dst).copyFrom(changetype<Random_default_seed_scalar>(src))
   }, (dst: Object) => { changetype<Random_default_seed_scalar>(dst).reset() }))
 }
@@ -29,7 +29,7 @@ case AudioVmOp.GenRandom_default: {
   vm.paramScratch[0] = seedValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[534].get()
+      const slot: GenSlot = vm.genPools[598].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
