@@ -75,6 +75,8 @@ export function handleAlloc(
   const lengthSamples: i32 = nextPow2(
     i32(Mathf.max(1.0, secondsValue * baseSampleRate)),
   )
+  const lengthBytes: usize = usize(lengthSamples) << 2
+  vmStack.releaseValueTagged(vm, secondsResolved)
 
   let handle: i32 = vm.nextBufferHandle++
   // Offset must stay < 2^24 so encodeScalar(decodeScalar) round-trip preserves the handle (f32 precision)
@@ -86,7 +88,9 @@ export function handleAlloc(
     const lengthChanged: bool = entry.lengthSamples != lengthSamples
     if (rateChanged || lengthChanged) {
       vm.arena.release(entry.buffer)
-      entry.buffer = vm.arena.get(lengthSamples)
+      const newBuffer: Float32Array = vm.arena.get(lengthSamples)
+      memory.fill(newBuffer.dataStart, 0, lengthBytes)
+      entry.buffer = newBuffer
       entry.lengthSamples = lengthSamples
       entry.sampleRate = baseSampleRate
       entry.writeIndex = 0
@@ -95,11 +99,9 @@ export function handleAlloc(
     return RunResult.normal(pc, opsPtr, params.opsLength)
   }
 
-  const entry: BufferEntry = vm.bufferEntryPool.acquire(
-    vm.arena.get(lengthSamples),
-    lengthSamples,
-    baseSampleRate,
-  )
+  const buffer: Float32Array = vm.arena.get(lengthSamples)
+  memory.fill(buffer.dataStart, 0, lengthBytes)
+  const entry: BufferEntry = vm.bufferEntryPool.acquire(buffer, lengthSamples, baseSampleRate)
   vm.bufferRegistry.set(handle, entry)
   vmStack.push(vm, encodeScalar(f32(handle)))
   return RunResult.normal(pc, opsPtr, params.opsLength)
