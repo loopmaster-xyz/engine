@@ -225,7 +225,6 @@ describe('automatic stereo lifting', () => {
     it('edge case - delay', () => {
       const result = audio('[1,2] |> delay($,0) |> out($)', { ticks: 2 })
       const left = result[0]
-      console.log(left)
       expect(left.some(v => Math.abs(v) > 0.0001)).toBe(true)
     })
   })

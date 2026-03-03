@@ -551,6 +551,7 @@ export function handleReturn(
   let frame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
   if (frame.stereoFirst && frame.stereoArgs != null) {
     frame.stereoLeftValue = returnValue
+    vmStack.retainValueTagged(vm, frame.stereoLeftValue)
     if (frame.returnStackTop < returnSlot) releaseStackRangeWithFullStackCheck(vm, frame.returnStackTop, returnSlot)
     if (returnSlot + 1 < vm.stackTop) releaseStackRangeWithFullStackCheck(vm, returnSlot + 1, vm.stackTop)
     vm.stackTop = frame.returnStackTop + 1
@@ -599,7 +600,12 @@ export function handleReturn(
   if (vm.callStack.length > 0) {
     const prevFrame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
     if (prevFrame.stereoFirst && prevFrame.stereoArgs != null) {
-      const L: f64 = prevFrame.stereoLeftValue
+      let L: f64 = prevFrame.stereoLeftValue
+      if (!isAudio(L) && !isScalar(L) && (isAudio(returnValue) || isScalar(returnValue))) {
+        L = returnValue
+      }
+      heap.retainValue(vm, L)
+      heap.retainValue(vm, returnValue)
       vm.callStack.pop()
       if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
       heap.releaseValuesInTaggedArray(vm, prevFrame.stereoArgs!, prevFrame.stereoArgs!.length)
