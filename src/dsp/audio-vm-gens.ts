@@ -207,6 +207,15 @@ export const gens: Record<string, GenDescriptor> = {
       { name: 'trig', description: 'Trigger impulse' }
     ]
   },
+  Sustain: {
+    name: 'Sustain',
+    description: 'Sustain an impulse for a fixed duration',
+    category: 'sequencers',
+    parameters: [
+      { name: 'seconds', default: 0.1, min: 0.00001, unit: 's', description: 'Sustain duration in seconds' },
+      { name: 'trig', description: 'Trigger impulse' }
+    ]
+  },
   Onepole: {
     name: 'Onepole',
     description: 'One-pole filter (lowpass / highpass)',

@@ -13,100 +13,100 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Fdn(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar(), 480, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar(), 484, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio(), 481, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio(), 485, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar(), 482, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar(), 486, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio(), 483, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio(), 487, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar(), 484, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar(), 488, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio(), 485, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio(), 489, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar(), 486, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar(), 490, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio(), 487, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio(), 491, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar(), 488, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar(), 492, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio(), 489, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio(), 493, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar(), 490, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar(), 494, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio(), 491, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio(), 495, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar(), 492, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar(), 496, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio(), 493, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio(), 497, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar(), 494, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar(), 498, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_audio_depth_audio(), 495, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_audio_depth_audio(), 499, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_audio>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_audio>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar_stereo(), 496, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar_stereo(), 500, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar_stereo>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo(), 497, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo(), 501, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo(), 498, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo(), 502, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo(), 499, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo(), 503, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo(), 500, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo(), 504, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo(), 501, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo(), 505, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo(), 502, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo(), 506, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo(), 503, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo(), 507, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo>(dst).copyFrom(changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo(), 504, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo(), 508, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo(), 505, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo(), 509, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo(), 506, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo(), 510, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo(), 507, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo(), 511, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo(), 508, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo(), 512, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo(), 509, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo(), 513, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo(), 510, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo(), 514, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo(), 511, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo(), 515, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo>(dst).copyFrom(changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo>(src))
   }, (dst: Object) => { changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo>(dst).reset() }))
 }
@@ -162,7 +162,7 @@ case AudioVmOp.GenFdn_default: {
         const inputRightBuf: Float32Array = rightResult.buf
         switch (modeMask) {
           case 0: {
-            const slot: GenSlot = vm.genPools[496].get()
+            const slot: GenSlot = vm.genPools[500].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -206,7 +206,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 8: {
-            const slot: GenSlot = vm.genPools[497].get()
+            const slot: GenSlot = vm.genPools[501].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -252,7 +252,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 4: {
-            const slot: GenSlot = vm.genPools[498].get()
+            const slot: GenSlot = vm.genPools[502].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -298,7 +298,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 12: {
-            const slot: GenSlot = vm.genPools[499].get()
+            const slot: GenSlot = vm.genPools[503].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -346,7 +346,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 2: {
-            const slot: GenSlot = vm.genPools[500].get()
+            const slot: GenSlot = vm.genPools[504].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -392,7 +392,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 10: {
-            const slot: GenSlot = vm.genPools[501].get()
+            const slot: GenSlot = vm.genPools[505].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -440,7 +440,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 6: {
-            const slot: GenSlot = vm.genPools[502].get()
+            const slot: GenSlot = vm.genPools[506].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -488,7 +488,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 14: {
-            const slot: GenSlot = vm.genPools[503].get()
+            const slot: GenSlot = vm.genPools[507].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -538,7 +538,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 1: {
-            const slot: GenSlot = vm.genPools[504].get()
+            const slot: GenSlot = vm.genPools[508].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -584,7 +584,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 9: {
-            const slot: GenSlot = vm.genPools[505].get()
+            const slot: GenSlot = vm.genPools[509].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -632,7 +632,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 5: {
-            const slot: GenSlot = vm.genPools[506].get()
+            const slot: GenSlot = vm.genPools[510].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -680,7 +680,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 13: {
-            const slot: GenSlot = vm.genPools[507].get()
+            const slot: GenSlot = vm.genPools[511].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -730,7 +730,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 3: {
-            const slot: GenSlot = vm.genPools[508].get()
+            const slot: GenSlot = vm.genPools[512].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -778,7 +778,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 11: {
-            const slot: GenSlot = vm.genPools[509].get()
+            const slot: GenSlot = vm.genPools[513].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -828,7 +828,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 7: {
-            const slot: GenSlot = vm.genPools[510].get()
+            const slot: GenSlot = vm.genPools[514].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -878,7 +878,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 15: {
-            const slot: GenSlot = vm.genPools[511].get()
+            const slot: GenSlot = vm.genPools[515].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -942,7 +942,7 @@ case AudioVmOp.GenFdn_default: {
         const inputRightBuf: Float32Array = monoInputResult.buf
         switch (modeMask) {
           case 0: {
-            const slot: GenSlot = vm.genPools[496].get()
+            const slot: GenSlot = vm.genPools[500].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -986,7 +986,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 8: {
-            const slot: GenSlot = vm.genPools[497].get()
+            const slot: GenSlot = vm.genPools[501].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1032,7 +1032,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 4: {
-            const slot: GenSlot = vm.genPools[498].get()
+            const slot: GenSlot = vm.genPools[502].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1078,7 +1078,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 12: {
-            const slot: GenSlot = vm.genPools[499].get()
+            const slot: GenSlot = vm.genPools[503].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1126,7 +1126,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 2: {
-            const slot: GenSlot = vm.genPools[500].get()
+            const slot: GenSlot = vm.genPools[504].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1172,7 +1172,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 10: {
-            const slot: GenSlot = vm.genPools[501].get()
+            const slot: GenSlot = vm.genPools[505].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1220,7 +1220,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 6: {
-            const slot: GenSlot = vm.genPools[502].get()
+            const slot: GenSlot = vm.genPools[506].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1268,7 +1268,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 14: {
-            const slot: GenSlot = vm.genPools[503].get()
+            const slot: GenSlot = vm.genPools[507].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1318,7 +1318,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 1: {
-            const slot: GenSlot = vm.genPools[504].get()
+            const slot: GenSlot = vm.genPools[508].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1364,7 +1364,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 9: {
-            const slot: GenSlot = vm.genPools[505].get()
+            const slot: GenSlot = vm.genPools[509].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1412,7 +1412,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 5: {
-            const slot: GenSlot = vm.genPools[506].get()
+            const slot: GenSlot = vm.genPools[510].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1460,7 +1460,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 13: {
-            const slot: GenSlot = vm.genPools[507].get()
+            const slot: GenSlot = vm.genPools[511].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1510,7 +1510,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 3: {
-            const slot: GenSlot = vm.genPools[508].get()
+            const slot: GenSlot = vm.genPools[512].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1558,7 +1558,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 11: {
-            const slot: GenSlot = vm.genPools[509].get()
+            const slot: GenSlot = vm.genPools[513].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1608,7 +1608,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 7: {
-            const slot: GenSlot = vm.genPools[510].get()
+            const slot: GenSlot = vm.genPools[514].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1658,7 +1658,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 15: {
-            const slot: GenSlot = vm.genPools[511].get()
+            const slot: GenSlot = vm.genPools[515].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1722,7 +1722,7 @@ case AudioVmOp.GenFdn_default: {
     const inputRightBuf: Float32Array = monoInputResult.buf
     switch (modeMask) {
       case 0: {
-        const slot: GenSlot = vm.genPools[496].get()
+        const slot: GenSlot = vm.genPools[500].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1766,7 +1766,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 8: {
-        const slot: GenSlot = vm.genPools[497].get()
+        const slot: GenSlot = vm.genPools[501].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1812,7 +1812,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 4: {
-        const slot: GenSlot = vm.genPools[498].get()
+        const slot: GenSlot = vm.genPools[502].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1858,7 +1858,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 12: {
-        const slot: GenSlot = vm.genPools[499].get()
+        const slot: GenSlot = vm.genPools[503].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1906,7 +1906,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 2: {
-        const slot: GenSlot = vm.genPools[500].get()
+        const slot: GenSlot = vm.genPools[504].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1952,7 +1952,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 10: {
-        const slot: GenSlot = vm.genPools[501].get()
+        const slot: GenSlot = vm.genPools[505].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2000,7 +2000,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 6: {
-        const slot: GenSlot = vm.genPools[502].get()
+        const slot: GenSlot = vm.genPools[506].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2048,7 +2048,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 14: {
-        const slot: GenSlot = vm.genPools[503].get()
+        const slot: GenSlot = vm.genPools[507].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2098,7 +2098,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 1: {
-        const slot: GenSlot = vm.genPools[504].get()
+        const slot: GenSlot = vm.genPools[508].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2144,7 +2144,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 9: {
-        const slot: GenSlot = vm.genPools[505].get()
+        const slot: GenSlot = vm.genPools[509].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2192,7 +2192,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 5: {
-        const slot: GenSlot = vm.genPools[506].get()
+        const slot: GenSlot = vm.genPools[510].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2240,7 +2240,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 13: {
-        const slot: GenSlot = vm.genPools[507].get()
+        const slot: GenSlot = vm.genPools[511].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2290,7 +2290,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 3: {
-        const slot: GenSlot = vm.genPools[508].get()
+        const slot: GenSlot = vm.genPools[512].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2338,7 +2338,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 11: {
-        const slot: GenSlot = vm.genPools[509].get()
+        const slot: GenSlot = vm.genPools[513].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2388,7 +2388,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 7: {
-        const slot: GenSlot = vm.genPools[510].get()
+        const slot: GenSlot = vm.genPools[514].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -2438,7 +2438,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 15: {
-        const slot: GenSlot = vm.genPools[511].get()
+        const slot: GenSlot = vm.genPools[515].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)

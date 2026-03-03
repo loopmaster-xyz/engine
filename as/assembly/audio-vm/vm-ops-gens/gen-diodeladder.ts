@@ -13,52 +13,52 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Diodeladder(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar(), 333, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar(), 337, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio(), 334, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio(), 338, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_scalar_sat_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar(), 335, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar(), 339, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio(), 336, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio(), 340, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_scalar_k_audio_sat_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar(), 337, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar(), 341, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio(), 338, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio(), 342, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_audio_k_scalar_sat_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar(), 339, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar(), 343, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio(), 340, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio(), 344, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_scalar_q_audio_k_audio_sat_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar(), 341, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar(), 345, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio(), 342, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio(), 346, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_scalar_k_scalar_sat_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar(), 343, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar(), 347, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio(), 344, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio(), 348, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_scalar_k_audio_sat_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar(), 345, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar(), 349, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio(), 346, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio(), 350, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_audio_k_scalar_sat_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar(), 347, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar(), 351, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio(), 348, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio(), 352, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio>(dst).copyFrom(changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio>(src))
   }, (dst: Object) => { changetype<Diodeladder_default_cutoff_audio_q_audio_k_audio_sat_audio>(dst).reset() }))
 }
@@ -110,7 +110,7 @@ case AudioVmOp.GenDiodeladder_default: {
         switch (modeMask) {
           case 0: {
             {
-              const slot: GenSlot = vm.genPools[333].get()
+              const slot: GenSlot = vm.genPools[337].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -128,7 +128,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[333].get()
+              const slot: GenSlot = vm.genPools[337].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -149,7 +149,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 8: {
             {
-              const slot: GenSlot = vm.genPools[334].get()
+              const slot: GenSlot = vm.genPools[338].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -169,7 +169,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[334].get()
+              const slot: GenSlot = vm.genPools[338].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -192,7 +192,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 4: {
             {
-              const slot: GenSlot = vm.genPools[335].get()
+              const slot: GenSlot = vm.genPools[339].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -212,7 +212,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[335].get()
+              const slot: GenSlot = vm.genPools[339].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -235,7 +235,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 12: {
             {
-              const slot: GenSlot = vm.genPools[336].get()
+              const slot: GenSlot = vm.genPools[340].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -257,7 +257,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[336].get()
+              const slot: GenSlot = vm.genPools[340].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -282,7 +282,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 2: {
             {
-              const slot: GenSlot = vm.genPools[337].get()
+              const slot: GenSlot = vm.genPools[341].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -302,7 +302,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[337].get()
+              const slot: GenSlot = vm.genPools[341].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -325,7 +325,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 10: {
             {
-              const slot: GenSlot = vm.genPools[338].get()
+              const slot: GenSlot = vm.genPools[342].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -347,7 +347,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[338].get()
+              const slot: GenSlot = vm.genPools[342].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -372,7 +372,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 6: {
             {
-              const slot: GenSlot = vm.genPools[339].get()
+              const slot: GenSlot = vm.genPools[343].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -394,7 +394,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[339].get()
+              const slot: GenSlot = vm.genPools[343].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -419,7 +419,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 14: {
             {
-              const slot: GenSlot = vm.genPools[340].get()
+              const slot: GenSlot = vm.genPools[344].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -443,7 +443,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[340].get()
+              const slot: GenSlot = vm.genPools[344].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -470,7 +470,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 1: {
             {
-              const slot: GenSlot = vm.genPools[341].get()
+              const slot: GenSlot = vm.genPools[345].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -490,7 +490,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[341].get()
+              const slot: GenSlot = vm.genPools[345].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -513,7 +513,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 9: {
             {
-              const slot: GenSlot = vm.genPools[342].get()
+              const slot: GenSlot = vm.genPools[346].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -535,7 +535,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[342].get()
+              const slot: GenSlot = vm.genPools[346].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -560,7 +560,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 5: {
             {
-              const slot: GenSlot = vm.genPools[343].get()
+              const slot: GenSlot = vm.genPools[347].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -582,7 +582,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[343].get()
+              const slot: GenSlot = vm.genPools[347].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -607,7 +607,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 13: {
             {
-              const slot: GenSlot = vm.genPools[344].get()
+              const slot: GenSlot = vm.genPools[348].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -631,7 +631,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[344].get()
+              const slot: GenSlot = vm.genPools[348].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -658,7 +658,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 3: {
             {
-              const slot: GenSlot = vm.genPools[345].get()
+              const slot: GenSlot = vm.genPools[349].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -680,7 +680,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[345].get()
+              const slot: GenSlot = vm.genPools[349].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -705,7 +705,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 11: {
             {
-              const slot: GenSlot = vm.genPools[346].get()
+              const slot: GenSlot = vm.genPools[350].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -729,7 +729,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[346].get()
+              const slot: GenSlot = vm.genPools[350].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -756,7 +756,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 7: {
             {
-              const slot: GenSlot = vm.genPools[347].get()
+              const slot: GenSlot = vm.genPools[351].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -780,7 +780,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[347].get()
+              const slot: GenSlot = vm.genPools[351].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -807,7 +807,7 @@ case AudioVmOp.GenDiodeladder_default: {
           }
           case 15: {
             {
-              const slot: GenSlot = vm.genPools[348].get()
+              const slot: GenSlot = vm.genPools[352].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -833,7 +833,7 @@ case AudioVmOp.GenDiodeladder_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[348].get()
+              const slot: GenSlot = vm.genPools[352].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -876,7 +876,7 @@ case AudioVmOp.GenDiodeladder_default: {
   }
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[333].get()
+      const slot: GenSlot = vm.genPools[337].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -894,7 +894,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 8: {
-      const slot: GenSlot = vm.genPools[334].get()
+      const slot: GenSlot = vm.genPools[338].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -914,7 +914,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 4: {
-      const slot: GenSlot = vm.genPools[335].get()
+      const slot: GenSlot = vm.genPools[339].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -934,7 +934,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 12: {
-      const slot: GenSlot = vm.genPools[336].get()
+      const slot: GenSlot = vm.genPools[340].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -956,7 +956,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[337].get()
+      const slot: GenSlot = vm.genPools[341].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -976,7 +976,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 10: {
-      const slot: GenSlot = vm.genPools[338].get()
+      const slot: GenSlot = vm.genPools[342].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -998,7 +998,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 6: {
-      const slot: GenSlot = vm.genPools[339].get()
+      const slot: GenSlot = vm.genPools[343].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -1020,7 +1020,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 14: {
-      const slot: GenSlot = vm.genPools[340].get()
+      const slot: GenSlot = vm.genPools[344].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -1044,7 +1044,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 1: {
-      const slot: GenSlot = vm.genPools[341].get()
+      const slot: GenSlot = vm.genPools[345].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -1064,7 +1064,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 9: {
-      const slot: GenSlot = vm.genPools[342].get()
+      const slot: GenSlot = vm.genPools[346].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -1086,7 +1086,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 5: {
-      const slot: GenSlot = vm.genPools[343].get()
+      const slot: GenSlot = vm.genPools[347].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -1108,7 +1108,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 13: {
-      const slot: GenSlot = vm.genPools[344].get()
+      const slot: GenSlot = vm.genPools[348].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -1132,7 +1132,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 3: {
-      const slot: GenSlot = vm.genPools[345].get()
+      const slot: GenSlot = vm.genPools[349].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -1154,7 +1154,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 11: {
-      const slot: GenSlot = vm.genPools[346].get()
+      const slot: GenSlot = vm.genPools[350].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -1178,7 +1178,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 7: {
-      const slot: GenSlot = vm.genPools[347].get()
+      const slot: GenSlot = vm.genPools[351].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -1202,7 +1202,7 @@ case AudioVmOp.GenDiodeladder_default: {
       break
     }
     case 15: {
-      const slot: GenSlot = vm.genPools[348].get()
+      const slot: GenSlot = vm.genPools[352].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)

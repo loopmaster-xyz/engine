@@ -99,6 +99,7 @@ export enum AudioVmOp {
   GenEuclid_default,
   GenPwm_default,
   GenAd_default,
+  GenSustain_default,
   GenOnepole_lp1,
   GenOnepole_hp1,
   GenSqr_default,

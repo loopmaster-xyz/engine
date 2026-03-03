@@ -13,196 +13,196 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Adsr(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar(), 373, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar(), 377, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio(), 374, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio(), 378, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar(), 375, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar(), 379, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio(), 376, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio(), 380, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar(), 377, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar(), 381, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio(), 378, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio(), 382, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar(), 379, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar(), 383, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio(), 380, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio(), 384, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar(), 381, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar(), 385, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio(), 382, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio(), 386, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar(), 383, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar(), 387, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio(), 384, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio(), 388, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar(), 385, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar(), 389, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio(), 386, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio(), 390, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar(), 387, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar(), 391, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio(), 388, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio(), 392, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar(), 389, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar(), 393, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio(), 390, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio(), 394, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar(), 391, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar(), 395, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio(), 392, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio(), 396, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar(), 393, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar(), 397, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio(), 394, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio(), 398, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar(), 395, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar(), 399, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio(), 396, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio(), 400, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar(), 397, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar(), 401, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio(), 398, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio(), 402, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar(), 399, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar(), 403, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio(), 400, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio(), 404, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar(), 401, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar(), 405, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio(), 402, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio(), 406, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar(), 403, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar(), 407, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio(), 404, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio(), 408, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_scalar_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar(), 405, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar(), 409, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio(), 406, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio(), 410, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar(), 407, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar(), 411, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio(), 408, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio(), 412, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_scalar_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar(), 409, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar(), 413, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio(), 410, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio(), 414, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar(), 411, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar(), 415, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio(), 412, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio(), 416, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_scalar_release_audio_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar(), 413, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar(), 417, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio(), 414, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio(), 418, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar(), 415, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar(), 419, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio(), 416, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio(), 420, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_scalar_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar(), 417, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar(), 421, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio(), 418, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio(), 422, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar(), 419, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar(), 423, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio(), 420, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio(), 424, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_scalar_sustain_audio_release_audio_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar(), 421, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar(), 425, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio(), 422, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio(), 426, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar(), 423, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar(), 427, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio(), 424, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio(), 428, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_scalar_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar(), 425, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar(), 429, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio(), 426, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio(), 430, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar(), 427, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar(), 431, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio(), 428, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio(), 432, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_scalar_release_audio_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar(), 429, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar(), 433, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio(), 430, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio(), 434, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar(), 431, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar(), 435, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio(), 432, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio(), 436, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_scalar_exponent_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar(), 433, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar(), 437, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio(), 434, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio(), 438, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar(), 435, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar(), 439, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio(), 436, 8, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio(), 440, 8, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio>(dst).copyFrom(changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Adsr_default_attack_audio_decay_audio_sustain_audio_release_audio_exponent_audio_trig_audio>(dst).reset() }))
 }
@@ -251,7 +251,7 @@ case AudioVmOp.GenAdsr_default: {
   vm.paramScratch[5] = trigValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[373].get()
+      const slot: GenSlot = vm.genPools[377].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -285,7 +285,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 32: {
-      const slot: GenSlot = vm.genPools[374].get()
+      const slot: GenSlot = vm.genPools[378].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -334,7 +334,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 16: {
-      const slot: GenSlot = vm.genPools[375].get()
+      const slot: GenSlot = vm.genPools[379].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -383,7 +383,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 48: {
-      const slot: GenSlot = vm.genPools[376].get()
+      const slot: GenSlot = vm.genPools[380].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -447,7 +447,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 8: {
-      const slot: GenSlot = vm.genPools[377].get()
+      const slot: GenSlot = vm.genPools[381].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -496,7 +496,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 40: {
-      const slot: GenSlot = vm.genPools[378].get()
+      const slot: GenSlot = vm.genPools[382].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -560,7 +560,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 24: {
-      const slot: GenSlot = vm.genPools[379].get()
+      const slot: GenSlot = vm.genPools[383].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -624,7 +624,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 56: {
-      const slot: GenSlot = vm.genPools[380].get()
+      const slot: GenSlot = vm.genPools[384].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -703,7 +703,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 4: {
-      const slot: GenSlot = vm.genPools[381].get()
+      const slot: GenSlot = vm.genPools[385].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -752,7 +752,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 36: {
-      const slot: GenSlot = vm.genPools[382].get()
+      const slot: GenSlot = vm.genPools[386].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -816,7 +816,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 20: {
-      const slot: GenSlot = vm.genPools[383].get()
+      const slot: GenSlot = vm.genPools[387].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -880,7 +880,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 52: {
-      const slot: GenSlot = vm.genPools[384].get()
+      const slot: GenSlot = vm.genPools[388].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -959,7 +959,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 12: {
-      const slot: GenSlot = vm.genPools[385].get()
+      const slot: GenSlot = vm.genPools[389].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1023,7 +1023,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 44: {
-      const slot: GenSlot = vm.genPools[386].get()
+      const slot: GenSlot = vm.genPools[390].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1102,7 +1102,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 28: {
-      const slot: GenSlot = vm.genPools[387].get()
+      const slot: GenSlot = vm.genPools[391].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1181,7 +1181,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 60: {
-      const slot: GenSlot = vm.genPools[388].get()
+      const slot: GenSlot = vm.genPools[392].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1275,7 +1275,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[389].get()
+      const slot: GenSlot = vm.genPools[393].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1324,7 +1324,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 34: {
-      const slot: GenSlot = vm.genPools[390].get()
+      const slot: GenSlot = vm.genPools[394].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1388,7 +1388,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 18: {
-      const slot: GenSlot = vm.genPools[391].get()
+      const slot: GenSlot = vm.genPools[395].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1452,7 +1452,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 50: {
-      const slot: GenSlot = vm.genPools[392].get()
+      const slot: GenSlot = vm.genPools[396].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1531,7 +1531,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 10: {
-      const slot: GenSlot = vm.genPools[393].get()
+      const slot: GenSlot = vm.genPools[397].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1595,7 +1595,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 42: {
-      const slot: GenSlot = vm.genPools[394].get()
+      const slot: GenSlot = vm.genPools[398].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1674,7 +1674,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 26: {
-      const slot: GenSlot = vm.genPools[395].get()
+      const slot: GenSlot = vm.genPools[399].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1753,7 +1753,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 58: {
-      const slot: GenSlot = vm.genPools[396].get()
+      const slot: GenSlot = vm.genPools[400].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1847,7 +1847,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 6: {
-      const slot: GenSlot = vm.genPools[397].get()
+      const slot: GenSlot = vm.genPools[401].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1911,7 +1911,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 38: {
-      const slot: GenSlot = vm.genPools[398].get()
+      const slot: GenSlot = vm.genPools[402].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -1990,7 +1990,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 22: {
-      const slot: GenSlot = vm.genPools[399].get()
+      const slot: GenSlot = vm.genPools[403].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2069,7 +2069,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 54: {
-      const slot: GenSlot = vm.genPools[400].get()
+      const slot: GenSlot = vm.genPools[404].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2163,7 +2163,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 14: {
-      const slot: GenSlot = vm.genPools[401].get()
+      const slot: GenSlot = vm.genPools[405].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2242,7 +2242,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 46: {
-      const slot: GenSlot = vm.genPools[402].get()
+      const slot: GenSlot = vm.genPools[406].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2336,7 +2336,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 30: {
-      const slot: GenSlot = vm.genPools[403].get()
+      const slot: GenSlot = vm.genPools[407].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2430,7 +2430,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 62: {
-      const slot: GenSlot = vm.genPools[404].get()
+      const slot: GenSlot = vm.genPools[408].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2539,7 +2539,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 1: {
-      const slot: GenSlot = vm.genPools[405].get()
+      const slot: GenSlot = vm.genPools[409].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2588,7 +2588,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 33: {
-      const slot: GenSlot = vm.genPools[406].get()
+      const slot: GenSlot = vm.genPools[410].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2652,7 +2652,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 17: {
-      const slot: GenSlot = vm.genPools[407].get()
+      const slot: GenSlot = vm.genPools[411].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2716,7 +2716,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 49: {
-      const slot: GenSlot = vm.genPools[408].get()
+      const slot: GenSlot = vm.genPools[412].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2795,7 +2795,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 9: {
-      const slot: GenSlot = vm.genPools[409].get()
+      const slot: GenSlot = vm.genPools[413].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2859,7 +2859,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 41: {
-      const slot: GenSlot = vm.genPools[410].get()
+      const slot: GenSlot = vm.genPools[414].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -2938,7 +2938,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 25: {
-      const slot: GenSlot = vm.genPools[411].get()
+      const slot: GenSlot = vm.genPools[415].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3017,7 +3017,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 57: {
-      const slot: GenSlot = vm.genPools[412].get()
+      const slot: GenSlot = vm.genPools[416].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3111,7 +3111,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 5: {
-      const slot: GenSlot = vm.genPools[413].get()
+      const slot: GenSlot = vm.genPools[417].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3175,7 +3175,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 37: {
-      const slot: GenSlot = vm.genPools[414].get()
+      const slot: GenSlot = vm.genPools[418].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3254,7 +3254,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 21: {
-      const slot: GenSlot = vm.genPools[415].get()
+      const slot: GenSlot = vm.genPools[419].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3333,7 +3333,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 53: {
-      const slot: GenSlot = vm.genPools[416].get()
+      const slot: GenSlot = vm.genPools[420].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3427,7 +3427,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 13: {
-      const slot: GenSlot = vm.genPools[417].get()
+      const slot: GenSlot = vm.genPools[421].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3506,7 +3506,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 45: {
-      const slot: GenSlot = vm.genPools[418].get()
+      const slot: GenSlot = vm.genPools[422].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3600,7 +3600,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 29: {
-      const slot: GenSlot = vm.genPools[419].get()
+      const slot: GenSlot = vm.genPools[423].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3694,7 +3694,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 61: {
-      const slot: GenSlot = vm.genPools[420].get()
+      const slot: GenSlot = vm.genPools[424].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3803,7 +3803,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 3: {
-      const slot: GenSlot = vm.genPools[421].get()
+      const slot: GenSlot = vm.genPools[425].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3867,7 +3867,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 35: {
-      const slot: GenSlot = vm.genPools[422].get()
+      const slot: GenSlot = vm.genPools[426].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -3946,7 +3946,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 19: {
-      const slot: GenSlot = vm.genPools[423].get()
+      const slot: GenSlot = vm.genPools[427].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4025,7 +4025,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 51: {
-      const slot: GenSlot = vm.genPools[424].get()
+      const slot: GenSlot = vm.genPools[428].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4119,7 +4119,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 11: {
-      const slot: GenSlot = vm.genPools[425].get()
+      const slot: GenSlot = vm.genPools[429].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4198,7 +4198,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 43: {
-      const slot: GenSlot = vm.genPools[426].get()
+      const slot: GenSlot = vm.genPools[430].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4292,7 +4292,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 27: {
-      const slot: GenSlot = vm.genPools[427].get()
+      const slot: GenSlot = vm.genPools[431].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4386,7 +4386,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 59: {
-      const slot: GenSlot = vm.genPools[428].get()
+      const slot: GenSlot = vm.genPools[432].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4495,7 +4495,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 7: {
-      const slot: GenSlot = vm.genPools[429].get()
+      const slot: GenSlot = vm.genPools[433].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4574,7 +4574,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 39: {
-      const slot: GenSlot = vm.genPools[430].get()
+      const slot: GenSlot = vm.genPools[434].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4668,7 +4668,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 23: {
-      const slot: GenSlot = vm.genPools[431].get()
+      const slot: GenSlot = vm.genPools[435].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4762,7 +4762,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 55: {
-      const slot: GenSlot = vm.genPools[432].get()
+      const slot: GenSlot = vm.genPools[436].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4871,7 +4871,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 15: {
-      const slot: GenSlot = vm.genPools[433].get()
+      const slot: GenSlot = vm.genPools[437].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -4965,7 +4965,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 47: {
-      const slot: GenSlot = vm.genPools[434].get()
+      const slot: GenSlot = vm.genPools[438].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -5074,7 +5074,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 31: {
-      const slot: GenSlot = vm.genPools[435].get()
+      const slot: GenSlot = vm.genPools[439].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -5183,7 +5183,7 @@ case AudioVmOp.GenAdsr_default: {
       break
     }
     case 63: {
-      const slot: GenSlot = vm.genPools[436].get()
+      const slot: GenSlot = vm.genPools[440].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

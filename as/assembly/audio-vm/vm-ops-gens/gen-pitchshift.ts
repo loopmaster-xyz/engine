@@ -13,10 +13,10 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Pitchshift(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Pitchshift_default_ratio_scalar(), 318, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pitchshift_default_ratio_scalar(), 322, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pitchshift_default_ratio_scalar>(dst).copyFrom(changetype<Pitchshift_default_ratio_scalar>(src))
   }, (dst: Object) => { changetype<Pitchshift_default_ratio_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pitchshift_default_ratio_audio(), 319, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pitchshift_default_ratio_audio(), 323, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pitchshift_default_ratio_audio>(dst).copyFrom(changetype<Pitchshift_default_ratio_audio>(src))
   }, (dst: Object) => { changetype<Pitchshift_default_ratio_audio>(dst).reset() }))
 }
@@ -50,7 +50,7 @@ case AudioVmOp.GenPitchshift_default: {
         switch (modeMask) {
           case 0: {
             {
-              const slot: GenSlot = vm.genPools[318].get()
+              const slot: GenSlot = vm.genPools[322].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -68,7 +68,7 @@ case AudioVmOp.GenPitchshift_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[318].get()
+              const slot: GenSlot = vm.genPools[322].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -89,7 +89,7 @@ case AudioVmOp.GenPitchshift_default: {
           }
           case 1: {
             {
-              const slot: GenSlot = vm.genPools[319].get()
+              const slot: GenSlot = vm.genPools[323].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, procLen)
@@ -109,7 +109,7 @@ case AudioVmOp.GenPitchshift_default: {
               outputL = output
             }
             {
-              const slot: GenSlot = vm.genPools[319].get()
+              const slot: GenSlot = vm.genPools[323].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, procLen)
@@ -146,7 +146,7 @@ case AudioVmOp.GenPitchshift_default: {
   }
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[318].get()
+      const slot: GenSlot = vm.genPools[322].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
@@ -164,7 +164,7 @@ case AudioVmOp.GenPitchshift_default: {
       break
     }
     case 1: {
-      const slot: GenSlot = vm.genPools[319].get()
+      const slot: GenSlot = vm.genPools[323].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)

@@ -13,28 +13,28 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Smooth(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_scalar(), 357, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_scalar(), 361, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_scalar>(dst).copyFrom(changetype<Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_audio(), 358, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_audio(), 362, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_audio>(dst).copyFrom(changetype<Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_scalar(), 359, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_scalar(), 363, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_scalar>(dst).copyFrom(changetype<Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_audio(), 360, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_audio(), 364, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_audio>(dst).copyFrom(changetype<Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_scalar(), 361, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_scalar(), 365, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_scalar>(dst).copyFrom(changetype<Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_audio(), 362, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_audio(), 366, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_audio>(dst).copyFrom(changetype<Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_audio_curve_audio_trig_scalar(), 363, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_audio_curve_audio_trig_scalar(), 367, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Smooth_default_seed_scalar_rate_audio_curve_audio_trig_scalar>(dst).copyFrom(changetype<Smooth_default_seed_scalar_rate_audio_curve_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Smooth_default_seed_scalar_rate_audio_curve_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_audio_curve_audio_trig_audio(), 364, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Smooth_default_seed_scalar_rate_audio_curve_audio_trig_audio(), 368, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Smooth_default_seed_scalar_rate_audio_curve_audio_trig_audio>(dst).copyFrom(changetype<Smooth_default_seed_scalar_rate_audio_curve_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Smooth_default_seed_scalar_rate_audio_curve_audio_trig_audio>(dst).reset() }))
 }
@@ -68,7 +68,7 @@ case AudioVmOp.GenSmooth_default: {
   vm.paramScratch[3] = trigValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[357].get()
+      const slot: GenSlot = vm.genPools[361].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -83,7 +83,7 @@ case AudioVmOp.GenSmooth_default: {
       break
     }
     case 8: {
-      const slot: GenSlot = vm.genPools[358].get()
+      const slot: GenSlot = vm.genPools[362].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -100,7 +100,7 @@ case AudioVmOp.GenSmooth_default: {
       break
     }
     case 4: {
-      const slot: GenSlot = vm.genPools[359].get()
+      const slot: GenSlot = vm.genPools[363].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -117,7 +117,7 @@ case AudioVmOp.GenSmooth_default: {
       break
     }
     case 12: {
-      const slot: GenSlot = vm.genPools[360].get()
+      const slot: GenSlot = vm.genPools[364].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -136,7 +136,7 @@ case AudioVmOp.GenSmooth_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[361].get()
+      const slot: GenSlot = vm.genPools[365].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -153,7 +153,7 @@ case AudioVmOp.GenSmooth_default: {
       break
     }
     case 10: {
-      const slot: GenSlot = vm.genPools[362].get()
+      const slot: GenSlot = vm.genPools[366].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -172,7 +172,7 @@ case AudioVmOp.GenSmooth_default: {
       break
     }
     case 6: {
-      const slot: GenSlot = vm.genPools[363].get()
+      const slot: GenSlot = vm.genPools[367].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -191,7 +191,7 @@ case AudioVmOp.GenSmooth_default: {
       break
     }
     case 14: {
-      const slot: GenSlot = vm.genPools[364].get()
+      const slot: GenSlot = vm.genPools[368].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
