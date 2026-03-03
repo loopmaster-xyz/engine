@@ -4,6 +4,7 @@
 import { Envfollow_default_attack_audio_release_audio, Envfollow_default_attack_audio_release_scalar, Envfollow_default_attack_scalar_release_audio, Envfollow_default_attack_scalar_release_scalar } from '../../gen/envfollow'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'
@@ -239,6 +240,7 @@ case AudioVmOp.GenEnvfollow_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }

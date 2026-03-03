@@ -4,6 +4,7 @@
 import { Moog_hpm_cutoff_audio_q_scalar, Moog_hpm_cutoff_scalar_q_scalar, Moog_lpm_cutoff_audio_q_scalar, Moog_lpm_cutoff_scalar_q_scalar } from '../../gen/moog'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'
@@ -146,6 +147,7 @@ case AudioVmOp.GenMoog_lpm: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -323,6 +325,7 @@ case AudioVmOp.GenMoog_hpm: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }

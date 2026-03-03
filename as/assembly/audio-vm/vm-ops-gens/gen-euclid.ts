@@ -4,6 +4,7 @@
 import { Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio, Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar, Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio, Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar, Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio, Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar, Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio, Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar, Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio, Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar, Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio, Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar, Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio, Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar, Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio, Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar } from '../../gen/euclid'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'

@@ -4,6 +4,7 @@
 import { Ad_default_attack_audio_decay_audio_exponent_audio_trig_audio, Ad_default_attack_audio_decay_audio_exponent_audio_trig_scalar, Ad_default_attack_audio_decay_audio_exponent_scalar_trig_audio, Ad_default_attack_audio_decay_audio_exponent_scalar_trig_scalar, Ad_default_attack_audio_decay_scalar_exponent_audio_trig_audio, Ad_default_attack_audio_decay_scalar_exponent_audio_trig_scalar, Ad_default_attack_audio_decay_scalar_exponent_scalar_trig_audio, Ad_default_attack_audio_decay_scalar_exponent_scalar_trig_scalar, Ad_default_attack_scalar_decay_audio_exponent_audio_trig_audio, Ad_default_attack_scalar_decay_audio_exponent_audio_trig_scalar, Ad_default_attack_scalar_decay_audio_exponent_scalar_trig_audio, Ad_default_attack_scalar_decay_audio_exponent_scalar_trig_scalar, Ad_default_attack_scalar_decay_scalar_exponent_audio_trig_audio, Ad_default_attack_scalar_decay_scalar_exponent_audio_trig_scalar, Ad_default_attack_scalar_decay_scalar_exponent_scalar_trig_audio, Ad_default_attack_scalar_decay_scalar_exponent_scalar_trig_scalar } from '../../gen/ad'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'

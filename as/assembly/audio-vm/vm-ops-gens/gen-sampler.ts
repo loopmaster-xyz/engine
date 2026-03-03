@@ -4,6 +4,7 @@
 import { Sampler_default_sample_scalar_speed_scalar_offset_audio_repeat_scalar_trig_audio, Sampler_default_sample_scalar_speed_scalar_offset_audio_repeat_scalar_trig_audio_stereo, Sampler_default_sample_scalar_speed_scalar_offset_audio_repeat_scalar_trig_scalar, Sampler_default_sample_scalar_speed_scalar_offset_audio_repeat_scalar_trig_scalar_stereo, Sampler_default_sample_scalar_speed_scalar_offset_scalar_repeat_scalar_trig_audio, Sampler_default_sample_scalar_speed_scalar_offset_scalar_repeat_scalar_trig_audio_stereo, Sampler_default_sample_scalar_speed_scalar_offset_scalar_repeat_scalar_trig_scalar, Sampler_default_sample_scalar_speed_scalar_offset_scalar_repeat_scalar_trig_scalar_stereo } from '../../gen/sampler'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'

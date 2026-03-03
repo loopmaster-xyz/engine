@@ -1253,4 +1253,53 @@ synth=hz->hz|>oversample(4,()->sine($/2+sine($/4)*$*1)*ad(.0001,.5,trig)**3*.2)
     console.log(`  pCount: ${warmup.pCount} -> ${after.pCount}`)
     expect(growth).toBeLessThan(1200)
   })
+
+  it('full user sidechain+delay program should not leak inFlight', () => {
+    const vmId = 0
+    core!.wasm.resetAudioVmAt(vmId)
+
+    const code = `bpm=144 transpose=-3 scale='minor'
+
+bd(
+  punch:10.3k,
+  cutoff:95k,
+  q:.62,
+  fm:trig->ad(.00005,.09,200,trig),
+  filter:trig->ad(.001,.1,100,trig),
+  amp:trig->ad(.0032,.5,21,trig),
+  offset:.52,
+  sampleOffset:.01,
+) |> bus(0,$)
+
+bus(0) |> $+delay($,.11,.2)/2+delay($,.3,.2)/2 |> lp($,55)/2 |> bus(1,$)
+
+ch(0.2, trig:tram('xxxx',1/4))*[.2,.2,.7,.8][t*4] |> bus(1,$)
+
+;[#1,#3].glide(1/2)*o2 |> saw($) |> lpm($,90,1) |> bus(1,$*.1)
+
+;(#vi7sus2*o3).shuffle(11).walk(1/8)
+|> sine($+sine($/1.02)*$*1.05)*.2+sine($+sine($*1.02)*$*1.05)*.5+sine($+sine($*12.02)*$*8.05)*.3
+|> $*ad(.001,.11,3,trig:euclid(3,8)+euclid(3,8,6))*.4
+|> lp($,1.5k) |> $+dattorro($,.5,.8)*.34 |> hp($,177,1) |> bus(1,$*.5)
+
+bus(0) |> out($)
+
+bus(1) |> compressor($,att:.0001,rel:.16,thr:-21,ratio:5,knee:4,key:bus(0)) |> out($)
+
+mix=>compressor($,thr:-13)*2 |> limiter($)`
+
+    const result = controlPipeline.compileSource(code)
+    expect(result.compile.bytecode).toBeDefined()
+    const bytecode = result.compile.bytecode!
+
+    runTicks(vmId, bytecode, 100)
+    const warmup = getArenaStats(vmId)
+
+    runTicks(vmId, bytecode, 1000)
+    const after = getArenaStats(vmId)
+
+    const inFlightGrowth = after.inFlight - warmup.inFlight
+    console.log(`Full sidechain+delay code: inFlight ${warmup.inFlight} -> ${after.inFlight}, growth=${inFlightGrowth}`)
+    expect(inFlightGrowth).toBe(0)
+  }, 30_000)
 })

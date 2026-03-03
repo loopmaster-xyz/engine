@@ -4,6 +4,7 @@
 import { At_default_bar_audio_every_audio_prob_audio_seed_scalar, At_default_bar_audio_every_audio_prob_scalar_seed_scalar, At_default_bar_audio_every_scalar_prob_audio_seed_scalar, At_default_bar_audio_every_scalar_prob_scalar_seed_scalar, At_default_bar_scalar_every_audio_prob_audio_seed_scalar, At_default_bar_scalar_every_audio_prob_scalar_seed_scalar, At_default_bar_scalar_every_scalar_prob_audio_seed_scalar, At_default_bar_scalar_every_scalar_prob_scalar_seed_scalar } from '../../gen/at'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'

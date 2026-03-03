@@ -4,6 +4,7 @@
 import { Lfosah_default_bar_audio_offset_audio_seed_audio_trig_audio, Lfosah_default_bar_audio_offset_audio_seed_audio_trig_scalar, Lfosah_default_bar_audio_offset_audio_seed_scalar_trig_audio, Lfosah_default_bar_audio_offset_audio_seed_scalar_trig_scalar, Lfosah_default_bar_audio_offset_scalar_seed_audio_trig_audio, Lfosah_default_bar_audio_offset_scalar_seed_audio_trig_scalar, Lfosah_default_bar_audio_offset_scalar_seed_scalar_trig_audio, Lfosah_default_bar_audio_offset_scalar_seed_scalar_trig_scalar, Lfosah_default_bar_scalar_offset_audio_seed_audio_trig_audio, Lfosah_default_bar_scalar_offset_audio_seed_audio_trig_scalar, Lfosah_default_bar_scalar_offset_audio_seed_scalar_trig_audio, Lfosah_default_bar_scalar_offset_audio_seed_scalar_trig_scalar, Lfosah_default_bar_scalar_offset_scalar_seed_audio_trig_audio, Lfosah_default_bar_scalar_offset_scalar_seed_audio_trig_scalar, Lfosah_default_bar_scalar_offset_scalar_seed_scalar_trig_audio, Lfosah_default_bar_scalar_offset_scalar_seed_scalar_trig_scalar } from '../../gen/lfosah'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'

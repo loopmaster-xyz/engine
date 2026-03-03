@@ -4,6 +4,7 @@
 import { Smooth_default_seed_scalar_rate_audio_curve_audio_trig_audio, Smooth_default_seed_scalar_rate_audio_curve_audio_trig_scalar, Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_audio, Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_scalar, Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_audio, Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_scalar, Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_audio, Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_scalar } from '../../gen/smooth'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'

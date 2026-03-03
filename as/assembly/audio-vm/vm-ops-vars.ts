@@ -556,6 +556,8 @@ export function handleReturn(
     frame.stereoLeftValue = returnValue
     vmStack.retainValueTagged(vm, frame.stereoLeftValue)
     if (frame.returnStackTop < returnSlot) releaseStackRangeWithFullStackCheck(vm, frame.returnStackTop, returnSlot)
+    // Return slot ownership is replaced by stereoLeftValue retain above.
+    releaseStackRangeWithFullStackCheck(vm, returnSlot, returnSlot + 1)
     if (returnSlot + 1 < vm.stackTop) releaseStackRangeWithFullStackCheck(vm, returnSlot + 1, vm.stackTop)
     vm.stackTop = frame.returnStackTop + 1
     for (let i: i32 = 0; i < frame.stereoArgCount; i++) {
@@ -607,8 +609,6 @@ export function handleReturn(
       if (!isAudio(L) && !isScalar(L) && (isAudio(returnValue) || isScalar(returnValue))) {
         L = returnValue
       }
-      heap.retainValue(vm, L)
-      heap.retainValue(vm, returnValue)
       vm.callStack.pop()
       if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
       heap.releaseValuesInTaggedArray(vm, prevFrame.stereoArgs!, prevFrame.stereoArgs!.length)

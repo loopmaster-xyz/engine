@@ -4,6 +4,7 @@
 import { Biquad_ap_cutoff_audio_q_audio, Biquad_ap_cutoff_audio_q_scalar, Biquad_ap_cutoff_scalar_q_audio, Biquad_ap_cutoff_scalar_q_scalar, Biquad_bp_cutoff_audio_q_audio, Biquad_bp_cutoff_audio_q_scalar, Biquad_bp_cutoff_scalar_q_audio, Biquad_bp_cutoff_scalar_q_scalar, Biquad_bs_cutoff_audio_q_audio, Biquad_bs_cutoff_audio_q_scalar, Biquad_bs_cutoff_scalar_q_audio, Biquad_bs_cutoff_scalar_q_scalar, Biquad_hp_cutoff_audio_q_audio, Biquad_hp_cutoff_audio_q_scalar, Biquad_hp_cutoff_scalar_q_audio, Biquad_hp_cutoff_scalar_q_scalar, Biquad_lp_cutoff_audio_q_audio, Biquad_lp_cutoff_audio_q_scalar, Biquad_lp_cutoff_scalar_q_audio, Biquad_lp_cutoff_scalar_q_scalar } from '../../gen/biquad'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'
@@ -287,6 +288,7 @@ case AudioVmOp.GenBiquad_lp: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -599,6 +601,7 @@ case AudioVmOp.GenBiquad_hp: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -911,6 +914,7 @@ case AudioVmOp.GenBiquad_bp: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -1223,6 +1227,7 @@ case AudioVmOp.GenBiquad_bs: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -1535,6 +1540,7 @@ case AudioVmOp.GenBiquad_ap: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }

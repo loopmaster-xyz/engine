@@ -4,6 +4,7 @@
 import { Biquadshelf_hs_cutoff_audio_q_audio_gain_audio, Biquadshelf_hs_cutoff_audio_q_audio_gain_scalar, Biquadshelf_hs_cutoff_audio_q_scalar_gain_audio, Biquadshelf_hs_cutoff_audio_q_scalar_gain_scalar, Biquadshelf_hs_cutoff_scalar_q_audio_gain_audio, Biquadshelf_hs_cutoff_scalar_q_audio_gain_scalar, Biquadshelf_hs_cutoff_scalar_q_scalar_gain_audio, Biquadshelf_hs_cutoff_scalar_q_scalar_gain_scalar, Biquadshelf_ls_cutoff_audio_q_audio_gain_audio, Biquadshelf_ls_cutoff_audio_q_audio_gain_scalar, Biquadshelf_ls_cutoff_audio_q_scalar_gain_audio, Biquadshelf_ls_cutoff_audio_q_scalar_gain_scalar, Biquadshelf_ls_cutoff_scalar_q_audio_gain_audio, Biquadshelf_ls_cutoff_scalar_q_audio_gain_scalar, Biquadshelf_ls_cutoff_scalar_q_scalar_gain_audio, Biquadshelf_ls_cutoff_scalar_q_scalar_gain_scalar, Biquadshelf_peak_cutoff_audio_q_audio_gain_audio, Biquadshelf_peak_cutoff_audio_q_audio_gain_scalar, Biquadshelf_peak_cutoff_audio_q_scalar_gain_audio, Biquadshelf_peak_cutoff_audio_q_scalar_gain_scalar, Biquadshelf_peak_cutoff_scalar_q_audio_gain_audio, Biquadshelf_peak_cutoff_scalar_q_audio_gain_scalar, Biquadshelf_peak_cutoff_scalar_q_scalar_gain_audio, Biquadshelf_peak_cutoff_scalar_q_scalar_gain_scalar } from '../../gen/biquadshelf'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'
@@ -493,6 +494,7 @@ case AudioVmOp.GenBiquadshelf_ls: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -1088,6 +1090,7 @@ case AudioVmOp.GenBiquadshelf_hs: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -1683,6 +1686,7 @@ case AudioVmOp.GenBiquadshelf_peak: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }

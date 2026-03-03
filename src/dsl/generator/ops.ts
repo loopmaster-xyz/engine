@@ -543,7 +543,8 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
         outLines.push(wState('}'))
         outLines.push(wState('genOpHelpers.releaseTaggedInputResult(this, inputLeftPtr, inputLeftBuf)'))
         outLines.push(wState('genOpHelpers.releaseTaggedInputResult(this, inputRightPtr, inputRightBuf)'))
-        // Input arrays are borrowed values; do not consume/release them here.
+        // Release only the consumed input tagged value (refcounted). Do not clear array slots directly.
+        outLines.push(wState('heap.releaseValue(this, inputResolved)'))
         // Stereo path: L/R already pushed inside generateStereoSpecCode
         outIndent.dedent()
         outLines.push(wState('} else {'))
@@ -731,7 +732,8 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
           outLines.push(wState('this.arrayLengths.push(2)'))
           outLines.push(wState('this.arrayRefcounts.push(0)'))
           outLines.push(wState('this.push(encodeArray(u32(this.arrays.length)))'))
-          // Input arrays are borrowed values; do not consume/release them here.
+          // Release only the consumed input tagged value (refcounted). Do not clear array slots directly.
+          outLines.push(wState('heap.releaseValue(this, inputResolved)'))
           outLines.push(wState('if (this.absolutePCCallStackTop > 0) this.absolutePCCallStackTop--'))
           outLines.push(wState('return pc'))
           outIndent.dedent()
@@ -808,6 +810,7 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
       `import { VmState, push, downsample, upsample } from '../runner'`,
     )
     lines.push(`import * as genOpHelpers from '../gen-op-helpers'`)
+    lines.push(`import * as heap from '../heap'`)
     lines.push(`import * as vmOpsVars from '../vm-ops-vars'`)
     lines.push(`import { AudioVmOp } from '../vm-op'`)
     lines.push(

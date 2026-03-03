@@ -4,6 +4,7 @@
 import { Freeverb_default_room_audio_damping_audio, Freeverb_default_room_audio_damping_audio_stereo, Freeverb_default_room_audio_damping_scalar, Freeverb_default_room_audio_damping_scalar_stereo, Freeverb_default_room_scalar_damping_audio, Freeverb_default_room_scalar_damping_audio_stereo, Freeverb_default_room_scalar_damping_scalar, Freeverb_default_room_scalar_damping_scalar_stereo } from '../../gen/freeverb'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'
@@ -263,6 +264,7 @@ case AudioVmOp.GenFreeverb_default: {
         }
         genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
         genOpHelpers.releaseTaggedInputResult(vm, inputRightPtr, inputRightBuf)
+        heap.releaseValue(vm, inputResolved)
       } else {
         const monoInputFromArr: f64 = inputArrLen > 0 ? inputArr[0] : encodeScalar(0.0)
         switch (modeMask) {

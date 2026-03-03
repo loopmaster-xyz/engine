@@ -4,6 +4,7 @@
 import { Impulse_default_hz_audio_offset_audio_trig_audio, Impulse_default_hz_audio_offset_audio_trig_scalar, Impulse_default_hz_audio_offset_scalar_trig_audio, Impulse_default_hz_audio_offset_scalar_trig_scalar, Impulse_default_hz_scalar_offset_audio_trig_audio, Impulse_default_hz_scalar_offset_audio_trig_scalar, Impulse_default_hz_scalar_offset_scalar_trig_audio, Impulse_default_hz_scalar_offset_scalar_trig_scalar } from '../../gen/impulse'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'

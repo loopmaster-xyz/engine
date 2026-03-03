@@ -4,6 +4,7 @@
 import { Fdn_default_room_audio_damping_audio_decay_audio_depth_audio, Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo, Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar, Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo, Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio, Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo, Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar, Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo, Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio, Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo, Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar, Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo, Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio, Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo, Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar, Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo, Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio, Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo, Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar, Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo, Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio, Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo, Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar, Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo, Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio, Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo, Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar, Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo, Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio, Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo, Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar, Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_scalar_stereo } from '../../gen/fdn'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'
@@ -931,6 +932,7 @@ case AudioVmOp.GenFdn_default: {
         }
         genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
         genOpHelpers.releaseTaggedInputResult(vm, inputRightPtr, inputRightBuf)
+        heap.releaseValue(vm, inputResolved)
       } else {
         const monoInputFromArr: f64 = inputArrLen > 0 ? inputArr[0] : encodeScalar(0.0)
         const monoInputResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, params.bufferLength)

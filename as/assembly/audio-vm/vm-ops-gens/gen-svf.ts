@@ -4,6 +4,7 @@
 import { Svf_aps_cutoff_audio_q_audio, Svf_aps_cutoff_audio_q_scalar, Svf_aps_cutoff_scalar_q_audio, Svf_aps_cutoff_scalar_q_scalar, Svf_bps_cutoff_audio_q_audio, Svf_bps_cutoff_audio_q_scalar, Svf_bps_cutoff_scalar_q_audio, Svf_bps_cutoff_scalar_q_scalar, Svf_bss_cutoff_audio_q_audio, Svf_bss_cutoff_audio_q_scalar, Svf_bss_cutoff_scalar_q_audio, Svf_bss_cutoff_scalar_q_scalar, Svf_hps_cutoff_audio_q_audio, Svf_hps_cutoff_audio_q_scalar, Svf_hps_cutoff_scalar_q_audio, Svf_hps_cutoff_scalar_q_scalar, Svf_lps_cutoff_audio_q_audio, Svf_lps_cutoff_audio_q_scalar, Svf_lps_cutoff_scalar_q_audio, Svf_lps_cutoff_scalar_q_scalar, Svf_peaks_cutoff_audio_q_audio, Svf_peaks_cutoff_audio_q_scalar, Svf_peaks_cutoff_scalar_q_audio, Svf_peaks_cutoff_scalar_q_scalar } from '../../gen/svf'
 import { VmState, push, downsample, upsample } from '../runner'
 import * as genOpHelpers from '../gen-op-helpers'
+import * as heap from '../heap'
 import * as vmOpsVars from '../vm-ops-vars'
 import { AudioVmOp } from '../vm-op'
 import { decodeAudio, decodeArray, decodeCellRef, decodeScalar, encodeAudio, encodeArray, encodeScalar, isArray, isAudio, isCellRef, isScalar, WAVEFORM_CHUNK_SAMPLES, WAVEFORM_RING_MASK } from '../constants'
@@ -299,6 +300,7 @@ case AudioVmOp.GenSvf_lps: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -611,6 +613,7 @@ case AudioVmOp.GenSvf_hps: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -923,6 +926,7 @@ case AudioVmOp.GenSvf_bps: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -1235,6 +1239,7 @@ case AudioVmOp.GenSvf_bss: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -1547,6 +1552,7 @@ case AudioVmOp.GenSvf_peaks: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
@@ -1859,6 +1865,7 @@ case AudioVmOp.GenSvf_aps: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
+        heap.releaseValue(vm, inputResolved)
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
