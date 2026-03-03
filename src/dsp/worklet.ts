@@ -450,10 +450,10 @@ export async function createProcessorState(
           && !scheduleProgramsSeek.includes(p.id))
         {
           const slot = p.slots[p.activeSlot]
-          copyHistoryMetaToProgramShared(runtime, p, slot.vm)
           const pending = pendingProgramApplied.get(p.id)
           const pendingSlot = pendingProgramAppliedSlot.get(p.id)
           if (pending && pendingSlot === p.activeSlot) {
+            copyHistoryMetaToProgramShared(runtime, p, slot.vm)
             pendingProgramApplied.delete(p.id)
             pendingProgramAppliedSlot.delete(p.id)
             pending.resolve()
