@@ -47,6 +47,7 @@ async function setControlOpsSwap(
   worklet: DspWorklet,
   program: DspProgram,
   ops: Float32Array,
+  opts?: { resetState?: boolean },
 ) {
   const stale = dspState.isProgramSharedStale(program.shared.bufferRef)
   if (stale) {
@@ -59,6 +60,7 @@ async function setControlOpsSwap(
   await worklet.setControlOpsSwap({
     programId: program.shared.id,
     ops,
+    resetState: opts?.resetState,
   })
   program.lastOps = ops
 }
@@ -476,7 +478,9 @@ const setControlCompileSnapshotImpl = atomic(async (
 
   const nextShared = await ensureSharedBound(dspState, worklet, shared)
   if (nextShared) shared = nextShared
-  await setControlOpsSwap(dspState, worklet, program, mainBytecode)
+  await setControlOpsSwap(dspState, worklet, program, mainBytecode, {
+    resetState: !!opts?.fullResync,
+  })
 
   return {
     shared,
@@ -571,7 +575,13 @@ export function createDspProgram(
 
     const lock = Atomics.load(meta, 0)
     const historyCount = meta[1] ?? 0
-    if (lock !== 0 || historyCount === 0) return false
+    if (lock !== 0) return false
+    if (historyCount === 0) {
+      cachedHistoryViews = []
+      cachedHistories = []
+      cachedUserCallHistories = []
+      return false
+    }
 
     const { histories } = AudioVmView.fromHistoryMetaShared(memory, meta)
     const { typedHistories, userCallHistories } = createTypedHistories(histories, historySourceMap)
@@ -651,10 +661,8 @@ export function createDspProgram(
     },
     reapplySourceMapping(result: Awaited<ReturnType<typeof controlPipeline.compileSource>>) {
       const next = applySourceMappingToViews(result, cachedHistoryViews)
-      if (next.typedHistories.length > 0) {
-        cachedHistories = next.typedHistories
-        cachedUserCallHistories = next.userCallHistories
-      }
+      cachedHistories = next.typedHistories
+      cachedUserCallHistories = next.userCallHistories
     },
     async setSyncMode(opts: { enabled: boolean; bars: number }) {
       const sync = await applySyncMode(opts, worklet, shared.id)

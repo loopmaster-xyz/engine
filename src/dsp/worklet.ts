@@ -977,6 +977,7 @@ export class DspProcessor extends AudioWorkletProcessor {
     programId: number
     ops: Float32Array
     fadeSamples?: number
+    resetState?: boolean
   }): Promise<void> {
     const s = this.state
     if (!s) throw new Error('No state')
@@ -986,7 +987,13 @@ export class DspProcessor extends AudioWorkletProcessor {
 
     const from = p.activeSlot
     const to = (from ^ 1) as 0 | 1
-    s.runtime.copyAudioVmState(p.slots[from].vm.id, p.slots[to].vm.id)
+    if (opts.resetState) {
+      p.slots[to].vm.reset()
+      clearProgramHistoryMeta(p)
+    }
+    else {
+      s.runtime.copyAudioVmState(p.slots[from].vm.id, p.slots[to].vm.id)
+    }
     s.applyControlOps(p, to, opts.ops)
 
     const transportPlaying = s.transportRunning === SharedTransportRunningState.Start
