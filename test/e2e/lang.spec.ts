@@ -2279,6 +2279,26 @@ describe('arrays', () => {
     expect(audio('x = [10, 30]; x.avg() |> out($)')).toMatchAudio([[20, 20, 20], [20, 20, 20]])
   })
 
+  it('array slice method with start and end', () => {
+    expect(audio('x = [10, 20, 30, 40]; y = x.slice(1, 3); y[0] + y[1] |> out($)')).toMatchAudio([[50, 50, 50], [50,
+      50,
+      50]])
+  })
+
+  it('array slice method with omitted end', () => {
+    expect(audio('x = [10, 20, 30, 40]; y = x.slice(2); y.length |> out($)')).toMatchAudio([[2, 2, 2], [2, 2, 2]])
+  })
+
+  it('array slice method with negative indices', () => {
+    expect(audio('x = [10, 20, 30, 40]; y = x.slice(-3, -1); y[0] + y[1] |> out($)')).toMatchAudio([[50, 50, 50], [50,
+      50,
+      50]])
+  })
+
+  it('array take method', () => {
+    expect(audio('x = [10, 20, 30, 40]; x.take(2).avg() |> out($)')).toMatchAudio([[15, 15, 15], [15, 15, 15]])
+  })
+
   it('array markov method maps to Markov with implicit states and default params', () => {
     const src = 'arr = [10, 20, 30]; trig = every(1/8); arr.markov(trig) |> out($)'
     const expected = 'arr = [10, 20, 30]; trig = every(1/8); arr[Markov(arr.length, trig:trig)] |> out($)'

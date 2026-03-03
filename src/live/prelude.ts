@@ -57,6 +57,22 @@ reduce=(arr,reducer,initial=0)->{
   acc
 }
 
+slice=(array,start=0,end=array.length)->{
+  n:=array.length
+  s:=floor(start)
+  e:=floor(end)
+  if (s < 0) s=n+s
+  if (e < 0) e=n+e
+  s=clamp(s,0,n)
+  e=clamp(e,0,n)
+  result:=[]
+  if (e <= s) return result
+  for (i in s .. e - 1) result.push(array[i])
+  result
+}
+
+take=(array,n=array.length)->slice(array,0,n)
+
 /**
  * effects
  */

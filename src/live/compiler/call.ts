@@ -312,6 +312,26 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
       compileCallWithArgs(state, syntheticCall, syntheticCall.args, -1)
       return
     }
+    if (memberExpr.property === 'slice') {
+      const syntheticCall: Extract<Expr, { type: 'call' }> = {
+        type: 'call',
+        callee: { type: 'identifier', name: 'slice', loc: expr.loc },
+        args: [{ type: 'arg', value: memberExpr.object, loc: memberExpr.object.loc }, ...expr.args],
+        loc: expr.loc,
+      }
+      compileCallWithArgs(state, syntheticCall, syntheticCall.args, -1)
+      return
+    }
+    if (memberExpr.property === 'take') {
+      const syntheticCall: Extract<Expr, { type: 'call' }> = {
+        type: 'call',
+        callee: { type: 'identifier', name: 'take', loc: expr.loc },
+        args: [{ type: 'arg', value: memberExpr.object, loc: memberExpr.object.loc }, ...expr.args],
+        loc: expr.loc,
+      }
+      compileCallWithArgs(state, syntheticCall, syntheticCall.args, -1)
+      return
+    }
     if (memberExpr.property === 'walk') {
       const syntheticCall: Extract<Expr, { type: 'call' }> = {
         type: 'call',
