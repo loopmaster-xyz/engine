@@ -2279,6 +2279,24 @@ describe('arrays', () => {
     expect(audio('x = [10, 30]; x.avg() |> out($)')).toMatchAudio([[20, 20, 20], [20, 20, 20]])
   })
 
+  it('array markov method maps to Markov with implicit states and default params', () => {
+    const src = 'arr = [10, 20, 30]; trig = every(1/8); arr.markov(trig) |> out($)'
+    const expected = 'arr = [10, 20, 30]; trig = every(1/8); arr[Markov(arr.length, trig:trig)] |> out($)'
+    expect(audio(src)).toMatchAudio(audio(expected))
+  })
+
+  it('array markov method supports optional params in trig, stay, step, bias, seed order', () => {
+    const src = 'arr = [10, 20, 30, 40]; trig = every(1/8); arr.markov(trig, .12, .77, .9, 42) |> out($)'
+    const expected = 'arr = [10, 20, 30, 40]; trig = every(1/8); arr[Markov(arr.length, stay:.12, step:.77, bias:.9, seed:42, trig:trig)] |> out($)'
+    expect(audio(src)).toMatchAudio(audio(expected))
+  })
+
+  it('array markov method supports named params', () => {
+    const src = 'arr = [1, 2, 3, 4]; trig = every(1/8); arr.markov(step:.8, seed:9, trig:trig, stay:.2, bias:.65) |> out($)'
+    const expected = 'arr = [1, 2, 3, 4]; trig = every(1/8); arr[Markov(arr.length, stay:.2, step:.8, bias:.65, seed:9, trig:trig)] |> out($)'
+    expect(audio(src)).toMatchAudio(audio(expected))
+  })
+
   it('array literal inline access', () => {
     expect(audio('[5, 10, 15][1] |> out($)')).toMatchAudio([[10, 10, 10], [10, 10, 10]])
   })

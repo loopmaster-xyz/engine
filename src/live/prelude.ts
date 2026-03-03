@@ -391,7 +391,7 @@ drums=(seed=1)->{
   bd()+sd(seed)+ch(chw)+oh(ohw) |> limiter($)
 }
 
-piano=(hz,trig=every(1/8))->{
+marimba=(hz,trig=every(1/8))->{
   s := 0
   for (i in 0 .. 7) {
     s += sine(hz*(1+i**2)+lfotri(1/4,offset:i*0.2)*hz/50)*(i%2==1?3:1)*(7-i**.82)*(i==0?7:1)

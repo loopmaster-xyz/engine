@@ -352,6 +352,80 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
       compileCallWithArgs(state, syntheticCall, syntheticCall.args, -1)
       return
     }
+    if (memberExpr.property === 'markov') {
+      const methodParamNames = ['trig', 'stay', 'step', 'bias', 'seed'] as const
+      const methodArgs: Partial<Record<(typeof methodParamNames)[number], Expr>> = {}
+      let positionalIndex = 0
+
+      for (const arg of expr.args) {
+        if (arg.type !== 'arg' || !arg.value) continue
+
+        if (arg.name) {
+          const matchedName = methodParamNames.find(name => name.startsWith(arg.name))
+          if (!matchedName) {
+            error(state, `No parameter matches '${arg.name}' in markov()`, expr.loc)
+            return
+          }
+          if (methodArgs[matchedName]) {
+            error(state, `Parameter '${matchedName}' already provided in markov()`, expr.loc)
+            return
+          }
+          methodArgs[matchedName] = arg.value
+          continue
+        }
+        if (arg.shorthand && arg.value.type === 'identifier') {
+          const matchedName = methodParamNames.find(name => name === arg.value.name)
+          if (matchedName) {
+            if (methodArgs[matchedName]) {
+              error(state, `Parameter '${matchedName}' already provided in markov()`, expr.loc)
+              return
+            }
+            methodArgs[matchedName] = arg.value
+            continue
+          }
+        }
+
+        while (positionalIndex < methodParamNames.length && methodArgs[methodParamNames[positionalIndex]]) {
+          positionalIndex++
+        }
+        if (positionalIndex >= methodParamNames.length) {
+          error(state, 'Too many arguments for markov()', expr.loc)
+          return
+        }
+        const matchedName = methodParamNames[positionalIndex]
+        methodArgs[matchedName] = arg.value
+        positionalIndex++
+      }
+
+      if (!methodArgs.trig) {
+        error(state, 'markov(trig, stay?, step?, bias?, seed?) requires trigger', expr.loc)
+        return
+      }
+
+      const statesExpr: Extract<Expr, { type: 'member' }> = {
+        type: 'member',
+        object: memberExpr.object,
+        property: 'length',
+        loc: memberExpr.object.loc,
+      }
+
+      const markovArgs: Arg[] = [{ type: 'arg', name: 'states', value: statesExpr, loc: statesExpr.loc }]
+      if (methodArgs.stay) markovArgs.push({ type: 'arg', name: 'stay', value: methodArgs.stay, loc: methodArgs.stay.loc })
+      if (methodArgs.step) markovArgs.push({ type: 'arg', name: 'step', value: methodArgs.step, loc: methodArgs.step.loc })
+      if (methodArgs.bias) markovArgs.push({ type: 'arg', name: 'bias', value: methodArgs.bias, loc: methodArgs.bias.loc })
+      if (methodArgs.seed) markovArgs.push({ type: 'arg', name: 'seed', value: methodArgs.seed, loc: methodArgs.seed.loc })
+      markovArgs.push({ type: 'arg', name: 'trig', value: methodArgs.trig, loc: methodArgs.trig.loc })
+
+      const markovCall: Extract<Expr, { type: 'call' }> = {
+        type: 'call',
+        callee: { type: 'identifier', name: 'Markov', loc: expr.loc },
+        args: markovArgs,
+        loc: expr.loc,
+      }
+
+      compileGetCall(state, memberExpr.object, markovCall, expr.loc, expr)
+      return
+    }
 
     pushCallMeta(state, expr, memberExpr.property, bestEffortArgs(expr.args))
     compileExpr(state, memberExpr.object)
