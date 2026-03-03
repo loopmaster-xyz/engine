@@ -1,1 +1,1 @@
-export const CONTROL_OPS_CAPACITY = 16384
+export const CONTROL_OPS_CAPACITY = 32768
