@@ -18,7 +18,49 @@ import { OS_DOWN_BOXCAR, OS_UP_LINEAR } from './vm-constants'
 import * as vmStack from './vm-stack'
 import { BufferEntry, VmState } from './vm-state'
 import * as vmOpsVars from './vm-ops-vars'
-import { nextPow2, writeChunkToRingBuffer } from './util'
+import { nextPow2, readOperandI32, writeChunkToRingBuffer } from './util'
+
+const OVERSAMPLED_BUFFER_HANDLE_OFFSET: i32 = 0x100000
+const ALLOC_HANDLE_SITE_STRIDE: i32 = 1024
+const MAX_EXACT_F32_INT: i32 = 0x1000000
+const ALLOC_COUNTER_KEY_BIAS: i32 = -1
+
+// Per-run alloc ordinal for a callsite. Stored as negative keys in stepRegistry to avoid extra tables.
+function nextAllocOrdinal(vm: VmState, callSiteId: i32): i32 {
+  const key: i32 = ALLOC_COUNTER_KEY_BIAS - callSiteId
+  if (vm.stepRegistry.has(key)) {
+    const entry = vm.stepRegistry.get(key)
+    const ordinal: i32 = entry.currentIndex
+    entry.currentIndex = ordinal + 1
+    return ordinal
+  }
+  const entry = vm.stepEntryPool.acquire()
+  entry.currentIndex = 1
+  entry.lastTrig = 0.0
+  vm.stepRegistry.set(key, entry)
+  return 0
+}
+
+function buildAllocHandle(vm: VmState, callSiteId: i32, ordinal: i32, osFactor: i32): i32 {
+  let handle: i32 = vm.nextBufferHandle++
+  if (callSiteId >= 0 && ordinal >= 0 && ordinal < ALLOC_HANDLE_SITE_STRIDE) {
+    const candidate: i32 = callSiteId * ALLOC_HANDLE_SITE_STRIDE + ordinal
+    // Keep scalar round-trip exact when encoded as f32.
+    if (candidate >= 0 && candidate < MAX_EXACT_F32_INT) handle = candidate
+  }
+  if (osFactor > 1) handle += OVERSAMPLED_BUFFER_HANDLE_OFFSET
+  return handle
+}
+
+export function resetAllocCounters(vm: VmState): void {
+  const keys = vm.stepRegistry.keys()
+  for (let i: i32 = 0; i < keys.length; i++) {
+    const key: i32 = keys.get(i)
+    if (key >= 0) continue
+    vm.stepEntryPool.release(vm.stepRegistry.get(key))
+    vm.stepRegistry.delete(key)
+  }
+}
 
 /** Read bl samples from ring buffer with optional offset (scalar or audio); write to outputPtr. Bicubic interpolated. Releases offset if audio. offsetStride: when >1 and offset is audio, sample offset at i*offsetStride (for base-rate read from oversampled LFO). */
 export function readChunkFromRingBuffer(
@@ -65,6 +107,7 @@ export function handleAlloc(
   opsPtr: usize,
   params: RunParams,
 ): RunResult {
+  const callSiteId: i32 = readOperandI32(opsPtr, pc)
   pc++
 
   const secondsTagged: f64 = vmStack.pop(vm)
@@ -78,9 +121,8 @@ export function handleAlloc(
   const lengthBytes: usize = usize(lengthSamples) << 2
   vmStack.releaseValueTagged(vm, secondsResolved)
 
-  let handle: i32 = vm.nextBufferHandle++
-  // Offset must stay < 2^24 so encodeScalar(decodeScalar) round-trip preserves the handle (f32 precision)
-  if (osFactor > 1) handle = 0x100000 + handle
+  const ordinal: i32 = nextAllocOrdinal(vm, callSiteId)
+  const handle: i32 = buildAllocHandle(vm, callSiteId, ordinal, osFactor)
 
   if (vm.bufferRegistry.has(handle)) {
     const entry: BufferEntry = vm.bufferRegistry.get(handle)

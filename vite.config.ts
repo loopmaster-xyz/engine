@@ -43,7 +43,7 @@ export default ({ mode }: ConfigEnv): UserConfig => {
       //   mapFile: './as/build/index-mobile.wasm.map',
       //   extra: [
       //     '--target',
-      //     'debug',
+      //     'release',
       //     '--transform',
       //     './vendor/as-transform-unroll.js',
       //   ],

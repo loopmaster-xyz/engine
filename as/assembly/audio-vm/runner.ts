@@ -338,6 +338,7 @@ function releaseGlobalsAndCells(vm: VmState): void {
 /** Full reset before a new run: tear down all previous state, allocate output buffers. */
 function prepareForRun(vm: VmState, bufferLength: i32, opsLength: i32, sampleRate: f32, bpm: f32): void {
   vmOpsVars.flushPendingReleaseAudio(vm)
+  vmOpsBuffer.resetAllocCounters(vm)
   releaseOutputs(vm)
   if (!vm.preserveFunctionState) {
     if (vm.arrays.length > 0) {
