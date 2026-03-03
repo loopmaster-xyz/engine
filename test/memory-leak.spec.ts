@@ -1104,6 +1104,119 @@ q:.99,k:.00002,sat:.9,trig)*.2+drums() |> limiter($) |> out($)`
     expect(inFlightGrowth).toBe(0)
   }, 20_000)
 
+  it('cs80 should not leak', () => {
+    const vmId = 0
+    core!.wasm.resetAudioVmAt(vmId)
+
+    const code = `cs80=(
+  hz,
+  vel=1,
+  trig,
+  cutoff=4466,
+  res=.8,
+  brilliance=.9,
+  aftertouch=.4
+)->{
+  v = clamp(vel,0,1)
+  at = clamp(aftertouch,0,1)
+
+  // =====================
+  // Shared modulation
+  // =====================
+  vib = (.002 + .004*at) * lfosine(5.4)
+  f   = hz * (1 + vib)
+
+  // =====================
+  // Voice I (saw-dominant, brassy)
+  // =====================
+  v1osc =
+    saw(f,0,trig)*.7 +
+    sine(f)*.3
+
+  v1env = adsr(
+    attack:.01,
+    decay:.25,
+    sustain:.6,
+    release:1.6,
+    exponent:3,
+    trig
+  )
+
+  v1hp = hp(v1osc, 120 + 400*brilliance, .6)
+  v1lp = lpm(
+    v1hp,
+    cutoff * (1 + v1env*1.5 + at*2),
+    res + .15
+  )
+
+  v1 = v1lp * v1env
+
+  // =====================
+  // Voice II (pulse / sine, smoother)
+  // =====================
+  pw = .45 + .1*lfosine(.3)
+  v2osc =
+    oversample(12,()->pwm(f*1.002, pw, 0, trig))*.6 +
+    sine(f*.5)*.4
+
+  v2env = adsr(
+    attack:.03,
+    decay:.4,
+    sustain:.5,
+    release:2.4,
+    exponent:3,
+    trig
+  )
+
+  v2hp = hp(v2osc, 80, .7)
+  v2lp = lpm(
+    v2hp,
+    cutoff*.7 * (1 + v2env + at*1.8),
+    res*.8
+  )
+
+  v2 = v2lp * v2env
+
+  // =====================
+  // Layer mix + expressivity
+  // =====================
+  s = (v1 + v2) * (.25 + .75*v)
+
+  // Signature CS-80 saturation (very gentle)
+  s = tanh(s * 1.6)
+
+  // Animate stereo (CS-80 is wide and alive)
+  s = chorus(s, voices:3, rate:.18, depth:.001, spread:.7)
+
+  s
+}
+
+#i.map(hz->cs80(hz*o4,trig:every(1/4))).avg() |> out($)
+`
+
+    const result = controlPipeline.compileSource(code)
+    expect(result.compile.bytecode).toBeDefined()
+
+    const bytecode = result.compile.bytecode!
+
+    // Warmup
+    runTicks(vmId, bytecode, 100)
+    const warmupArena = getArenaStats(vmId)
+    const warmupInfo = getVmInfo(vmId)
+
+    // Run more ticks
+    runTicks(vmId, bytecode, 1000)
+    const afterArena = getArenaStats(vmId)
+    const afterInfo = getVmInfo(vmId)
+
+    const cellsGrowth = afterInfo.cellsLength - warmupInfo.cellsLength
+    const inFlightGrowth = afterArena.inFlight - warmupArena.inFlight
+    console.log(`cs80 test: cells ${warmupInfo.cellsLength} -> ${afterInfo.cellsLength}, growth=${cellsGrowth}`)
+    console.log(`  inFlight: ${warmupArena.inFlight} -> ${afterArena.inFlight}, growth=${inFlightGrowth}`)
+    expect(cellsGrowth).toBe(0)
+    expect(inFlightGrowth).toBe(0)
+  }, 20_000)
+
   it('large program should not leak', () => {
     const vmId = 0
     core!.wasm.resetAudioVmAt(vmId)

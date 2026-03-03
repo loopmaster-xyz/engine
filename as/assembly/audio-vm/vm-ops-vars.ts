@@ -702,7 +702,10 @@ export function handleReturn(
         if (isUndefined(v)) {
         }
         else if (isAudio(v)) {
-          // Oversampled buffer was passed to inner via GetClosure (push with move) and already released there. Cell still has original 1x-rate value; do not downsample (would be use-after-free) or overwrite cell.
+          // closureOverride owns one ref per captured upsampled audio (plus any explicit
+          // retains for deduplicated cache hits). Inner GetClosure pushes retain/release
+          // balanced refs, so we must drop this frame-owned ref here.
+          vm.arena.releaseByPtr(u32(decodeAudio(v)))
         }
         else if (isArray(v)) {
           const arrId: u32 = decodeArray(v)
