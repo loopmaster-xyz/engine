@@ -162,7 +162,34 @@ export function binary(vm: VmState, op: AudioVmOp, left: f64, right: f64, buffer
   const leftIsArray: bool = isArray(left)
   const rightIsArray: bool = isArray(right)
   if (leftIsArray || rightIsArray) {
-    if (leftIsArray && rightIsArray) throw new Error('Binary op array to array not supported')
+    if (leftIsArray && rightIsArray) {
+      const leftId: u32 = decodeArray(left)
+      const leftIdx: i32 = vmOpsArray.getArrayIndexOrThrow(vm, leftId, vmOpsArray.ArrayOpName.BinaryArray)
+      const leftValues: Float64Array = vm.arrays.get(leftIdx)
+      const leftLen: i32 = vm.arrayLengths.get(leftIdx)
+
+      const rightId: u32 = decodeArray(right)
+      const rightIdx: i32 = vmOpsArray.getArrayIndexOrThrow(vm, rightId, vmOpsArray.ArrayOpName.BinaryArray)
+      const rightValues: Float64Array = vm.arrays.get(rightIdx)
+      const rightLen: i32 = vm.arrayLengths.get(rightIdx)
+
+      if (leftLen != rightLen) throw new Error('Binary op array to array requires equal lengths')
+
+      const resultValues: Float64Array = vm.float64Arena.get(leftLen)
+      for (let i: i32 = 0; i < leftLen; i++) {
+        const leftElem: f64 = vmOpsVars.resolveCellRef(vm, leftValues[i])
+        const rightElem: f64 = vmOpsVars.resolveCellRef(vm, rightValues[i])
+        resultValues[i] = binary(vm, op, leftElem, rightElem, bufferLength)
+      }
+
+      vm.arrays.push(resultValues)
+      vm.arrayLengths.push(leftLen)
+      vm.arrayRefcounts.push(0)
+      const newId: u32 = u32(vm.arrays.length)
+      heap.retainArray(vm, newId)
+      return encodeArray(newId)
+    }
+
     const arrTagged: f64 = leftIsArray ? left : right
     const other: f64 = leftIsArray ? right : left
     if (!isScalar(other) && !isAudio(other)) throw new Error('Binary op array requires scalar or audio operand')

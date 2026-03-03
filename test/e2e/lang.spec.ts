@@ -2635,6 +2635,15 @@ describe('arrays', () => {
     expect(audio('x = [1, 2, 3] + 10; x[2] |> out($)')).toMatchAudio([[13, 13, 13], [13, 13, 13]])
   })
 
+  it('array plus array element-wise', () => {
+    expect(audio('x = [1, 2, 3] + [10, 20, 30]; x[0] + x[1] + x[2] |> out($)')).toMatchAudio([[66, 66, 66], [66, 66,
+      66]])
+  })
+
+  it('array times array element-wise', () => {
+    expect(audio('x = [2, 3, 4] * [5, 6, 7]; x[0] + x[1] + x[2] |> out($)')).toMatchAudio([[56, 56, 56], [56, 56, 56]])
+  })
+
   it('array of audio times scalar element-wise', () => {
     expect(audio('waves = [sine(220), sine(440)]; (waves * 0.5)[0] |> out($)')).toMatchAudio(
       audio('sine(220) * 0.5 |> out($)'),
@@ -2652,6 +2661,15 @@ describe('arrays', () => {
   it('array of audio times audio element-wise', () => {
     expect(audio('waves = [sine(220), sine(440)]; gain = sine(1); (waves * gain)[0] |> out($)')).toMatchAudio(
       audio('sine(220) * sine(1) |> out($)'),
+    )
+  })
+
+  it('array of audio times array of scalars element-wise', () => {
+    expect(audio('waves = [sine(220), sine(440)]; gains = [0.5, 0.25]; (waves * gains)[0] |> out($)')).toMatchAudio(
+      audio('sine(220) * 0.5 |> out($)'),
+    )
+    expect(audio('waves = [sine(220), sine(440)]; gains = [0.5, 0.25]; (waves * gains)[1] |> out($)')).toMatchAudio(
+      audio('sine(440) * 0.25 |> out($)'),
     )
   })
 

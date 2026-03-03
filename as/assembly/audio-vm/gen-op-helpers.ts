@@ -175,6 +175,17 @@ export function isStereoAudioArray(vm: VmState, tagged: f64): bool {
   return isAudio(vmOpsVars.resolveCellRef(vm, arr[0])) && isAudio(vmOpsVars.resolveCellRef(vm, arr[1]))
 }
 
+/** True if tagged is 2-element array with each element scalar or audio. */
+function isStereoScalarOrAudioArray(vm: VmState, tagged: f64): bool {
+  const arrId: u32 = decodeArray(tagged)
+  if (arrId === 0 || arrId > u32(vm.arrays.length)) return false
+  const arr: Float64Array = vm.arrays.get(i32(arrId) - 1)
+  if (vm.arrayLengths.get(i32(arrId) - 1) !== 2) return false
+  const left: f64 = vmOpsVars.resolveCellRef(vm, arr[0])
+  const right: f64 = vmOpsVars.resolveCellRef(vm, arr[1])
+  return (isScalar(left) || isAudio(left)) && (isScalar(right) || isAudio(right))
+}
+
 /** (L[0]+R[0])*0.5 for 2-element audio array. Call only when isStereoAudioArray returned true. */
 function stereoArrayToMonoScalar(vm: VmState, tagged: f64): f32 {
   const arr: Float64Array = vm.arrays.get(i32(decodeArray(tagged)) - 1)
@@ -189,11 +200,19 @@ function stereoArrayToMonoBuffer(vm: VmState, tagged: f64, length: i32): TaggedI
   result.buf = vm.arena.get(length)
   result.ptr = result.buf.dataStart
   const arr: Float64Array = vm.arrays.get(i32(decodeArray(tagged)) - 1)
-  const leftPtr: usize = decodeAudio(vmOpsVars.resolveCellRef(vm, arr[0]))
-  const rightPtr: usize = decodeAudio(vmOpsVars.resolveCellRef(vm, arr[1]))
+  const leftTagged: f64 = vmOpsVars.resolveCellRef(vm, arr[0])
+  const rightTagged: f64 = vmOpsVars.resolveCellRef(vm, arr[1])
+  const leftIsAudio: bool = isAudio(leftTagged)
+  const rightIsAudio: bool = isAudio(rightTagged)
+  const leftPtr: usize = leftIsAudio ? decodeAudio(leftTagged) : 0
+  const rightPtr: usize = rightIsAudio ? decodeAudio(rightTagged) : 0
+  const leftScalar: f32 = leftIsAudio ? 0.0 : decodeScalar(leftTagged)
+  const rightScalar: f32 = rightIsAudio ? 0.0 : decodeScalar(rightTagged)
   for (let i: i32 = 0; i < length; i++) {
     const off: usize = usize(i) << 2
-    store<f32>(result.ptr + off, (load<f32>(leftPtr + off) + load<f32>(rightPtr + off)) * 0.5)
+    const leftSample: f32 = leftIsAudio ? load<f32>(leftPtr + off) : leftScalar
+    const rightSample: f32 = rightIsAudio ? load<f32>(rightPtr + off) : rightScalar
+    store<f32>(result.ptr + off, (leftSample + rightSample) * 0.5)
   }
   return result
 }
@@ -208,7 +227,7 @@ export function taggedToAudioParamBuffer(vm: VmState, tagged: f64, length: i32):
     result.ptr = decodeAudio(tagged)
     return result
   }
-  if (isStereoAudioArray(vm, tagged)) return stereoArrayToMonoBuffer(vm, tagged, length)
+  if (isStereoScalarOrAudioArray(vm, tagged)) return stereoArrayToMonoBuffer(vm, tagged, length)
   throw new Error('Gen parameter expects scalar or audio, not array')
 }
 
@@ -216,7 +235,14 @@ export function taggedToAudioParamBuffer(vm: VmState, tagged: f64, length: i32):
 export function scalarOrFirstSample(vm: VmState, tagged: f64): f32 {
   if (isCellRef(tagged)) return scalarOrFirstSample(vm, vmOpsVars.resolveCellRef(vm, tagged))
   if (isArray(tagged)) {
-    if (isStereoAudioArray(vm, tagged)) return stereoArrayToMonoScalar(vm, tagged)
+    if (isStereoScalarOrAudioArray(vm, tagged)) {
+      const arr: Float64Array = vm.arrays.get(i32(decodeArray(tagged)) - 1)
+      const left: f64 = vmOpsVars.resolveCellRef(vm, arr[0])
+      const right: f64 = vmOpsVars.resolveCellRef(vm, arr[1])
+      const lv: f32 = isAudio(left) ? load<f32>(decodeAudio(left)) : decodeScalar(left)
+      const rv: f32 = isAudio(right) ? load<f32>(decodeAudio(right)) : decodeScalar(right)
+      return (lv + rv) * 0.5
+    }
     throw new Error('Gen parameter expects scalar or audio, not array')
   }
   if (isScalar(tagged)) return decodeScalar(tagged)

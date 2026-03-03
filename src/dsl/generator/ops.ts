@@ -543,23 +543,7 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
         outLines.push(wState('}'))
         outLines.push(wState('genOpHelpers.releaseTaggedInputResult(this, inputLeftPtr, inputLeftBuf)'))
         outLines.push(wState('genOpHelpers.releaseTaggedInputResult(this, inputRightPtr, inputRightBuf)'))
-        // Release consumed input array so its elements are no longer "referenced"; then release left/right audio if not referenced elsewhere
-        outLines.push(
-          wState(
-            'if (inputArrId == u32(this.arrays.length)) { this.arrays.length = this.arrays.length - 1; this.arrayLengths.length = this.arrayLengths.length - 1; this.arrayRefcounts.length = this.arrayRefcounts.length - 1 } else { this.arrays.set(i32(inputArrId) - 1, VmState.EMPTY_FLOAT64_ARRAY); this.arrayLengths.set(i32(inputArrId) - 1, 0); this.arrayRefcounts.set(i32(inputArrId) - 1, 0) }',
-          ),
-        )
-        outLines.push(wState('if (inputArr.length > 0) this.float64Arena.release(inputArr)'))
-        outLines.push(
-          wState(
-            'if (isAudio(inputLeftResolved)) this.arena.releaseByPtr(u32(decodeAudio(inputLeftResolved)))',
-          ),
-        )
-        outLines.push(
-          wState(
-            'if (isAudio(inputRightResolved)) this.arena.releaseByPtr(u32(decodeAudio(inputRightResolved)))',
-          ),
-        )
+        // Input arrays are borrowed values; do not consume/release them here.
         // Stereo path: L/R already pushed inside generateStereoSpecCode
         outIndent.dedent()
         outLines.push(wState('} else {'))
@@ -747,23 +731,7 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
           outLines.push(wState('this.arrayLengths.push(2)'))
           outLines.push(wState('this.arrayRefcounts.push(0)'))
           outLines.push(wState('this.push(encodeArray(u32(this.arrays.length)))'))
-          // Release consumed input array so its elements are no longer "referenced"
-          outLines.push(
-            wState(
-              'if (inputArrId == u32(this.arrays.length)) { this.arrays.length = this.arrays.length - 1; this.arrayLengths.length = this.arrayLengths.length - 1; this.arrayRefcounts.length = this.arrayRefcounts.length - 1 } else { this.arrays.set(i32(inputArrId) - 1, VmState.EMPTY_FLOAT64_ARRAY); this.arrayLengths.set(i32(inputArrId) - 1, 0); this.arrayRefcounts.set(i32(inputArrId) - 1, 0) }',
-            ),
-          )
-          outLines.push(wState('if (inputArr.length > 0) this.float64Arena.release(inputArr)'))
-          outLines.push(
-            wState(
-              'if (isAudio(inputLeftResolved)) this.arena.releaseByPtr(u32(decodeAudio(inputLeftResolved)))',
-            ),
-          )
-          outLines.push(
-            wState(
-              'if (isAudio(inputRightResolved)) this.arena.releaseByPtr(u32(decodeAudio(inputRightResolved)))',
-            ),
-          )
+          // Input arrays are borrowed values; do not consume/release them here.
           outLines.push(wState('if (this.absolutePCCallStackTop > 0) this.absolutePCCallStackTop--'))
           outLines.push(wState('return pc'))
           outIndent.dedent()

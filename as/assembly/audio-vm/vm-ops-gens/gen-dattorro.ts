@@ -506,10 +506,6 @@ case AudioVmOp.GenDattorro_default: {
         }
         genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
         genOpHelpers.releaseTaggedInputResult(vm, inputRightPtr, inputRightBuf)
-        if (inputArrId == u32(vm.arrays.length)) { vm.arrays.length = vm.arrays.length - 1; vm.arrayLengths.length = vm.arrayLengths.length - 1; vm.arrayRefcounts.length = vm.arrayRefcounts.length - 1 } else { vm.arrays.set(i32(inputArrId) - 1, VmState.EMPTY_FLOAT64_ARRAY); vm.arrayLengths.set(i32(inputArrId) - 1, 0); vm.arrayRefcounts.set(i32(inputArrId) - 1, 0) }
-        if (inputArr.length > 0) vm.float64Arena.release(inputArr)
-        if (isAudio(inputLeftResolved)) vm.arena.releaseByPtr(u32(decodeAudio(inputLeftResolved)))
-        if (isAudio(inputRightResolved)) vm.arena.releaseByPtr(u32(decodeAudio(inputRightResolved)))
       } else {
         const monoInputFromArr: f64 = inputArrLen > 0 ? inputArr[0] : encodeScalar(0.0)
         const monoInputResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, params.bufferLength)

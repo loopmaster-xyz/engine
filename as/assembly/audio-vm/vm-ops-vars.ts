@@ -26,6 +26,8 @@ import * as vmCells from './vm-cells'
 import * as vmStack from './vm-stack'
 import { CallFrame, Cell, ClosureEnv, FunctionDef, FunctionInstance, TryBlock } from './vm-types'
 
+const STEREO_SECOND_PASS_RELATIVE_PC: i32 = -2147483647
+
 /** Assign value to cell (release old; caller owns value e.g. from pop). */
 export function assignCell(vm: VmState, cell: Cell, value: f64): void {
   const old: f64 = cell.value
@@ -437,7 +439,7 @@ export function handleCallFunction(
   }
 
   if (fd.firstParamIn == 2 && argCount >= 1 && argsStart >= 0 && argsStart < vm.stackTop) {
-    const firstArg: f64 = vm.stack[argsStart]
+    const firstArg: f64 = resolveCellRef(vm, vm.stack[argsStart])
     if (!isArray(firstArg)) {
       const arr: Float64Array = vm.float64Arena.get(2)
       heap.retainValue(vm, firstArg)
@@ -451,7 +453,7 @@ export function handleCallFunction(
   }
 
   if (fd.firstParamIn == 1 && argCount >= 1 && argsStart >= 0 && argsStart < vm.stackTop) {
-    const firstArg: f64 = vm.stack[argsStart]
+    const firstArg: f64 = resolveCellRef(vm, vm.stack[argsStart])
     if (isArray(firstArg)) {
       const arrId: u32 = decodeArray(firstArg)
       if (arrId > 0 && arrId <= u32(vm.arrays.length)) {
@@ -463,12 +465,13 @@ export function handleCallFunction(
           heap.retainValue(vm, left)
           heap.retainValue(vm, right)
           vm.stack[argsStart] = left
-          heap.releaseArray(vm, arrId)
           const stereoArgs: Float64Array = vm.float64Arena.get(argCount)
           stereoArgs[0] = right
           for (let j: i32 = 1; j < argCount; j++) {
             const idx: i32 = argsStart + j
-            stereoArgs[j] = idx >= 0 && idx < vm.stackTop ? vm.stack[idx] : encodeUndefined()
+            const argValue: f64 = idx >= 0 && idx < vm.stackTop ? vm.stack[idx] : encodeUndefined()
+            heap.retainValue(vm, argValue)
+            stereoArgs[j] = argValue
           }
           // Create separate savedLocals for stereo frame to avoid shared reference bug
           const stereoSavedLocals: FastArray<i32> = vm.fastArrayI32Pool.acquire()
@@ -576,8 +579,8 @@ export function handleReturn(
     for (let i: i32 = 0; i < frame.localsSaved.length; i++) secondLocalsSaved.push(frame.localsSaved.get(i))
     const secondFrame: CallFrame = vm.callFramePool.acquire()
     secondFrame.init(frame.returnPc, frame.returnOpsPtr, frame.returnOpsLength, secondArgsStart, secondLocalsSaved,
-      frame.stereoClosureEnvId, frame.functionId, false, 1, 0, 0, 0, 0, 0, -1, null, null, -1, false, 0, -1, -1, 0,
-      null)
+      frame.stereoClosureEnvId, frame.functionId, false, 1, 0, 0, 0, 0, 0, -1, null, null,
+      STEREO_SECOND_PASS_RELATIVE_PC, false, 0, -1, -1, 0, null)
     vm.callStack.push(secondFrame)
     vm.locals.clear()
     const localCount2: i32 = fd2.localCount > 0 ? fd2.localCount : fd2.paramCount
@@ -599,7 +602,7 @@ export function handleReturn(
 
   if (vm.callStack.length > 0) {
     const prevFrame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
-    if (prevFrame.stereoFirst && prevFrame.stereoArgs != null) {
+    if (prevFrame.stereoFirst && prevFrame.stereoArgs != null && frame.relativePC == STEREO_SECOND_PASS_RELATIVE_PC) {
       let L: f64 = prevFrame.stereoLeftValue
       if (!isAudio(L) && !isScalar(L) && (isAudio(returnValue) || isScalar(returnValue))) {
         L = returnValue

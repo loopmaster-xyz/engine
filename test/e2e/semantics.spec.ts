@@ -227,6 +227,13 @@ describe('automatic stereo lifting', () => {
       const left = result[0]
       expect(left.some(v => Math.abs(v) > 0.0001)).toBe(true)
     })
+
+    it('lifts stereo with nested delay(in,...) calls', () => {
+      const vmId = 101
+      const lifted = audio('f = (in) -> in + delay(in,0,0); out(f([1,2]))', { ticks: 4, vmId })
+      const explicit = audio('f = (in:[L,R]) -> [L + delay(L,0,0), R + delay(R,0,0)]; out(f([1,2]))', { ticks: 4, vmId })
+      expect(lifted).toMatchAudio(explicit)
+    })
   })
 
   describe('stereo function with "in:[L,R]" destructuring', () => {
@@ -363,6 +370,42 @@ describe('automatic stereo lifting', () => {
       expect(audio('out(lp([sine(100), sine(200)],1500,1))')).toMatchAudio(
         audio('out([lp(sine(100),1500,1), lp(sine(200),1500,1)])'),
       )
+    })
+
+    it('builtin lp 2', () => {
+      expect(audio('f = () -> [1,2]; f() |> lp($) |> out($)')).toMatchAudio(
+        audio('[lp(1),lp(2)] |> out($)'),
+      )
+    })
+
+    it('builtin lp with bus() array value', () => {
+      expect(audio('bus(0,[1,2]); bus(0) |> lp($,55)/2 |> buss(1,$)')).toMatchAudio(
+        audio('buss(1,[lp(1,55)/2,lp(2,55)/2])'),
+      )
+    })
+
+    it('compressor key accepts bus() stereo and downmixes to mono for scalar/audio param', () => {
+      const withBusKey = audio(
+        'bus(0,[1,3]); bus(1,[0.2,0.2]); bus(1) |> compressor($,att:.0001,rel:.16,thr:-21,ratio:5,knee:4,key:bus(0)) |> out($)',
+        { ticks: 8 },
+      )
+      const withMonoKey = audio(
+        'bus(0,[1,3]); bus(1,[0.2,0.2]); bus(1) |> compressor($,att:.0001,rel:.16,thr:-21,ratio:5,knee:4,key:mono(bus(0))) |> out($)',
+        { ticks: 8 },
+      )
+      expect(withBusKey).toMatchAudio(withMonoKey)
+    })
+
+    it('compressor key accepts bus() after prior bus(0) array consumption in graph', () => {
+      const withBusKey = audio(
+        'bus(0,[1,3]); bus(0) |> lp($,55)/2 |> buss(1,$); bus(1) |> compressor($,att:.0001,rel:.16,thr:-21,ratio:5,knee:4,key:bus(0)) |> out($)',
+        { ticks: 8 },
+      )
+      const withMonoKey = audio(
+        'bus(0,[1,3]); bus(0) |> lp($,55)/2 |> buss(1,$); bus(1) |> compressor($,att:.0001,rel:.16,thr:-21,ratio:5,knee:4,key:mono(bus(0))) |> out($)',
+        { ticks: 8 },
+      )
+      expect(withBusKey).toMatchAudio(withMonoKey)
     })
   })
 })

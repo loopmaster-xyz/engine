@@ -239,10 +239,6 @@ case AudioVmOp.GenEnvfollow_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        if (inputArrId == u32(vm.arrays.length)) { vm.arrays.length = vm.arrays.length - 1; vm.arrayLengths.length = vm.arrayLengths.length - 1; vm.arrayRefcounts.length = vm.arrayRefcounts.length - 1 } else { vm.arrays.set(i32(inputArrId) - 1, VmState.EMPTY_FLOAT64_ARRAY); vm.arrayLengths.set(i32(inputArrId) - 1, 0); vm.arrayRefcounts.set(i32(inputArrId) - 1, 0) }
-        if (inputArr.length > 0) vm.float64Arena.release(inputArr)
-        if (isAudio(inputLeftResolved)) vm.arena.releaseByPtr(u32(decodeAudio(inputLeftResolved)))
-        if (isAudio(inputRightResolved)) vm.arena.releaseByPtr(u32(decodeAudio(inputRightResolved)))
         if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
         return pc
       }
