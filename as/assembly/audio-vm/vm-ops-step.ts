@@ -34,10 +34,10 @@ export function handleStep(
   }
 
   let entry: StepEntry
-  if (vm.stepRegistry.has(callSiteId)) {
-    entry = vm.stepRegistry.get(callSiteId)
-  }
-  else {
+  const existing: StepEntry | null = vm.stepRegistry.tryGet(callSiteId)
+  if (existing != null) {
+    entry = existing
+  } else {
     entry = vm.stepEntryPool.acquire()
     vm.stepRegistry.set(callSiteId, entry)
   }

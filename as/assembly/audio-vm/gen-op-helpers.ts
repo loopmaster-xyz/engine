@@ -28,8 +28,8 @@ export function resolveAndPushAbsolutePC(state: VmState, pc: i32): i32 {
   let absolutePC: i32 = relativePC
   if (state.callStack.length > 0) {
     const frame: CallFrame = state.callStack.get(state.callStack.length - 1)
-    if (state.functions.has(frame.functionId)) {
-      const funcDef: FunctionDef = state.functions.get(frame.functionId)
+    const funcDef: FunctionDef | null = state.functions.tryGet(frame.functionId)
+    if (funcDef != null) {
       absolutePC = funcDef.bytecodeStartPC + relativePC
     }
   }
@@ -52,12 +52,12 @@ export function writeCallStackMetaToSlot(state: VmState, slot: GenSlot): void {
 export function writeCallStackMetaToHistory(state: VmState, history: GenHistory): void {
   const callStackMetaOffset: i32 = history.metaOffset + 12
   for (let i: i32 = 0; i < 8; i++) {
-    if (i < state.absolutePCCallStackTop && state.absolutePCCallStack[i] >= 0) {
-      history.meta[callStackMetaOffset + i] = u32(state.absolutePCCallStack[i])
-    }
-    else {
-      history.meta[callStackMetaOffset + i] = u32(0xffffffff)
-    }
+    history.meta[callStackMetaOffset + i] = u32(0xffffffff)
+  }
+  const n: i32 = state.absolutePCCallStackTop < 8 ? state.absolutePCCallStackTop : 8
+  for (let i: i32 = 0; i < n; i++) {
+    const absPc: i32 = state.absolutePCCallStack[i]
+    if (absPc >= 0) history.meta[callStackMetaOffset + i] = u32(absPc)
   }
 }
 
@@ -65,11 +65,32 @@ export function writeCallStackMetaToHistory(state: VmState, history: GenHistory)
 // @ts-ignore
 // @inline
 export function getOversampleFactor(state: VmState): i32 {
-  for (let si: i32 = state.callStack.length - 1; si >= 0; si--) {
-    const fr: CallFrame = state.callStack.get(si)
-    if (fr.isOversample && fr.oversampleFactor > 1) return fr.oversampleFactor
+  const depth: i32 = state.callStack.length
+  if (depth == 0) {
+    state.cachedOversampleCallStackLen = 0
+    state.cachedOversampleTopFrameRef = 0
+    state.cachedOversampleFactor = 0
+    return 0
   }
-  return 0
+
+  const topFrame: CallFrame = state.callStack.get(depth - 1)
+  const topRef: usize = changetype<usize>(topFrame)
+  if (state.cachedOversampleCallStackLen == depth && state.cachedOversampleTopFrameRef == topRef) {
+    return state.cachedOversampleFactor
+  }
+
+  let factor: i32 = 0
+  for (let si: i32 = depth - 1; si >= 0; si--) {
+    const fr: CallFrame = state.callStack.get(si)
+    if (fr.isOversample && fr.oversampleFactor > 1) {
+      factor = fr.oversampleFactor
+      break
+    }
+  }
+  state.cachedOversampleCallStackLen = depth
+  state.cachedOversampleTopFrameRef = topRef
+  state.cachedOversampleFactor = factor
+  return factor
 }
 
 /** Align buffer length to 16-sample boundary for SIMD-friendly allocation. */

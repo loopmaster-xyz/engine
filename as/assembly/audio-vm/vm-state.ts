@@ -88,6 +88,9 @@ export class VmState {
   perfCountersEnabled: bool
   osUpMode: i32
   osDownMode: i32
+  cachedOversampleCallStackLen: i32
+  cachedOversampleTopFrameRef: usize
+  cachedOversampleFactor: i32
   tableGenPoolIndex: i32
   tramGenPoolIndex: i32
   miniGenPoolIndex: i32
@@ -138,6 +141,9 @@ export class VmState {
     this.genPools = new Array<GenPool>()
     this.osUpMode = OS_UP_HOLD
     this.osDownMode = OS_DOWN_DECIMATE
+    this.cachedOversampleCallStackLen = -1
+    this.cachedOversampleTopFrameRef = 0
+    this.cachedOversampleFactor = 0
     this.outGenPoolIndex = -1
     this.mixGenPoolIndex = -1
     this.postPcForMixHistory = -1
@@ -318,6 +324,9 @@ export class VmState {
     this.outputBufferLength = 0
     this.work.clear()
     this.pendingReleaseAudio.clear()
+    this.cachedOversampleCallStackLen = -1
+    this.cachedOversampleTopFrameRef = 0
+    this.cachedOversampleFactor = 0
     this.tempAudioPtrs.clear()
     this.nextBufferHandle = 0
     const bufferIds: FastArray<i32> = this.bufferRegistry.keys()

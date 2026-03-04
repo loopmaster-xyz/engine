@@ -40,8 +40,8 @@ function isCellInLocalsSaved(frame: CallFrame, cellIdx: i32): bool {
 function isCellInClosureEnv(vm: VmState, cellIdx: i32): bool {
   const envIds: FastArray<i32> = vm.closureEnvs.keys()
   for (let e: i32 = 0; e < envIds.length; e++) {
-    if (!vm.closureEnvs.has(envIds.get(e))) continue
-    const env: ClosureEnv = vm.closureEnvs.get(envIds.get(e))
+    const env: ClosureEnv | null = vm.closureEnvs.tryGet(envIds.get(e))
+    if (env == null) continue
     for (let c: i32 = 0; c < env.cells.length; c++) {
       if (env.cells.get(c) == cellIdx) return true
     }

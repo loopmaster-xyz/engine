@@ -14,8 +14,8 @@ export function isCellInGlobals(vm: VmState, cellIdx: i32): bool {
 export function isCellInClosureEnvs(vm: VmState, cellIdx: i32): bool {
   const envIds: FastArray<i32> = vm.closureEnvs.keys()
   for (let e: i32 = 0; e < envIds.length; e++) {
-    if (!vm.closureEnvs.has(envIds.get(e))) continue
-    const env: ClosureEnv = vm.closureEnvs.get(envIds.get(e))
+    const env: ClosureEnv | null = vm.closureEnvs.tryGet(envIds.get(e))
+    if (env == null) continue
     for (let c: i32 = 0; c < env.cells.length; c++) {
       if (env.cells.get(c) == cellIdx) return true
     }
@@ -29,8 +29,9 @@ function getCellValueRaw(vm: VmState, cellIdx: i32): f64 {
   if (vm.callStack.length > 0) {
     const frame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
     const ov: Float64Array | null = frame.closureOverride
-    if (ov != null && frame.closureEnvId >= 0 && vm.closureEnvs.has(frame.closureEnvId)) {
-      const env: ClosureEnv = vm.closureEnvs.get(frame.closureEnvId)
+    if (ov != null && frame.closureEnvId >= 0) {
+      const env: ClosureEnv | null = vm.closureEnvs.tryGet(frame.closureEnvId)
+      if (env == null) return vm.cells.get(cellIdx).value
       for (let i: i32 = 0; i < env.cells.length; i++) {
         if (env.cells.get(i) == cellIdx && i < ov.length) {
           const over: f64 = ov[i]

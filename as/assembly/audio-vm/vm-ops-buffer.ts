@@ -28,8 +28,9 @@ const ALLOC_COUNTER_KEY_BIAS: i32 = -1
 // Per-run alloc ordinal for a callsite. Stored as negative keys in stepRegistry to avoid extra tables.
 function nextAllocOrdinal(vm: VmState, callSiteId: i32): i32 {
   const key: i32 = ALLOC_COUNTER_KEY_BIAS - callSiteId
-  if (vm.stepRegistry.has(key)) {
-    const entry = vm.stepRegistry.get(key)
+  const existing = vm.stepRegistry.tryGet(key)
+  if (existing != null) {
+    const entry = existing
     const ordinal: i32 = entry.currentIndex
     entry.currentIndex = ordinal + 1
     return ordinal
@@ -124,8 +125,9 @@ export function handleAlloc(
   const ordinal: i32 = nextAllocOrdinal(vm, callSiteId)
   const handle: i32 = buildAllocHandle(vm, callSiteId, ordinal, osFactor)
 
-  if (vm.bufferRegistry.has(handle)) {
-    const entry: BufferEntry = vm.bufferRegistry.get(handle)
+  const existing: BufferEntry | null = vm.bufferRegistry.tryGet(handle)
+  if (existing != null) {
+    const entry: BufferEntry = existing
     const rateChanged: bool = entry.sampleRate != baseSampleRate
     const lengthChanged: bool = entry.lengthSamples != lengthSamples
     if (rateChanged || lengthChanged) {
@@ -167,14 +169,14 @@ export function handleWrite(
   const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
   const tempMark: i32 = vm.beginTempAudioScope()
 
-  if (!vm.bufferRegistry.has(handleValue)) {
+  const entry: BufferEntry | null = vm.bufferRegistry.tryGet(handleValue)
+  if (entry == null) {
     vm.endTempAudioScope(tempMark)
     vmStack.push(vm, encodeScalar(f32(handleValue)))
     vmStack.releaseValueTagged(vm, inputResolved)
     return RunResult.normal(pc, _opsPtr, params.opsLength)
   }
 
-  const entry: BufferEntry = vm.bufferRegistry.get(handleValue)
   const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)
   if (osFactor > 1) {
     const baseLen: i32 = params.bufferLength / osFactor
@@ -227,14 +229,14 @@ export function handleRead(
   const output: Float32Array = vm.arena.get(procLen)
   const outputPtr: usize = output.dataStart
 
-  if (!vm.bufferRegistry.has(handleValue)) {
+  const entry: BufferEntry | null = vm.bufferRegistry.tryGet(handleValue)
+  if (entry == null) {
     memory.fill(outputPtr, 0, usize(procLen) << 2)
     vmStack.push(vm, encodeAudio(outputPtr), true)
     vmStack.releaseValueTagged(vm, offsetResolved)
     return RunResult.normal(pc, opsPtr, params.opsLength)
   }
 
-  const entry: BufferEntry = vm.bufferRegistry.get(handleValue)
   if (osFactor > 1) {
     const baseLen: i32 = params.bufferLength / osFactor
     const baseBuf: Float32Array = vm.getOversampleScratchA(baseLen)

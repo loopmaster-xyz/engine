@@ -293,13 +293,13 @@ export function handleOversample(
   let closureEnvId: i32 = -1
   let funcDef: FunctionDef | null = null
 
-  if (vm.functionInstances.has(instanceId)) {
-    const instance: FunctionInstance = vm.functionInstances.get(instanceId)
-    if (vm.functions.has(instance.defId)) funcDef = vm.functions.get(instance.defId)
+  const instance: FunctionInstance | null = vm.functionInstances.tryGet(instanceId)
+  if (instance != null) {
+    funcDef = vm.functions.tryGet(instance.defId)
     closureEnvId = instance.closureEnvId
   }
-  else if (vm.functions.has(instanceId)) {
-    funcDef = vm.functions.get(instanceId)
+  else {
+    funcDef = vm.functions.tryGet(instanceId)
   }
 
   if (funcDef == null) throw new Error(`Oversample: function not found instanceId=${instanceId}`)
@@ -313,8 +313,9 @@ export function handleOversample(
   let tempArrayIds: FastArray<u32> | null = null
   let closureOverride: Float64Array | null = null
 
-  if (factor > 1 && closureEnvId >= 0 && vm.closureEnvs.has(closureEnvId)) {
-    const env: ClosureEnv = vm.closureEnvs.get(closureEnvId)
+  const closureEnv: ClosureEnv | null = factor > 1 && closureEnvId >= 0 ? vm.closureEnvs.tryGet(closureEnvId) : null
+  if (closureEnv != null) {
+    const env: ClosureEnv = closureEnv
     const n: i32 = env.cells.length
     closureOverride = vm.float64Arena.get(n)
     for (let i: i32 = 0; i < n; i++) closureOverride[i] = encodeUndefined()
@@ -330,10 +331,8 @@ export function handleOversample(
 
       if (isAudio(v)) {
         const basePtr: u32 = u32(decodeAudio(v))
-        let upPtr: u32
-
-        if (vm.upsampleCache.has(basePtr)) {
-          upPtr = vm.upsampleCache.get(basePtr)
+        let upPtr: u32 = vm.upsampleCache.get(basePtr)
+        if (upPtr != 0) {
           vm.arena.retain(upPtr)
         }
         else {
@@ -363,10 +362,8 @@ export function handleOversample(
             const e: f64 = arr[j]
             if (isAudio(e)) {
               const basePtr: u32 = u32(decodeAudio(e))
-              let upPtr: u32
-
-              if (vm.upsampleCache.has(basePtr)) {
-                upPtr = vm.upsampleCache.get(basePtr)
+              let upPtr: u32 = vm.upsampleCache.get(basePtr)
+              if (upPtr != 0) {
                 vm.arena.retain(upPtr)
               }
               else {
@@ -410,18 +407,12 @@ export function handleOversample(
 
   const oversampleFunctionId: i32 = funcDef.functionId
   let absolutePC: i32 = relativePC
-  let currentFuncDef: FunctionDef | null = null
-
-  for (let i: i32 = 0; i < vm.functions.size; i++) {
-    const fd: FunctionDef = vm.functions.values().get(i)
-    if (fd.bytecode.dataStart == opsPtr) {
-      currentFuncDef = fd
-      break
+  if (vm.callStack.length > 0) {
+    const callerFrame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
+    const currentFuncDef: FunctionDef | null = vm.functions.tryGet(callerFrame.functionId)
+    if (currentFuncDef != null) {
+      absolutePC = currentFuncDef.bytecodeStartPC + relativePC
     }
-  }
-
-  if (currentFuncDef != null) {
-    absolutePC = currentFuncDef.bytecodeStartPC + relativePC
   }
 
   const frame: CallFrame = vm.callFramePool.acquire()
