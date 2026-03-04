@@ -172,7 +172,13 @@ function applyTernary(id: i32, a: f32, b: f32, c: f32): f32 {
 
 // @ts-ignore
 
-export function mathUnaryById(vm: VmState, id: i32, tagged: f64, bufferLength: i32): f64 {
+export function mathUnaryById(
+  vm: VmState,
+  id: i32,
+  tagged: f64,
+  bufferLength: i32,
+  reuseOutputPtr: usize = 0,
+): f64 {
   if (isCellRef(tagged)) tagged = vmOpsVars.resolveCellRef(vm, tagged)
   if (isScalar(tagged)) {
     const x: f32 = decodeScalar(tagged)
@@ -181,8 +187,8 @@ export function mathUnaryById(vm: VmState, id: i32, tagged: f64, bufferLength: i
   if (isAudio(tagged)) {
     const inputPtr: usize = decodeAudio(tagged)
     const procLen: i32 = (bufferLength + 15) & ~15
-    const output: Float32Array = vm.arena.get(procLen)
-    const outputPtr: usize = output.dataStart
+    let outputPtr: usize = reuseOutputPtr
+    if (outputPtr == 0) outputPtr = vm.arena.get(procLen).dataStart
     let input$: usize = inputPtr
     let output$: usize = outputPtr
     let sample: f32
@@ -207,6 +213,7 @@ export function mathBinaryById(
   left: f64,
   right: f64,
   bufferLength: i32,
+  reuseMode: i32 = 0,
 ): f64 {
   if (isCellRef(left)) left = vmOpsVars.resolveCellRef(vm, left)
   if (isCellRef(right)) right = vmOpsVars.resolveCellRef(vm, right)
@@ -218,12 +225,14 @@ export function mathBinaryById(
     return encodeScalar(applyBinary(id, a, b))
   }
   const procLen: i32 = (bufferLength + 15) & ~15
-  const output: Float32Array = vm.arena.get(procLen)
-  const outputPtr: usize = output.dataStart
   const leftPtr: usize = leftIsAudio ? decodeAudio(left) : 0
   const rightPtr: usize = rightIsAudio ? decodeAudio(right) : 0
   const leftScalar: f32 = leftIsAudio ? 0.0 : decodeScalar(left)
   const rightScalar: f32 = rightIsAudio ? 0.0 : decodeScalar(right)
+  let outputPtr: usize = 0
+  if (reuseMode == 1 && leftIsAudio) outputPtr = leftPtr
+  else if (reuseMode == 2 && rightIsAudio) outputPtr = rightPtr
+  else outputPtr = vm.arena.get(procLen).dataStart
   let out$: usize = outputPtr
   if (leftIsAudio && rightIsAudio) {
     let left$: usize = leftPtr
@@ -277,6 +286,7 @@ export function mathTernaryById(
   b: f64,
   c: f64,
   bufferLength: i32,
+  reuseMode: i32 = 0,
 ): f64 {
   if (isCellRef(a)) a = vmOpsVars.resolveCellRef(vm, a)
   if (isCellRef(b)) b = vmOpsVars.resolveCellRef(vm, b)
@@ -291,14 +301,17 @@ export function mathTernaryById(
     return encodeScalar(applyTernary(id, af, bf, cf))
   }
   const procLen: i32 = (bufferLength + 15) & ~15
-  const output: Float32Array = vm.arena.get(procLen)
-  const outputPtr: usize = output.dataStart
   const aPtr: usize = aAudio ? decodeAudio(a) : 0
   const bPtr: usize = bAudio ? decodeAudio(b) : 0
   const cPtr: usize = cAudio ? decodeAudio(c) : 0
   const aScalar: f32 = aAudio ? 0.0 : decodeScalar(a)
   const bScalar: f32 = bAudio ? 0.0 : decodeScalar(b)
   const cScalar: f32 = cAudio ? 0.0 : decodeScalar(c)
+  let outputPtr: usize = 0
+  if (reuseMode == 1 && aAudio) outputPtr = aPtr
+  else if (reuseMode == 2 && bAudio) outputPtr = bPtr
+  else if (reuseMode == 3 && cAudio) outputPtr = cPtr
+  else outputPtr = vm.arena.get(procLen).dataStart
   let out$: usize = outputPtr
   let a$: usize = aPtr
   let b$: usize = bPtr
@@ -330,11 +343,22 @@ export function handleMathUnary(
 ): RunResult {
   const id: i32 = readOperandI32(opsPtr, pc)
   const taggedRaw: f64 = vmStack.pop(vm)
-  const tagged: f64 = isCellRef(taggedRaw) ? vmOpsVars.resolveCellRef(vm, taggedRaw) : taggedRaw
-  const result: f64 = isScalar(tagged)
-    ? encodeScalar(applyUnary(id, decodeScalar(tagged)))
-    : mathUnaryById(vm, id, tagged, params.bufferLength)
-  if (!heap.isImmediateValue(taggedRaw)) heap.releaseManagedValue(vm, taggedRaw)
+  const fromCellRef: bool = isCellRef(taggedRaw)
+  const tagged: f64 = fromCellRef ? vmOpsVars.resolveCellRef(vm, taggedRaw) : taggedRaw
+  let result: f64
+  let reusedRawAudio: bool = false
+  if (isScalar(tagged)) {
+    result = encodeScalar(applyUnary(id, decodeScalar(tagged)))
+  }
+  else {
+    const canReuse: bool = isAudio(tagged)
+      && !fromCellRef
+      && vm.arena.canMutateByPtr(u32(decodeAudio(tagged)))
+    const reusePtr: usize = canReuse ? decodeAudio(tagged) : 0
+    result = mathUnaryById(vm, id, tagged, params.bufferLength, reusePtr)
+    reusedRawAudio = canReuse && isAudio(taggedRaw)
+  }
+  if (!heap.isImmediateValue(taggedRaw) && !reusedRawAudio) heap.releaseManagedValue(vm, taggedRaw)
   vmStack.push(vm, result, true)
   return RunResult.normal(pc + 1, opsPtr, params.opsLength)
 }
@@ -349,13 +373,26 @@ export function handleMathBinary(
   const id: i32 = readOperandI32(opsPtr, pc)
   const rightRaw: f64 = vmStack.pop(vm)
   const leftRaw: f64 = vmStack.pop(vm)
-  const left: f64 = isCellRef(leftRaw) ? vmOpsVars.resolveCellRef(vm, leftRaw) : leftRaw
-  const right: f64 = isCellRef(rightRaw) ? vmOpsVars.resolveCellRef(vm, rightRaw) : rightRaw
-  const result: f64 = isScalar(left) && isScalar(right)
-    ? encodeScalar(applyBinary(id, decodeScalar(left), decodeScalar(right)))
-    : mathBinaryById(vm, id, left, right, params.bufferLength)
-  if (!heap.isImmediateValue(rightRaw)) heap.releaseManagedValue(vm, rightRaw)
-  if (!heap.isImmediateValue(leftRaw)) heap.releaseManagedValue(vm, leftRaw)
+  const leftFromCellRef: bool = isCellRef(leftRaw)
+  const rightFromCellRef: bool = isCellRef(rightRaw)
+  const left: f64 = leftFromCellRef ? vmOpsVars.resolveCellRef(vm, leftRaw) : leftRaw
+  const right: f64 = rightFromCellRef ? vmOpsVars.resolveCellRef(vm, rightRaw) : rightRaw
+  let result: f64
+  let reuseMode: i32 = 0
+  if (isScalar(left) && isScalar(right)) {
+    result = encodeScalar(applyBinary(id, decodeScalar(left), decodeScalar(right)))
+  }
+  else {
+    if (isAudio(left) && !leftFromCellRef && vm.arena.canMutateByPtr(u32(decodeAudio(left)))) {
+      reuseMode = 1
+    }
+    else if (isAudio(right) && !rightFromCellRef && vm.arena.canMutateByPtr(u32(decodeAudio(right)))) {
+      reuseMode = 2
+    }
+    result = mathBinaryById(vm, id, left, right, params.bufferLength, reuseMode)
+  }
+  if (!heap.isImmediateValue(rightRaw) && !(reuseMode == 2 && isAudio(rightRaw))) heap.releaseManagedValue(vm, rightRaw)
+  if (!heap.isImmediateValue(leftRaw) && !(reuseMode == 1 && isAudio(leftRaw))) heap.releaseManagedValue(vm, leftRaw)
   vmStack.push(vm, result, true)
   return RunResult.normal(pc + 1, opsPtr, params.opsLength)
 }
@@ -371,15 +408,32 @@ export function handleMathTernary(
   const cRaw: f64 = vmStack.pop(vm)
   const bRaw: f64 = vmStack.pop(vm)
   const aRaw: f64 = vmStack.pop(vm)
-  const a: f64 = isCellRef(aRaw) ? vmOpsVars.resolveCellRef(vm, aRaw) : aRaw
-  const b: f64 = isCellRef(bRaw) ? vmOpsVars.resolveCellRef(vm, bRaw) : bRaw
-  const c: f64 = isCellRef(cRaw) ? vmOpsVars.resolveCellRef(vm, cRaw) : cRaw
-  const result: f64 = isScalar(a) && isScalar(b) && isScalar(c)
-    ? encodeScalar(applyTernary(id, decodeScalar(a), decodeScalar(b), decodeScalar(c)))
-    : mathTernaryById(vm, id, a, b, c, params.bufferLength)
-  if (!heap.isImmediateValue(cRaw)) heap.releaseManagedValue(vm, cRaw)
-  if (!heap.isImmediateValue(bRaw)) heap.releaseManagedValue(vm, bRaw)
-  if (!heap.isImmediateValue(aRaw)) heap.releaseManagedValue(vm, aRaw)
+  const aFromCellRef: bool = isCellRef(aRaw)
+  const bFromCellRef: bool = isCellRef(bRaw)
+  const cFromCellRef: bool = isCellRef(cRaw)
+  const a: f64 = aFromCellRef ? vmOpsVars.resolveCellRef(vm, aRaw) : aRaw
+  const b: f64 = bFromCellRef ? vmOpsVars.resolveCellRef(vm, bRaw) : bRaw
+  const c: f64 = cFromCellRef ? vmOpsVars.resolveCellRef(vm, cRaw) : cRaw
+  let result: f64
+  let reuseMode: i32 = 0
+  if (isScalar(a) && isScalar(b) && isScalar(c)) {
+    result = encodeScalar(applyTernary(id, decodeScalar(a), decodeScalar(b), decodeScalar(c)))
+  }
+  else {
+    if (isAudio(a) && !aFromCellRef && vm.arena.canMutateByPtr(u32(decodeAudio(a)))) {
+      reuseMode = 1
+    }
+    else if (isAudio(b) && !bFromCellRef && vm.arena.canMutateByPtr(u32(decodeAudio(b)))) {
+      reuseMode = 2
+    }
+    else if (isAudio(c) && !cFromCellRef && vm.arena.canMutateByPtr(u32(decodeAudio(c)))) {
+      reuseMode = 3
+    }
+    result = mathTernaryById(vm, id, a, b, c, params.bufferLength, reuseMode)
+  }
+  if (!heap.isImmediateValue(cRaw) && !(reuseMode == 3 && isAudio(cRaw))) heap.releaseManagedValue(vm, cRaw)
+  if (!heap.isImmediateValue(bRaw) && !(reuseMode == 2 && isAudio(bRaw))) heap.releaseManagedValue(vm, bRaw)
+  if (!heap.isImmediateValue(aRaw) && !(reuseMode == 1 && isAudio(aRaw))) heap.releaseManagedValue(vm, aRaw)
   vmStack.push(vm, result, true)
   return RunResult.normal(pc + 1, opsPtr, params.opsLength)
 }

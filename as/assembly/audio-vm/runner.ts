@@ -134,7 +134,7 @@ export function upsample(vm: VmState, input$: usize, output$: usize, inputSize: 
 // @ts-ignore
 // @inline
 /** Apply unary op to tagged (scalar or audio); return result. */
-export function unary(vm: VmState, op: AudioVmOp, tagged: f64, bufferLength: i32): f64 {
+export function unary(vm: VmState, op: AudioVmOp, tagged: f64, bufferLength: i32, reuseOutputPtr: usize = 0): f64 {
   if (isCellRef(tagged)) tagged = vmOpsVars.resolveCellRef(vm, tagged)
   if (isScalar(tagged)) {
     const value: f32 = decodeScalar(tagged)
@@ -144,8 +144,11 @@ export function unary(vm: VmState, op: AudioVmOp, tagged: f64, bufferLength: i32
   else if (isAudio(tagged)) {
     const inputPtr: usize = decodeAudio(tagged)
     const procLen: i32 = (bufferLength + 15) & ~15
-    const output: Float32Array = vm.arena.get(procLen)
-    const outputPtr: usize = output.dataStart
+    let outputPtr: usize = reuseOutputPtr
+    if (outputPtr == 0) {
+      const output: Float32Array = vm.arena.get(procLen)
+      outputPtr = output.dataStart
+    }
     MathOps.unaryAudio(op, inputPtr, outputPtr, procLen)
     return encodeAudio(outputPtr)
   }
@@ -155,7 +158,7 @@ export function unary(vm: VmState, op: AudioVmOp, tagged: f64, bufferLength: i32
 // @ts-ignore
 // @inline
 /** Apply binary op to left, right (scalar/audio mix); return result. */
-export function binary(vm: VmState, op: AudioVmOp, left: f64, right: f64, bufferLength: i32): f64 {
+export function binary(vm: VmState, op: AudioVmOp, left: f64, right: f64, bufferLength: i32, reuseMode: i32 = 0): f64 {
   if (isCellRef(left)) left = vmOpsVars.resolveCellRef(vm, left)
   if (isCellRef(right)) right = vmOpsVars.resolveCellRef(vm, right)
   if (isUndefined(left)) left = encodeScalar(0.0)
@@ -227,8 +230,6 @@ export function binary(vm: VmState, op: AudioVmOp, left: f64, right: f64, buffer
     throw new Error('Binary op right must be scalar or audio, got: ' + taggedTypeName(right))
   }
   const procLen: i32 = (bufferLength + 15) & ~15
-  const output: Float32Array = vm.arena.get(procLen)
-  const outputPtr: usize = output.dataStart
   let leftPtr: usize = 0
   let rightPtr: usize = 0
   let leftScalar: f32 = 0.0
@@ -245,6 +246,10 @@ export function binary(vm: VmState, op: AudioVmOp, left: f64, right: f64, buffer
   else {
     rightScalar = decodeScalar(right)
   }
+  let outputPtr: usize = 0
+  if (reuseMode == 1 && leftIsAudio) outputPtr = leftPtr
+  else if (reuseMode == 2 && rightIsAudio) outputPtr = rightPtr
+  else outputPtr = vm.arena.get(procLen).dataStart
   MathOps.binaryAudio(op, leftPtr, leftScalar, rightPtr, rightScalar, outputPtr, procLen, leftIsAudio, rightIsAudio)
   return encodeAudio(outputPtr)
 }

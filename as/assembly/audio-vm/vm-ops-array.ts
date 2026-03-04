@@ -238,12 +238,7 @@ export function handleArrayGet(
     else if (isScalar(indexResolved)) {
       recordIdx = wrappedIndexFromScalar(indexResolved, n)
       const elem: f64 = getElementAt(vm, values, recordIdx, n)
-      if (isAudio(elem)) {
-        vmStack.pushAudioCopy(vm, elem, params.bufferLength)
-      }
-      else {
-        vmStack.push(vm, elem)
-      }
+      vmStack.push(vm, elem)
     }
     else {
       vmStack.push(vm, encodeUndefined())

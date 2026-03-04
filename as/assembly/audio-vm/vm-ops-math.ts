@@ -1,6 +1,9 @@
 import {
+  isArray,
+  decodeAudio,
   decodeScalar,
   encodeScalar,
+  isAudio,
   isCellRef,
   isScalar,
   isUndefined,
@@ -24,17 +27,26 @@ export function handleUnary(
   op: AudioVmOp,
 ): RunResult {
   const taggedRaw: f64 = vmStack.pop(vm)
-  const tagged: f64 = isCellRef(taggedRaw) ? vmOpsVars.resolveCellRef(vm, taggedRaw) : taggedRaw
+  const fromCellRef: bool = isCellRef(taggedRaw)
+  const tagged: f64 = fromCellRef ? vmOpsVars.resolveCellRef(vm, taggedRaw) : taggedRaw
 
   let result: f64
+  let reusedRawAudio: bool = false
   if (isScalar(tagged)) {
     result = encodeScalar(MathOps.unaryScalar(op, decodeScalar(tagged)))
   }
   else {
-    result = unary(vm, op, tagged, params.bufferLength)
+    const canReuse: bool = isAudio(tagged)
+      && !fromCellRef
+      && vm.arena.canMutateByPtr(u32(decodeAudio(tagged)))
+    const reusePtr: usize = canReuse ? decodeAudio(tagged) : 0
+    result = unary(vm, op, tagged, params.bufferLength, reusePtr)
+    reusedRawAudio = canReuse && isAudio(taggedRaw)
   }
 
-  if (!heap.isImmediateValue(taggedRaw)) heap.releaseManagedValue(vm, taggedRaw)
+  if (!heap.isImmediateValue(taggedRaw) && !reusedRawAudio) {
+    heap.releaseManagedValue(vm, taggedRaw)
+  }
   vmStack.push(vm, result, true)
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }
@@ -49,23 +61,34 @@ export function handleBinary(
 ): RunResult {
   const rightRaw: f64 = vmStack.pop(vm)
   const leftRaw: f64 = vmStack.pop(vm)
+  const leftFromCellRef: bool = isCellRef(leftRaw)
+  const rightFromCellRef: bool = isCellRef(rightRaw)
 
-  let left: f64 = isCellRef(leftRaw) ? vmOpsVars.resolveCellRef(vm, leftRaw) : leftRaw
-  let right: f64 = isCellRef(rightRaw) ? vmOpsVars.resolveCellRef(vm, rightRaw) : rightRaw
+  let left: f64 = leftFromCellRef ? vmOpsVars.resolveCellRef(vm, leftRaw) : leftRaw
+  let right: f64 = rightFromCellRef ? vmOpsVars.resolveCellRef(vm, rightRaw) : rightRaw
 
   if (isUndefined(left)) left = encodeScalar(0.0)
   if (isUndefined(right)) right = encodeScalar(0.0)
 
   let result: f64
+  let reuseMode: i32 = 0
   if (isScalar(left) && isScalar(right)) {
     result = encodeScalar(MathOps.binaryScalar(op, decodeScalar(left), decodeScalar(right)))
   }
   else {
-    result = binary(vm, op, left, right, params.bufferLength)
+    if (!isArray(left) && !isArray(right)) {
+      if (isAudio(left) && !leftFromCellRef && vm.arena.canMutateByPtr(u32(decodeAudio(left)))) {
+        reuseMode = 1
+      }
+      else if (isAudio(right) && !rightFromCellRef && vm.arena.canMutateByPtr(u32(decodeAudio(right)))) {
+        reuseMode = 2
+      }
+    }
+    result = binary(vm, op, left, right, params.bufferLength, reuseMode)
   }
 
-  if (!heap.isImmediateValue(rightRaw)) heap.releaseManagedValue(vm, rightRaw)
-  if (!heap.isImmediateValue(leftRaw)) heap.releaseManagedValue(vm, leftRaw)
+  if (!heap.isImmediateValue(rightRaw) && !(reuseMode == 2 && isAudio(rightRaw))) heap.releaseManagedValue(vm, rightRaw)
+  if (!heap.isImmediateValue(leftRaw) && !(reuseMode == 1 && isAudio(leftRaw))) heap.releaseManagedValue(vm, leftRaw)
   vmStack.push(vm, result, true)
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }

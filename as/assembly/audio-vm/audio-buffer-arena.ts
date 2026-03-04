@@ -37,6 +37,7 @@ export class AudioBufferArena {
   private pRefcount: Uint32Array = new Uint32Array(0)
   private pCount: u32 = 0
   // pTomb is gone — backward-shift deletion produces no tombstones.
+  private pLastSlot: i32 = -1
 
   private pendingFreeBuffers: Array<Float32Array> = new Array<Float32Array>()
   private statsBuf: Uint32Array = new Uint32Array(9)
@@ -75,6 +76,7 @@ export class AudioBufferArena {
       for (let i: i32 = 0; i < capacity; i++) this.pBuf[i] = null
     }
     this.pCount = 0
+    this.pLastSlot = -1
   }
 
   // @inline
@@ -132,15 +134,23 @@ export class AudioBufferArena {
   private pFindSlot(ptr: u32): i32 {
     const state: Uint8Array = this.pState
     const key: Uint32Array = this.pKey
+    const cached: i32 = this.pLastSlot
+    if (cached >= 0 && cached < this.pCap && unchecked(state[cached]) == 1 && unchecked(key[cached]) == ptr) {
+      return cached
+    }
     const mask: u32 = this.pMask
     let idx: u32 = ((ptr >> 2) * 2654435761) & mask
     const cap: i32 = this.pCap
     for (let probes: i32 = 0; probes < cap; probes++) {
       const s: u8 = unchecked(state[idx])
       if (s == 0) return -1 // empty → definitely not present
-      if (unchecked(key[idx]) == ptr) return i32(idx)
+      if (unchecked(key[idx]) == ptr) {
+        this.pLastSlot = i32(idx)
+        return i32(idx)
+      }
       idx = (idx + 1) & mask
     }
+    this.pLastSlot = -1
     return -1
   }
 
@@ -167,6 +177,7 @@ export class AudioBufferArena {
     if (unchecked(this.pState[slot]) == 1 && unchecked(this.pKey[slot]) == ptr) {
       assert(this.pRefcount[slot] < u32.MAX_VALUE, 'arena pPutNoEnsure: refcount overflow')
       this.pRefcount[slot]++
+      this.pLastSlot = slot
       return
     }
     this.pCount++
@@ -174,6 +185,7 @@ export class AudioBufferArena {
     this.pKey[slot] = ptr
     this.pBuf[slot] = buffer
     this.pRefcount[slot] = refcount
+    this.pLastSlot = slot
   }
 
   /** Backward-shift deletion.
@@ -200,6 +212,7 @@ export class AudioBufferArena {
     const cap: i32 = this.pCap
 
     let gap: u32 = u32(slotArg)
+    this.pLastSlot = -1
     state[gap] = 0
     buf[gap] = null
     this.pCount--
@@ -269,6 +282,14 @@ export class AudioBufferArena {
   }
 
   // @inline
+  canMutateByPtr(ptr: u32): bool {
+    if (this.pCap == 0) return false
+    const slot: i32 = this.pFindSlot(ptr)
+    if (slot < 0) return false
+    return this.pRefcount[slot] == 1
+  }
+
+  // @inline
   private releaseAtSlot(slot: i32): void {
     const rc: u32 = this.pRefcount[slot]
     if (rc == 0) return
@@ -311,6 +332,7 @@ export class AudioBufferArena {
 
   clear(): void {
     this.drainPendingFree()
+    this.pLastSlot = -1
     for (let i: i32 = 0; i < this.pCap; i++) {
       if (unchecked(this.pState[i]) == 1) {
         const b: Float32Array | null = unchecked(this.pBuf[i])

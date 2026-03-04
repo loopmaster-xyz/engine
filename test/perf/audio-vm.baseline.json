@@ -11,50 +11,90 @@
   "scenarios": [
     {
       "name": "simple_sine",
-      "medianMsPerTick": 0.15663200000000188,
-      "p95MsPerTick": 0.42957699999999477,
-      "stddevMsPerTick": 0.2303082044306611,
+      "medianMsPerTick": 0.11877699999999436,
+      "p95MsPerTick": 0.21767900000003237,
+      "stddevMsPerTick": 0.05304402165943967,
       "arenaDelta": {
         "allocated": 0,
-        "reused": 5000,
-        "released": 8000,
+        "reused": 3000,
+        "released": 6000,
         "inFlight": 0
+      },
+      "perfDelta": {
+        "dispatch": 0,
+        "genDispatch": 0,
+        "tempAllocs": 0,
+        "tempReleases": 0,
+        "helperGets": 0,
+        "helperReleases": 0,
+        "upsampleOps": 0,
+        "downsampleOps": 0
       }
     },
     {
       "name": "math_chain",
-      "medianMsPerTick": 0.17328900000001113,
-      "p95MsPerTick": 0.3797270000000026,
-      "stddevMsPerTick": 0.1967768016725831,
+      "medianMsPerTick": 0.10697449999997843,
+      "p95MsPerTick": 0.17819300000002158,
+      "stddevMsPerTick": 0.06065295324522501,
       "arenaDelta": {
         "allocated": 0,
-        "reused": 16000,
-        "released": 28000,
+        "reused": 8000,
+        "released": 20000,
         "inFlight": 0
+      },
+      "perfDelta": {
+        "dispatch": 0,
+        "genDispatch": 0,
+        "tempAllocs": 0,
+        "tempReleases": 0,
+        "helperGets": 0,
+        "helperReleases": 0,
+        "upsampleOps": 0,
+        "downsampleOps": 0
       }
     },
     {
       "name": "oversample_capture",
-      "medianMsPerTick": 0.20552950000012515,
-      "p95MsPerTick": 0.5560410000000502,
-      "stddevMsPerTick": 0.16645116190849873,
+      "medianMsPerTick": 0.13940649999995003,
+      "p95MsPerTick": 0.229987000000051,
+      "stddevMsPerTick": 0.03377785344582552,
       "arenaDelta": {
         "allocated": 0,
-        "reused": 18000,
-        "released": 23000,
+        "reused": 10000,
+        "released": 15000,
         "inFlight": 0
+      },
+      "perfDelta": {
+        "dispatch": 0,
+        "genDispatch": 0,
+        "tempAllocs": 0,
+        "tempReleases": 0,
+        "helperGets": 0,
+        "helperReleases": 0,
+        "upsampleOps": 0,
+        "downsampleOps": 0
       }
     },
     {
       "name": "kitchen_sink",
-      "medianMsPerTick": 2.302291999999852,
-      "p95MsPerTick": 4.918791000000056,
-      "stddevMsPerTick": 1.1128093659796594,
+      "medianMsPerTick": 1.491192500000011,
+      "p95MsPerTick": 2.4259750000001077,
+      "stddevMsPerTick": 0.3549849389479719,
       "arenaDelta": {
         "allocated": 0,
-        "reused": 555000,
-        "released": 985000,
+        "reused": 247000,
+        "released": 690000,
         "inFlight": 0
+      },
+      "perfDelta": {
+        "dispatch": 0,
+        "genDispatch": 0,
+        "tempAllocs": 0,
+        "tempReleases": 0,
+        "helperGets": 0,
+        "helperReleases": 0,
+        "upsampleOps": 0,
+        "downsampleOps": 0
       }
     }
   ]

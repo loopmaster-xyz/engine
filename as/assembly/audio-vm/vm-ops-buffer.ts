@@ -74,24 +74,42 @@ export function readChunkFromRingBuffer(
 ): void {
   const bufPtr: usize = entry.buffer.dataStart
   const lengthSamples: i32 = entry.lengthSamples
-  const writeIndex: i32 = entry.writeIndex
+  const baseIndex: f32 = f32(entry.writeIndex - bl)
   const sampleRate: f32 = entry.sampleRate
   if (isScalar(offsetResolved)) {
     const offsetSeconds: f32 = decodeScalar(offsetResolved)
     const offsetSamples: f32 = offsetSeconds * sampleRate
+    let sampleIndex: f32 = baseIndex
+    let out$: usize = outputPtr
     for (let i: i32 = 0; i < bl; i++) {
-      const index: f32 = f32(writeIndex - bl + i) - offsetSamples
-      store<f32>(outputPtr + (usize(i) << 2), bicubicAt(bufPtr, lengthSamples, index))
+      store<f32>(out$, bicubicAt(bufPtr, lengthSamples, sampleIndex - offsetSamples))
+      sampleIndex += 1.0
+      out$ += 4
     }
   }
   else if (isAudio(offsetResolved)) {
     const offsetPtr: usize = decodeAudio(offsetResolved)
-    for (let i: i32 = 0; i < bl; i++) {
-      const offsetIdx: i32 = i * offsetStride
-      const offsetSeconds: f32 = load<f32>(offsetPtr + (usize(offsetIdx) << 2))
-      const offsetSamples: f32 = offsetSeconds * sampleRate
-      const index: f32 = f32(writeIndex - bl + i) - offsetSamples
-      store<f32>(outputPtr + (usize(i) << 2), bicubicAt(bufPtr, lengthSamples, index))
+    let sampleIndex: f32 = baseIndex
+    let out$: usize = outputPtr
+    if (offsetStride == 1) {
+      let offset$: usize = offsetPtr
+      for (let i: i32 = 0; i < bl; i++) {
+        const offsetSamples: f32 = load<f32>(offset$) * sampleRate
+        store<f32>(out$, bicubicAt(bufPtr, lengthSamples, sampleIndex - offsetSamples))
+        offset$ += 4
+        sampleIndex += 1.0
+        out$ += 4
+      }
+    }
+    else {
+      for (let i: i32 = 0; i < bl; i++) {
+        const offsetIdx: i32 = i * offsetStride
+        const offsetSeconds: f32 = load<f32>(offsetPtr + (usize(offsetIdx) << 2))
+        const offsetSamples: f32 = offsetSeconds * sampleRate
+        store<f32>(out$, bicubicAt(bufPtr, lengthSamples, sampleIndex - offsetSamples))
+        sampleIndex += 1.0
+        out$ += 4
+      }
     }
     vmStack.releaseValueTagged(vm, offsetResolved)
   }

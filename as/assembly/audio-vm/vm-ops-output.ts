@@ -236,8 +236,26 @@ export function applyMixResultToOutput(vm: VmState, bufferLength: i32): void {
     throw new Error('applyMixResultToOutput: output buffers too small')
   }
 
-  if (vm.outputLeft.dataStart != ptrL) memory.copy(vm.outputLeft.dataStart, ptrL, usize(bufferLength) << 2)
-  if (vm.outputRight.dataStart != ptrR) memory.copy(vm.outputRight.dataStart, ptrR, usize(bufferLength) << 2)
+  const outputLPtr: usize = vm.outputLeft.dataStart
+  const outputRPtr: usize = vm.outputRight.dataStart
+  const bytes: usize = usize(bufferLength) << 2
+  let srcL: usize = ptrL
+  let srcR: usize = ptrR
+
+  // Protect swap/alias cases where one source points at the opposite output buffer.
+  if (srcL == outputRPtr && srcL != outputLPtr) {
+    const scratchL: Float32Array = vm.getOversampleScratchA(bufferLength)
+    memory.copy(scratchL.dataStart, srcL, bytes)
+    srcL = scratchL.dataStart
+  }
+  if (srcR == outputLPtr && srcR != outputRPtr) {
+    const scratchR: Float32Array = vm.getOversampleScratchB(bufferLength)
+    memory.copy(scratchR.dataStart, srcR, bytes)
+    srcR = scratchR.dataStart
+  }
+
+  if (outputLPtr != srcL) memory.copy(outputLPtr, srcL, bytes)
+  if (outputRPtr != srcR) memory.copy(outputRPtr, srcR, bytes)
 
   if (vm.mixGenPoolIndex >= 0 && vm.postPcForMixHistory >= 0) {
     const slot: GenSlot = vm.genPools[vm.mixGenPoolIndex].get()
