@@ -32,10 +32,9 @@ export class TramKernel {
     bars: f32,
     outputPtr: usize,
   ): void {
+    const procLen: i32 = (bufferLength + 15) & ~15
     if (bytecodeLength <= 0) {
-      for (let i: i32 = 0; i < bufferLength; i++) {
-        store<f32>(outputPtr + (i << 2), 0.0)
-      }
+      memory.fill(outputPtr, 0, usize(procLen) << 2)
       return
     }
 
@@ -57,9 +56,7 @@ export class TramKernel {
     }
     const totalBeats = this._cachedTotalBeats
     if (totalBeats <= 0.0 || totalSamples <= 0.0) {
-      for (let i: i32 = 0; i < bufferLength; i++) {
-        store<f32>(outputPtr + (i << 2), 0.0)
-      }
+      memory.fill(outputPtr, 0, usize(procLen) << 2)
       return
     }
     const unit = this._cachedUnit
@@ -67,24 +64,20 @@ export class TramKernel {
     this.fired = -1.0
 
     const totalSamples64: f64 = f64(totalSamples)
+    const sampleCount64: f64 = f64(sampleCount)
 
-    // Seed prevPos for the first sample (sampleCount - 1).
-    const seed64: f64 = f64(sampleCount) - 1.0
-    let prevPos64: f64 = seed64 % totalSamples64
+    // Seed wrapped positions once, then increment/wrap per sample.
+    let pos64: f64 = sampleCount64 % totalSamples64
+    if (pos64 < 0.0) pos64 += totalSamples64
+    let prevPos64: f64 = pos64 - 1.0
     if (prevPos64 < 0.0) prevPos64 += totalSamples64
     let prevPos: f32 = f32(prevPos64)
 
-    let s64: f64
-    let pos64: f64
     let pos: f32
     let hit: f32
 
-    for (let i: i32 = 0, j: i32 = 0; i < bufferLength; i += 16) {
+    for (let i: i32 = 0, j: i32 = 0; i < procLen; i += 16) {
       unroll(16, () => {
-        // pos is the previous iteration's prevPos advanced by 1 — reuse it.
-        s64 = f64(sampleCount) + f64(j)
-        pos64 = s64 % totalSamples64
-        if (pos64 < 0.0) pos64 += totalSamples64
         pos = f32(pos64)
 
         hit = this.evalSeq(
@@ -103,6 +96,11 @@ export class TramKernel {
 
         // Carry pos forward — next iteration's prevPos is this pos.
         prevPos = pos
+        pos64 += 1.0
+        if (pos64 >= totalSamples64) {
+          pos64 -= totalSamples64
+          if (pos64 >= totalSamples64) pos64 = pos64 % totalSamples64
+        }
         j++
       })
     }
@@ -122,10 +120,10 @@ export class TramKernel {
     let i = index
     let beat: f32 = 0.0
     let linear = linearBase
+    let bStart: f32 = start
 
     while (i < len && beat < beats) {
       const op = load<f32>(ptr + (i << 2))
-      const bStart = start + beat * unit
 
       if (op === 2.0 || op === 1.0 || op === 0.5 || op === 0.0) {
         // Boundary-crossing check (handles wrap-around).
@@ -135,6 +133,7 @@ export class TramKernel {
         }
         beat += 1.0
         linear += 1.0
+        bStart += unit
         i++
       }
       else if (op === -1.0) {
@@ -164,6 +163,7 @@ export class TramKernel {
 
         linear += subLinear
         beat += 1.0
+        bStart += unit
       }
       else {
         i++

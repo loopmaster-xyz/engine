@@ -296,7 +296,8 @@ function releaseRuntimeState(vm: VmState): void {
     if (frame.tempArrayIds != null) vm.fastArrayU32Pool.release(frame.tempArrayIds!)
     vm.callFramePool.release(frame)
   }
-  for (let i: i32 = 0; i < vm.upsampleCache.valuesLength(); i++) {
+  const cacheLen: i32 = vm.upsampleCache.valuesLength()
+  for (let i: i32 = 0; i < cacheLen; i++) {
     vm.arena.releaseByPtr(vm.upsampleCache.valueAt(i))
   }
   vm.upsampleCache.clear()
@@ -361,7 +362,8 @@ function prepareForRun(vm: VmState, bufferLength: i32, opsLength: i32, sampleRat
   }
   else {
     releaseArrayElementRefs(vm)
-    for (let i: i32 = 0; i < vm.upsampleCache.valuesLength(); i++) {
+    const cacheLen: i32 = vm.upsampleCache.valuesLength()
+    for (let i: i32 = 0; i < cacheLen; i++) {
       vm.arena.releaseByPtr(vm.upsampleCache.valueAt(i))
     }
     vm.upsampleCache.clear()
@@ -386,7 +388,8 @@ function prepareForRun(vm: VmState, bufferLength: i32, opsLength: i32, sampleRat
   }
 
   ensureStackCapacity(vm, opsLength)
-  for (let i: i32 = 0; i < vm.genPools.length; i++) vm.genPools[i].resetIndex()
+  const genPoolCount: i32 = vm.genPools.length
+  for (let i: i32 = 0; i < genPoolCount; i++) vm.genPools[i].resetIndex()
   vm.resetArenaPoolCounters()
 }
 
@@ -489,14 +492,16 @@ export function run(
   params.outTop = 0
   params.hadSolo = false
   params.hadStereo = false
+  const perfCountersEnabled: bool = vm.perfCountersEnabled
+  const perfCounters: Uint32Array = vm.perfCounters
 
   while (pc < currentOpsLength) {
-    if (vm.perfCountersEnabled) vm.perfCounters[0]++
+    if (perfCountersEnabled) perfCounters[0]++
     const op: AudioVmOp = <AudioVmOp> load<u32>(currentOpsPtr + (pc << 2))
     // debugAudioVmOp(pc, op, vm.stackTop)
     pc++
     if (op >= FIRST_GEN_OP) {
-      if (vm.perfCountersEnabled) vm.perfCounters[1]++
+      if (perfCountersEnabled) perfCounters[1]++
       pc = handleGenOp(vm, op, pc, currentOpsPtr, params)
       continue
     }
@@ -902,8 +907,7 @@ export function setUndefinedGlobal(vm: VmState, index: i32): void {
 
 /** Release outs and clear outTop/stackTop. */
 export function releaseOutputs(vm: VmState): void {
-  releaseOutsRange(vm, 0, vm.outTop)
-  releaseStackRange(vm, 0, vm.stackTop)
+  // releaseStackAndOutsValues already releases both stack and outs ranges.
   vmStack.releaseStackAndOutsValues(vm)
   vm.outTop = 0
   vm.stackTop = 0
@@ -1005,7 +1009,8 @@ export function resetState(vm: VmState): void {
   vm.arrayLengths.length = 0
   vm.arrayRefcounts.length = 0
 
-  for (let i: i32 = 0; i < vm.upsampleCache.valuesLength(); i++) {
+  const cacheLen: i32 = vm.upsampleCache.valuesLength()
+  for (let i: i32 = 0; i < cacheLen; i++) {
     vm.arena.releaseByPtr(vm.upsampleCache.valueAt(i))
   }
   vm.upsampleCache.clear()
