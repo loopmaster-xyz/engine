@@ -11,9 +11,9 @@
   "scenarios": [
     {
       "name": "simple_sine",
-      "medianMsPerTick": 0.11877699999999436,
-      "p95MsPerTick": 0.21767900000003237,
-      "stddevMsPerTick": 0.05304402165943967,
+      "medianMsPerTick": 0.11145350000001031,
+      "p95MsPerTick": 0.2270520000000147,
+      "stddevMsPerTick": 0.06398118355836827,
       "arenaDelta": {
         "allocated": 0,
         "reused": 3000,
@@ -33,9 +33,9 @@
     },
     {
       "name": "math_chain",
-      "medianMsPerTick": 0.10697449999997843,
-      "p95MsPerTick": 0.17819300000002158,
-      "stddevMsPerTick": 0.06065295324522501,
+      "medianMsPerTick": 0.11210899999997537,
+      "p95MsPerTick": 0.1736310000000003,
+      "stddevMsPerTick": 0.03892627858488167,
       "arenaDelta": {
         "allocated": 0,
         "reused": 8000,
@@ -55,9 +55,9 @@
     },
     {
       "name": "oversample_capture",
-      "medianMsPerTick": 0.13940649999995003,
-      "p95MsPerTick": 0.229987000000051,
-      "stddevMsPerTick": 0.03377785344582552,
+      "medianMsPerTick": 0.13897749999995312,
+      "p95MsPerTick": 0.2291659999999638,
+      "stddevMsPerTick": 0.03568624928252766,
       "arenaDelta": {
         "allocated": 0,
         "reused": 10000,
@@ -77,9 +77,9 @@
     },
     {
       "name": "kitchen_sink",
-      "medianMsPerTick": 1.491192500000011,
-      "p95MsPerTick": 2.4259750000001077,
-      "stddevMsPerTick": 0.3549849389479719,
+      "medianMsPerTick": 1.501310500000045,
+      "p95MsPerTick": 2.352575999999999,
+      "stddevMsPerTick": 0.3502799566335036,
       "arenaDelta": {
         "allocated": 0,
         "reused": 247000,

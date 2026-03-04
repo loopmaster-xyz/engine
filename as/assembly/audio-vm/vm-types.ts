@@ -40,6 +40,7 @@ export class FunctionDef {
   bytecode!: Float32Array
   bytecodeLength: i32
   bytecodeStartPC: i32
+  sourceOpsPtr: usize
 
   constructor(functionId: i32, paramCount: i32, firstParamIn: i32, closureCount: i32, localCount: i32,
     bytecode: Float32Array, bytecodeLength: i32)
@@ -59,6 +60,7 @@ export class FunctionDef {
     this.bytecode = bytecode
     this.bytecodeLength = bytecodeLength
     this.bytecodeStartPC = 0
+    this.sourceOpsPtr = 0
   }
 }
 

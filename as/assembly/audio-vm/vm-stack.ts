@@ -18,35 +18,21 @@ export function push(vm: VmState, value: f64, move: bool = false): void {
   if (vm.stackTop >= vm.stackCapacity) {
     ensureStackCapacity(vm, vm.stackTop + 1)
   }
-  if (vm.stackTop < 0) {
-    stackDump(vm)
-    throw new Error(`push: stackTop=${vm.stackTop} is negative (should be >=0)`)
-  }
-  if (vm.stackTop >= vm.stack.length) {
-    stackDump(vm)
-    throw new Error(`push: stack overflow (stackTop=${vm.stackTop}, stackCapacity=${vm.stackCapacity})`)
-  }
   if (!move && !heap.isImmediateValue(value)) {
     heap.retainManagedValue(vm, value)
   }
-  vm.stack[vm.stackTop] = value
-  vm.stackTop++
+  vm.stack[vm.stackTop++] = value
 }
 
 /** Pop and return top of stack. */
 // @ts-ignore
 // @inline
 export function pop(vm: VmState): f64 {
-  if (vm.stackTop < 0) {
-    stackDump(vm)
-    throw new Error(`pop: stackTop=${vm.stackTop} is negative (should be >=0)`)
-  }
-  if (vm.stackTop === 0) {
+  if (vm.stackTop <= 0) {
     stackDump(vm)
     throw new Error(`pop: stack underflow (stackTop=${vm.stackTop}, stackCapacity=${vm.stackCapacity})`)
   }
-  vm.stackTop--
-  return vm.stack[vm.stackTop]
+  return vm.stack[--vm.stackTop]
 }
 
 // @ts-ignore

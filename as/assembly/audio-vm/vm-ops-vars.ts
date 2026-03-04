@@ -331,17 +331,28 @@ export function handleDefineFunction(
   const bytecodeLength: i32 = readOperandI32(opsPtr, pc)
   pc++
   const bytecodeStart: i32 = pc
+  let needsBytecodeCopy: bool = true
   let funcDef: FunctionDef | null = vm.functions.tryGet(functionId)
   if (funcDef != null) {
-    funcDef.functionId = functionId
-    funcDef.paramCount = paramCount
-    funcDef.firstParamIn = firstParamIn
-    funcDef.closureCount = closureCount
-    funcDef.localCount = localCount
-    funcDef.bytecodeLength = bytecodeLength
-    if (funcDef.bytecode.length < bytecodeLength) {
-      vm.float32Arena.release(funcDef.bytecode)
-      funcDef.bytecode = vm.float32Arena.get(bytecodeLength)
+    const sameDefinition: bool = funcDef.paramCount == paramCount
+      && funcDef.firstParamIn == firstParamIn
+      && funcDef.closureCount == closureCount
+      && funcDef.localCount == localCount
+      && funcDef.bytecodeLength == bytecodeLength
+    if (!sameDefinition) {
+      funcDef.functionId = functionId
+      funcDef.paramCount = paramCount
+      funcDef.firstParamIn = firstParamIn
+      funcDef.closureCount = closureCount
+      funcDef.localCount = localCount
+      funcDef.bytecodeLength = bytecodeLength
+      if (funcDef.bytecode.length < bytecodeLength) {
+        vm.float32Arena.release(funcDef.bytecode)
+        funcDef.bytecode = vm.float32Arena.get(bytecodeLength)
+      }
+    }
+    else if (funcDef.sourceOpsPtr == opsPtr && funcDef.bytecodeStartPC == bytecodeStart) {
+      needsBytecodeCopy = false
     }
   }
   else {
@@ -357,10 +368,13 @@ export function handleDefineFunction(
     vm.functions.set(functionId, funcDef)
   }
   const fd: FunctionDef = funcDef
-  for (let i: i32 = 0; i < bytecodeLength; i++) {
-    fd.bytecode[i] = load<f32>(opsPtr + ((bytecodeStart + i) << 2))
+  if (needsBytecodeCopy) {
+    for (let i: i32 = 0; i < bytecodeLength; i++) {
+      fd.bytecode[i] = load<f32>(opsPtr + ((bytecodeStart + i) << 2))
+    }
+    fd.sourceOpsPtr = opsPtr
+    fd.bytecodeStartPC = bytecodeStart
   }
-  fd.bytecodeStartPC = bytecodeStart
   pc += bytecodeLength
   let instanceId: i32 = functionId
   let closureEnvId: i32 = -1
