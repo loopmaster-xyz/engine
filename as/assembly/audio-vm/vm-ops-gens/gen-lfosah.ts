@@ -110,6 +110,7 @@ case AudioVmOp.GenLfosah_default: {
       break
     }
     case 8: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[27].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -119,14 +120,15 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_scalar_offset_scalar_seed_scalar_trig_audio = changetype<Lfosah_default_bar_scalar_offset_scalar_seed_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, offsetValue, seedValue, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, offsetValue, seedValue, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 4: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[28].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -136,14 +138,15 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_scalar_offset_scalar_seed_audio_trig_scalar = changetype<Lfosah_default_bar_scalar_offset_scalar_seed_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const seedAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, seedTagged, procLen)
+      const seedAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, seedTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, offsetValue, trigValue, seedAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, offsetValue, trigValue, seedAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, seedAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 12: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[29].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -153,16 +156,16 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_scalar_offset_scalar_seed_audio_trig_audio = changetype<Lfosah_default_bar_scalar_offset_scalar_seed_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const seedAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, seedTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const seedAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, seedTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, offsetValue, seedAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, offsetValue, seedAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, seedAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 2: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[30].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -172,14 +175,15 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_scalar_offset_audio_seed_scalar_trig_scalar = changetype<Lfosah_default_bar_scalar_offset_audio_seed_scalar_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const offsetAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, offsetTagged, procLen)
+      const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, seedValue, trigValue, offsetAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, seedValue, trigValue, offsetAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, offsetAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 10: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[31].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -189,16 +193,16 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_scalar_offset_audio_seed_scalar_trig_audio = changetype<Lfosah_default_bar_scalar_offset_audio_seed_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const offsetAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, offsetTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, seedValue, offsetAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, seedValue, offsetAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, offsetAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 6: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[32].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -208,16 +212,16 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_scalar_offset_audio_seed_audio_trig_scalar = changetype<Lfosah_default_bar_scalar_offset_audio_seed_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const offsetAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, offsetTagged, procLen)
-      const seedAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, seedTagged, procLen)
+      const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
+      const seedAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, seedTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, trigValue, offsetAudioResult.ptr, seedAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, trigValue, offsetAudioPtr, seedAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, offsetAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, seedAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 14: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[33].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -227,18 +231,17 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_scalar_offset_audio_seed_audio_trig_audio = changetype<Lfosah_default_bar_scalar_offset_audio_seed_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const offsetAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, offsetTagged, procLen)
-      const seedAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, seedTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
+      const seedAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, seedTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, offsetAudioResult.ptr, seedAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barValue, offsetAudioPtr, seedAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, offsetAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, seedAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 1: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[34].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -248,14 +251,15 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_audio_offset_scalar_seed_scalar_trig_scalar = changetype<Lfosah_default_bar_audio_offset_scalar_seed_scalar_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const barAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, barTagged, procLen)
+      const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, offsetValue, seedValue, trigValue, barAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, offsetValue, seedValue, trigValue, barAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, barAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 9: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[35].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -265,16 +269,16 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_audio_offset_scalar_seed_scalar_trig_audio = changetype<Lfosah_default_bar_audio_offset_scalar_seed_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const barAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, barTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, offsetValue, seedValue, barAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, offsetValue, seedValue, barAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, barAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 5: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[36].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -284,16 +288,16 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_audio_offset_scalar_seed_audio_trig_scalar = changetype<Lfosah_default_bar_audio_offset_scalar_seed_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const barAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, barTagged, procLen)
-      const seedAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, seedTagged, procLen)
+      const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
+      const seedAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, seedTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, offsetValue, trigValue, barAudioResult.ptr, seedAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, offsetValue, trigValue, barAudioPtr, seedAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, barAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, seedAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 13: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[37].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -303,18 +307,17 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_audio_offset_scalar_seed_audio_trig_audio = changetype<Lfosah_default_bar_audio_offset_scalar_seed_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const barAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, barTagged, procLen)
-      const seedAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, seedTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
+      const seedAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, seedTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, offsetValue, barAudioResult.ptr, seedAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, offsetValue, barAudioPtr, seedAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, barAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, seedAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 3: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[38].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -324,16 +327,16 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_audio_offset_audio_seed_scalar_trig_scalar = changetype<Lfosah_default_bar_audio_offset_audio_seed_scalar_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const barAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, barTagged, procLen)
-      const offsetAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, offsetTagged, procLen)
+      const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
+      const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, trigValue, barAudioResult.ptr, offsetAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, trigValue, barAudioPtr, offsetAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, barAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, offsetAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 11: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[39].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -343,18 +346,17 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_audio_offset_audio_seed_scalar_trig_audio = changetype<Lfosah_default_bar_audio_offset_audio_seed_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const barAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, barTagged, procLen)
-      const offsetAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, offsetTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
+      const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, barAudioResult.ptr, offsetAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, barAudioPtr, offsetAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, barAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, offsetAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 7: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[40].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -364,18 +366,17 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_audio_offset_audio_seed_audio_trig_scalar = changetype<Lfosah_default_bar_audio_offset_audio_seed_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const barAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, barTagged, procLen)
-      const offsetAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, offsetTagged, procLen)
-      const seedAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, seedTagged, procLen)
+      const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
+      const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
+      const seedAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, seedTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, trigValue, barAudioResult.ptr, offsetAudioResult.ptr, seedAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, trigValue, barAudioPtr, offsetAudioPtr, seedAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, barAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, offsetAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, seedAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 15: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[41].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -385,17 +386,14 @@ case AudioVmOp.GenLfosah_default: {
       const outputPtr: usize = output.dataStart
       const instance: Lfosah_default_bar_audio_offset_audio_seed_audio_trig_audio = changetype<Lfosah_default_bar_audio_offset_audio_seed_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const barAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, barTagged, procLen)
-      const offsetAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, offsetTagged, procLen)
-      const seedAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, seedTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
+      const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
+      const seedAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, seedTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barAudioResult.ptr, offsetAudioResult.ptr, seedAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, barAudioPtr, offsetAudioPtr, seedAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, barAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, offsetAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, seedAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     default: {

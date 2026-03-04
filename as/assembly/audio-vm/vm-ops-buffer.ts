@@ -165,41 +165,43 @@ export function handleWrite(
   const handleValue: i32 = i32(Mathf.floor(genOpHelpers.scalarOrFirstSample(vm, bufResolved)))
   const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
   const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
+  const tempMark: i32 = vm.beginTempAudioScope()
 
   if (!vm.bufferRegistry.has(handleValue)) {
+    vm.endTempAudioScope(tempMark)
     vmStack.push(vm, encodeScalar(f32(handleValue)))
     vmStack.releaseValueTagged(vm, inputResolved)
     return RunResult.normal(pc, _opsPtr, params.opsLength)
   }
 
   const entry: BufferEntry = vm.bufferRegistry.get(handleValue)
-  const inputResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, procLen)
+  const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)
   if (osFactor > 1) {
     const baseLen: i32 = params.bufferLength / osFactor
-    const downBuf: Float32Array = vm.arena.get(baseLen)
+    const downBuf: Float32Array = vm.getOversampleScratchA(baseLen)
+    const downPtr: usize = downBuf.dataStart
     if (vm.osDownMode == OS_DOWN_BOXCAR) {
-      resample.downsampleBoxcar(inputResult.ptr, downBuf.dataStart, baseLen, osFactor)
+      resample.downsampleBoxcar(inputPtr, downPtr, baseLen, osFactor)
     } else {
-      resample.downsampleDecimate(inputResult.ptr, downBuf.dataStart, baseLen, osFactor)
+      resample.downsampleDecimate(inputPtr, downPtr, baseLen, osFactor)
     }
     entry.writeIndex = writeChunkToRingBuffer(
       entry.buffer.dataStart,
       entry.lengthSamples,
       entry.writeIndex,
-      downBuf.dataStart,
+      downPtr,
       baseLen,
     )
-    vm.arena.release(downBuf)
   } else {
     entry.writeIndex = writeChunkToRingBuffer(
       entry.buffer.dataStart,
       entry.lengthSamples,
       entry.writeIndex,
-      inputResult.ptr,
+      inputPtr,
       params.bufferLength,
     )
   }
-  genOpHelpers.releaseTaggedInputBuf(vm, inputResult.buf)
+  vm.endTempAudioScope(tempMark)
   vmStack.releaseValueTagged(vm, inputResolved)
 
   vmStack.push(vm, encodeScalar(f32(handleValue)))
@@ -235,14 +237,14 @@ export function handleRead(
   const entry: BufferEntry = vm.bufferRegistry.get(handleValue)
   if (osFactor > 1) {
     const baseLen: i32 = params.bufferLength / osFactor
-    const baseBuf: Float32Array = vm.arena.get(baseLen)
-    readChunkFromRingBuffer(vm, entry, offsetResolved, baseBuf.dataStart, baseLen, osFactor)
+    const baseBuf: Float32Array = vm.getOversampleScratchA(baseLen)
+    const basePtr: usize = baseBuf.dataStart
+    readChunkFromRingBuffer(vm, entry, offsetResolved, basePtr, baseLen, osFactor)
     if (vm.osUpMode == OS_UP_LINEAR) {
-      resample.upsampleLinear(baseBuf.dataStart, outputPtr, baseLen, osFactor)
+      resample.upsampleLinear(basePtr, outputPtr, baseLen, osFactor)
     } else {
-      resample.upsampleHold(baseBuf.dataStart, outputPtr, baseLen, osFactor)
+      resample.upsampleHold(basePtr, outputPtr, baseLen, osFactor)
     }
-    vm.arena.release(baseBuf)
   } else {
     readChunkFromRingBuffer(vm, entry, offsetResolved, outputPtr, params.bufferLength)
   }

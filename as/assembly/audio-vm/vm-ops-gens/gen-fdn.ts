@@ -154,12 +154,9 @@ case AudioVmOp.GenFdn_default: {
         const inputRightTagged: f64 = inputArr[1]
         const inputLeftResolved: f64 = vmOpsVars.resolveCellRef(vm, inputLeftTagged)
         const inputRightResolved: f64 = vmOpsVars.resolveCellRef(vm, inputRightTagged)
-        const leftResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, params.bufferLength)
-        const inputLeftPtr: usize = leftResult.ptr
-        const inputLeftBuf: Float32Array = leftResult.buf
-        const rightResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, params.bufferLength)
-        const inputRightPtr: usize = rightResult.ptr
-        const inputRightBuf: Float32Array = rightResult.buf
+        const stereoTempScopeMark: i32 = vm.beginTempAudioScope()
+        const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, params.bufferLength)
+        const inputRightPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, params.bufferLength)
         switch (modeMask) {
           case 0: {
             const slot: GenSlot = vm.genPools[570].get()
@@ -206,6 +203,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 8: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[571].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -221,8 +219,8 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayValue, depthAudioResult.ptr)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayValue, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -248,10 +246,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 4: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[572].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -267,8 +266,8 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, depthValue, decayAudioResult.ptr)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, depthValue, decayAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -294,10 +293,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 12: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[573].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -313,9 +313,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayAudioResult.ptr, depthAudioResult.ptr)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -341,11 +341,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 2: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[574].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -361,8 +361,8 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, depthValue, dampingAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, depthValue, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -388,10 +388,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 10: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[575].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -407,9 +408,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, dampingAudioResult.ptr, depthAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, dampingAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -435,11 +436,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 6: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[576].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -455,9 +456,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, depthValue, dampingAudioResult.ptr, decayAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, depthValue, dampingAudioPtr, decayAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -483,11 +484,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 14: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[577].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -503,10 +504,10 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingAudioResult.ptr, decayAudioResult.ptr, depthAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingAudioPtr, decayAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -532,12 +533,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 1: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[578].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -553,8 +553,8 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, depthValue, roomAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, depthValue, roomAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -580,10 +580,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 9: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[579].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -599,9 +600,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, roomAudioResult.ptr, depthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, roomAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -627,11 +628,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 5: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[580].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -647,9 +648,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, depthValue, roomAudioResult.ptr, decayAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, depthValue, roomAudioPtr, decayAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -675,11 +676,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 13: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[581].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -695,10 +696,10 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, roomAudioResult.ptr, decayAudioResult.ptr, depthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, roomAudioPtr, decayAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -724,12 +725,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 3: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[582].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -745,9 +745,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, depthValue, roomAudioResult.ptr, dampingAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, depthValue, roomAudioPtr, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -773,11 +773,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 11: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[583].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -793,10 +793,10 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, roomAudioResult.ptr, dampingAudioResult.ptr, depthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, roomAudioPtr, dampingAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -822,12 +822,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 7: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[584].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -843,10 +842,10 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, depthValue, roomAudioResult.ptr, dampingAudioResult.ptr, decayAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, depthValue, roomAudioPtr, dampingAudioPtr, decayAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -872,12 +871,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 15: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[585].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -893,11 +891,11 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomAudioResult.ptr, dampingAudioResult.ptr, decayAudioResult.ptr, depthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomAudioPtr, dampingAudioPtr, decayAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -923,23 +921,17 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
         }
-        genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
-        genOpHelpers.releaseTaggedInputResult(vm, inputRightPtr, inputRightBuf)
+        vm.endTempAudioScope(stereoTempScopeMark)
         heap.releaseValue(vm, inputResolved)
       } else {
         const monoInputFromArr: f64 = inputArrLen > 0 ? inputArr[0] : encodeScalar(0.0)
-        const monoInputResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, params.bufferLength)
-        const inputLeftPtr: usize = monoInputResult.ptr
-        const inputRightPtr: usize = monoInputResult.ptr
-        const inputLeftBuf: Float32Array = monoInputResult.buf
-        const inputRightBuf: Float32Array = monoInputResult.buf
+        const monoStereoTempScopeMark: i32 = vm.beginTempAudioScope()
+        const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(vm, monoInputFromArr, params.bufferLength)
+        const inputRightPtr: usize = inputLeftPtr
         switch (modeMask) {
           case 0: {
             const slot: GenSlot = vm.genPools[570].get()
@@ -986,6 +978,7 @@ case AudioVmOp.GenFdn_default: {
             break
           }
           case 8: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[571].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1001,8 +994,8 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayValue, depthAudioResult.ptr)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayValue, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1028,10 +1021,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 4: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[572].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1047,8 +1041,8 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, depthValue, decayAudioResult.ptr)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, depthValue, decayAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1074,10 +1068,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 12: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[573].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1093,9 +1088,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayAudioResult.ptr, depthAudioResult.ptr)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1121,11 +1116,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 2: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[574].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1141,8 +1136,8 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, depthValue, dampingAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, depthValue, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1168,10 +1163,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 10: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[575].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1187,9 +1183,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, dampingAudioResult.ptr, depthAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, dampingAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1215,11 +1211,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 6: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[576].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1235,9 +1231,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, depthValue, dampingAudioResult.ptr, decayAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, depthValue, dampingAudioPtr, decayAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1263,11 +1259,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 14: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[577].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1283,10 +1279,10 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingAudioResult.ptr, decayAudioResult.ptr, depthAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingAudioPtr, decayAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1312,12 +1308,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 1: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[578].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1333,8 +1328,8 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, depthValue, roomAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, depthValue, roomAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1360,10 +1355,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 9: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[579].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1379,9 +1375,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, roomAudioResult.ptr, depthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, roomAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1407,11 +1403,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 5: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[580].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1427,9 +1423,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, depthValue, roomAudioResult.ptr, decayAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, depthValue, roomAudioPtr, decayAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1455,11 +1451,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 13: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[581].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1475,10 +1471,10 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, roomAudioResult.ptr, decayAudioResult.ptr, depthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, roomAudioPtr, decayAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1504,12 +1500,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 3: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[582].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1525,9 +1520,9 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, depthValue, roomAudioResult.ptr, dampingAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, depthValue, roomAudioPtr, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1553,11 +1548,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 11: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[583].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1573,10 +1568,10 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, roomAudioResult.ptr, dampingAudioResult.ptr, depthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, roomAudioPtr, dampingAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1602,12 +1597,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 7: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[584].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1623,10 +1617,10 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, depthValue, roomAudioResult.ptr, dampingAudioResult.ptr, decayAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, depthValue, roomAudioPtr, dampingAudioPtr, decayAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1652,12 +1646,11 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 15: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[585].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1673,11 +1666,11 @@ case AudioVmOp.GenFdn_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-            const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomAudioResult.ptr, dampingAudioResult.ptr, decayAudioResult.ptr, depthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+            const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomAudioPtr, dampingAudioPtr, decayAudioPtr, depthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1703,23 +1696,18 @@ case AudioVmOp.GenFdn_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
         }
-        genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
+        vm.endTempAudioScope(monoStereoTempScopeMark)
         if (isAudio(monoInputFromArr)) vm.arena.releaseByPtr(u32(decodeAudio(monoInputFromArr)))
       }
     }
   } else {
-    const monoInputResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, params.bufferLength)
-    const inputLeftPtr: usize = monoInputResult.ptr
-    const inputRightPtr: usize = monoInputResult.ptr
-    const inputLeftBuf: Float32Array = monoInputResult.buf
-    const inputRightBuf: Float32Array = monoInputResult.buf
+    const monoStereoTempScopeMark: i32 = vm.beginTempAudioScope()
+    const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, params.bufferLength)
+    const inputRightPtr: usize = inputLeftPtr
     switch (modeMask) {
       case 0: {
         const slot: GenSlot = vm.genPools[570].get()
@@ -1766,6 +1754,7 @@ case AudioVmOp.GenFdn_default: {
         break
       }
       case 8: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[571].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1781,8 +1770,8 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_scalar_decay_scalar_depth_audio_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayValue, depthAudioResult.ptr)
+        const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayValue, depthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1808,10 +1797,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 4: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[572].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1827,8 +1817,8 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, depthValue, decayAudioResult.ptr)
+        const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, depthValue, decayAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1854,10 +1844,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 12: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[573].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1873,9 +1864,9 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_scalar_decay_audio_depth_audio_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-        const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayAudioResult.ptr, depthAudioResult.ptr)
+        const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+        const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, decayAudioPtr, depthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1901,11 +1892,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 2: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[574].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1921,8 +1912,8 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, depthValue, dampingAudioResult.ptr)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, depthValue, dampingAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1948,10 +1939,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 10: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[575].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1967,9 +1959,9 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_scalar_depth_audio_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, dampingAudioResult.ptr, depthAudioResult.ptr)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, decayValue, dampingAudioPtr, depthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1995,11 +1987,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 6: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[576].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2015,9 +2007,9 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, depthValue, dampingAudioResult.ptr, decayAudioResult.ptr)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, depthValue, dampingAudioPtr, decayAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2043,11 +2035,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 14: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[577].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2063,10 +2055,10 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_scalar_damping_audio_decay_audio_depth_audio_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-        const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingAudioResult.ptr, decayAudioResult.ptr, depthAudioResult.ptr)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+        const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingAudioPtr, decayAudioPtr, depthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2092,12 +2084,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 1: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[578].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2113,8 +2104,8 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, depthValue, roomAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, depthValue, roomAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2140,10 +2131,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 9: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[579].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2159,9 +2151,9 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_scalar_depth_audio_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, roomAudioResult.ptr, depthAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, decayValue, roomAudioPtr, depthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2187,11 +2179,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 5: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[580].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2207,9 +2199,9 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, depthValue, roomAudioResult.ptr, decayAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, depthValue, roomAudioPtr, decayAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2235,11 +2227,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 13: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[581].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2255,10 +2247,10 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_scalar_decay_audio_depth_audio_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-        const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, roomAudioResult.ptr, decayAudioResult.ptr, depthAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+        const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, roomAudioPtr, decayAudioPtr, depthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2284,12 +2276,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 3: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[582].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2305,9 +2296,9 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, depthValue, roomAudioResult.ptr, dampingAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, depthValue, roomAudioPtr, dampingAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2333,11 +2324,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 11: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[583].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2353,10 +2344,10 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_scalar_depth_audio_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, roomAudioResult.ptr, dampingAudioResult.ptr, depthAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, decayValue, roomAudioPtr, dampingAudioPtr, depthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2382,12 +2373,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 7: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[584].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2403,10 +2393,10 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, depthValue, roomAudioResult.ptr, dampingAudioResult.ptr, decayAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, depthValue, roomAudioPtr, dampingAudioPtr, decayAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2432,12 +2422,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 15: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[585].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -2453,11 +2442,11 @@ case AudioVmOp.GenFdn_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo = changetype<Fdn_default_room_audio_damping_audio_decay_audio_depth_audio_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-        const depthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, depthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomAudioResult.ptr, dampingAudioResult.ptr, decayAudioResult.ptr, depthAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+        const depthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, depthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomAudioPtr, dampingAudioPtr, decayAudioPtr, depthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -2483,14 +2472,11 @@ case AudioVmOp.GenFdn_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, depthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
     }
-    genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
+    vm.endTempAudioScope(monoStereoTempScopeMark)
     if (isAudio(inputTagged)) vm.arena.releaseByPtr(u32(decodeAudio(inputTagged)))
     if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
     return pc

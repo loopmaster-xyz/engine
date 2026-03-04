@@ -70,12 +70,9 @@ case AudioVmOp.GenFreeverb_default: {
         const inputRightTagged: f64 = inputArr[1]
         const inputLeftResolved: f64 = vmOpsVars.resolveCellRef(vm, inputLeftTagged)
         const inputRightResolved: f64 = vmOpsVars.resolveCellRef(vm, inputRightTagged)
-        const leftResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, params.bufferLength)
-        const inputLeftPtr: usize = leftResult.ptr
-        const inputLeftBuf: Float32Array = leftResult.buf
-        const rightResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, params.bufferLength)
-        const inputRightPtr: usize = rightResult.ptr
-        const inputRightBuf: Float32Array = rightResult.buf
+        const stereoTempScopeMark: i32 = vm.beginTempAudioScope()
+        const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, params.bufferLength)
+        const inputRightPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, params.bufferLength)
         switch (modeMask) {
           case 0: {
             const slot: GenSlot = vm.genPools[61].get()
@@ -122,6 +119,7 @@ case AudioVmOp.GenFreeverb_default: {
             break
           }
           case 2: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[62].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -137,8 +135,8 @@ case AudioVmOp.GenFreeverb_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Freeverb_default_room_scalar_damping_audio_stereo = changetype<Freeverb_default_room_scalar_damping_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -164,10 +162,11 @@ case AudioVmOp.GenFreeverb_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 1: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[63].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -183,8 +182,8 @@ case AudioVmOp.GenFreeverb_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Freeverb_default_room_audio_damping_scalar_stereo = changetype<Freeverb_default_room_audio_damping_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, roomAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, roomAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -210,10 +209,11 @@ case AudioVmOp.GenFreeverb_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 3: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[64].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -229,9 +229,9 @@ case AudioVmOp.GenFreeverb_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Freeverb_default_room_audio_damping_audio_stereo = changetype<Freeverb_default_room_audio_damping_audio_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomAudioResult.ptr, dampingAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomAudioPtr, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -257,95 +257,81 @@ case AudioVmOp.GenFreeverb_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
         }
-        genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
-        genOpHelpers.releaseTaggedInputResult(vm, inputRightPtr, inputRightBuf)
+        vm.endTempAudioScope(stereoTempScopeMark)
         heap.releaseValue(vm, inputResolved)
       } else {
         const monoInputFromArr: f64 = inputArrLen > 0 ? inputArr[0] : encodeScalar(0.0)
         switch (modeMask) {
           case 0: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[57].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
-            const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, procLen)
-            const inputSrcPtr: usize = inputSrcResult.ptr
-            const inputSrcBuf: Float32Array = inputSrcResult.buf
-            genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
-            const inputPtr: usize = inputSrcPtr
+            const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, monoInputFromArr, procLen)
+            genOpHelpers.writeInputToHistoryRing(slot.history, inputPtr, params.bufferLength)
             output = vm.arena.get(procLen)
             const outputPtr: usize = output.dataStart
             const instance: Freeverb_default_room_scalar_damping_scalar = changetype<Freeverb_default_room_scalar_damping_scalar>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
             instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomValue, dampingValue)
             genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-            genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 2: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[58].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
-            const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, procLen)
-            const inputSrcPtr: usize = inputSrcResult.ptr
-            const inputSrcBuf: Float32Array = inputSrcResult.buf
-            genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
-            const inputPtr: usize = inputSrcPtr
+            const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, monoInputFromArr, procLen)
+            genOpHelpers.writeInputToHistoryRing(slot.history, inputPtr, params.bufferLength)
             output = vm.arena.get(procLen)
             const outputPtr: usize = output.dataStart
             const instance: Freeverb_default_room_scalar_damping_audio = changetype<Freeverb_default_room_scalar_damping_audio>(slot.instance)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomValue, dampingAudioResult.ptr)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomValue, dampingAudioPtr)
             genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-            genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 1: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[59].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
-            const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, procLen)
-            const inputSrcPtr: usize = inputSrcResult.ptr
-            const inputSrcBuf: Float32Array = inputSrcResult.buf
-            genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
-            const inputPtr: usize = inputSrcPtr
+            const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, monoInputFromArr, procLen)
+            genOpHelpers.writeInputToHistoryRing(slot.history, inputPtr, params.bufferLength)
             output = vm.arena.get(procLen)
             const outputPtr: usize = output.dataStart
             const instance: Freeverb_default_room_audio_damping_scalar = changetype<Freeverb_default_room_audio_damping_scalar>(slot.instance)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, dampingValue, roomAudioResult.ptr)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, dampingValue, roomAudioPtr)
             genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-            genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 3: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[60].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
-            const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, procLen)
-            const inputSrcPtr: usize = inputSrcResult.ptr
-            const inputSrcBuf: Float32Array = inputSrcResult.buf
-            genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
-            const inputPtr: usize = inputSrcPtr
+            const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, monoInputFromArr, procLen)
+            genOpHelpers.writeInputToHistoryRing(slot.history, inputPtr, params.bufferLength)
             output = vm.arena.get(procLen)
             const outputPtr: usize = output.dataStart
             const instance: Freeverb_default_room_audio_damping_audio = changetype<Freeverb_default_room_audio_damping_audio>(slot.instance)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomAudioResult.ptr, dampingAudioResult.ptr)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomAudioPtr, dampingAudioPtr)
             genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-            genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           default: {
@@ -362,83 +348,71 @@ case AudioVmOp.GenFreeverb_default: {
   } else {
     switch (modeMask) {
       case 0: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[57].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
-        const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputTagged, procLen)
-        const inputSrcPtr: usize = inputSrcResult.ptr
-        const inputSrcBuf: Float32Array = inputSrcResult.buf
-        genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
-        const inputPtr: usize = inputSrcPtr
+        const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputTagged, procLen)
+        genOpHelpers.writeInputToHistoryRing(slot.history, inputPtr, params.bufferLength)
         output = vm.arena.get(procLen)
         const outputPtr: usize = output.dataStart
         const instance: Freeverb_default_room_scalar_damping_scalar = changetype<Freeverb_default_room_scalar_damping_scalar>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
         instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomValue, dampingValue)
         genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-        genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 2: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[58].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
-        const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputTagged, procLen)
-        const inputSrcPtr: usize = inputSrcResult.ptr
-        const inputSrcBuf: Float32Array = inputSrcResult.buf
-        genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
-        const inputPtr: usize = inputSrcPtr
+        const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputTagged, procLen)
+        genOpHelpers.writeInputToHistoryRing(slot.history, inputPtr, params.bufferLength)
         output = vm.arena.get(procLen)
         const outputPtr: usize = output.dataStart
         const instance: Freeverb_default_room_scalar_damping_audio = changetype<Freeverb_default_room_scalar_damping_audio>(slot.instance)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomValue, dampingAudioResult.ptr)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomValue, dampingAudioPtr)
         genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-        genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 1: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[59].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
-        const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputTagged, procLen)
-        const inputSrcPtr: usize = inputSrcResult.ptr
-        const inputSrcBuf: Float32Array = inputSrcResult.buf
-        genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
-        const inputPtr: usize = inputSrcPtr
+        const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputTagged, procLen)
+        genOpHelpers.writeInputToHistoryRing(slot.history, inputPtr, params.bufferLength)
         output = vm.arena.get(procLen)
         const outputPtr: usize = output.dataStart
         const instance: Freeverb_default_room_audio_damping_scalar = changetype<Freeverb_default_room_audio_damping_scalar>(slot.instance)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, dampingValue, roomAudioResult.ptr)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, dampingValue, roomAudioPtr)
         genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-        genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 3: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[60].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
-        const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputTagged, procLen)
-        const inputSrcPtr: usize = inputSrcResult.ptr
-        const inputSrcBuf: Float32Array = inputSrcResult.buf
-        genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, params.bufferLength)
-        const inputPtr: usize = inputSrcPtr
+        const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputTagged, procLen)
+        genOpHelpers.writeInputToHistoryRing(slot.history, inputPtr, params.bufferLength)
         output = vm.arena.get(procLen)
         const outputPtr: usize = output.dataStart
         const instance: Freeverb_default_room_audio_damping_audio = changetype<Freeverb_default_room_audio_damping_audio>(slot.instance)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomAudioResult.ptr, dampingAudioResult.ptr)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, roomAudioPtr, dampingAudioPtr)
         genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-        genOpHelpers.releaseTaggedInputBuf(vm, inputSrcBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
     }

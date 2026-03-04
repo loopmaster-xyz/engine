@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2026-03-04",
+  "config": {
+    "vmId": 0,
+    "warmupTicks": 100,
+    "measureTicks": 1000,
+    "bufferLength": 128,
+    "sampleRate": 48000,
+    "bpm": 144
+  },
+  "scenarios": [
+    {
+      "name": "simple_sine",
+      "medianMsPerTick": 0.15663200000000188,
+      "p95MsPerTick": 0.42957699999999477,
+      "stddevMsPerTick": 0.2303082044306611,
+      "arenaDelta": {
+        "allocated": 0,
+        "reused": 5000,
+        "released": 8000,
+        "inFlight": 0
+      }
+    },
+    {
+      "name": "math_chain",
+      "medianMsPerTick": 0.17328900000001113,
+      "p95MsPerTick": 0.3797270000000026,
+      "stddevMsPerTick": 0.1967768016725831,
+      "arenaDelta": {
+        "allocated": 0,
+        "reused": 16000,
+        "released": 28000,
+        "inFlight": 0
+      }
+    },
+    {
+      "name": "oversample_capture",
+      "medianMsPerTick": 0.20552950000012515,
+      "p95MsPerTick": 0.5560410000000502,
+      "stddevMsPerTick": 0.16645116190849873,
+      "arenaDelta": {
+        "allocated": 0,
+        "reused": 18000,
+        "released": 23000,
+        "inFlight": 0
+      }
+    },
+    {
+      "name": "kitchen_sink",
+      "medianMsPerTick": 2.302291999999852,
+      "p95MsPerTick": 4.918791000000056,
+      "stddevMsPerTick": 1.1128093659796594,
+      "arenaDelta": {
+        "allocated": 0,
+        "reused": 555000,
+        "released": 985000,
+        "inFlight": 0
+      }
+    }
+  ]
+}

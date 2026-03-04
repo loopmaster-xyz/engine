@@ -10,7 +10,9 @@
     "as:build": "asc as/assembly/index.ts --target debug --transform ./vendor/as-transform-unroll.js",
     "as:build:release": "asc as/assembly/index.ts --target release -O --noAssert --transform ./vendor/as-transform-unroll.js",
     "bench:vm": "env -u DEBUG bun run test/perf/audio-vm.runtime.bench.ts",
-    "bench:vm:json": "env -u DEBUG bun run test/perf/audio-vm.runtime.bench.ts --json"
+    "bench:vm:json": "env -u DEBUG bun run test/perf/audio-vm.runtime.bench.ts --json",
+    "bench:vm:check": "env -u DEBUG bun run test/perf/audio-vm.bench-gate.ts check",
+    "bench:vm:record": "env -u DEBUG bun run test/perf/audio-vm.bench-gate.ts record"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.3",

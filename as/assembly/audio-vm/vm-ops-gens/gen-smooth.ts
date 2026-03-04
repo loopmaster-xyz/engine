@@ -83,6 +83,7 @@ case AudioVmOp.GenSmooth_default: {
       break
     }
     case 8: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[432].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -92,14 +93,15 @@ case AudioVmOp.GenSmooth_default: {
       const outputPtr: usize = output.dataStart
       const instance: Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_audio = changetype<Smooth_default_seed_scalar_rate_scalar_curve_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, rateValue, curveValue, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, rateValue, curveValue, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 4: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[433].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -109,14 +111,15 @@ case AudioVmOp.GenSmooth_default: {
       const outputPtr: usize = output.dataStart
       const instance: Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_scalar = changetype<Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const curveAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, curveTagged, procLen)
+      const curveAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, curveTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, rateValue, trigValue, curveAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, rateValue, trigValue, curveAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, curveAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 12: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[434].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -126,16 +129,16 @@ case AudioVmOp.GenSmooth_default: {
       const outputPtr: usize = output.dataStart
       const instance: Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_audio = changetype<Smooth_default_seed_scalar_rate_scalar_curve_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const curveAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, curveTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const curveAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, curveTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, rateValue, curveAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, rateValue, curveAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, curveAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 2: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[435].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -145,14 +148,15 @@ case AudioVmOp.GenSmooth_default: {
       const outputPtr: usize = output.dataStart
       const instance: Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_scalar = changetype<Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const rateAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, rateTagged, procLen)
+      const rateAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, rateTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, curveValue, trigValue, rateAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, curveValue, trigValue, rateAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, rateAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 10: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[436].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -162,16 +166,16 @@ case AudioVmOp.GenSmooth_default: {
       const outputPtr: usize = output.dataStart
       const instance: Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_audio = changetype<Smooth_default_seed_scalar_rate_audio_curve_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const rateAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, rateTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const rateAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, rateTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, curveValue, rateAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, curveValue, rateAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, rateAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 6: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[437].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -181,16 +185,16 @@ case AudioVmOp.GenSmooth_default: {
       const outputPtr: usize = output.dataStart
       const instance: Smooth_default_seed_scalar_rate_audio_curve_audio_trig_scalar = changetype<Smooth_default_seed_scalar_rate_audio_curve_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const rateAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, rateTagged, procLen)
-      const curveAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, curveTagged, procLen)
+      const rateAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, rateTagged, procLen)
+      const curveAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, curveTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, trigValue, rateAudioResult.ptr, curveAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, trigValue, rateAudioPtr, curveAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, rateAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, curveAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 14: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[438].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -200,15 +204,13 @@ case AudioVmOp.GenSmooth_default: {
       const outputPtr: usize = output.dataStart
       const instance: Smooth_default_seed_scalar_rate_audio_curve_audio_trig_audio = changetype<Smooth_default_seed_scalar_rate_audio_curve_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.phase
-      const rateAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, rateTagged, procLen)
-      const curveAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, curveTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const rateAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, rateTagged, procLen)
+      const curveAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, curveTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, rateAudioResult.ptr, curveAudioResult.ptr, trigAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, seedValue, rateAudioPtr, curveAudioPtr, trigAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, rateAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, curveAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     default: {

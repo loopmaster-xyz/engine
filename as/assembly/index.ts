@@ -7,8 +7,11 @@ import {
   getArrayElementIsUndefinedNested,
   getArrayElementNested,
   getInfo,
+  getPerfCounters,
   getScalarGlobal,
   releaseOutputs,
+  resetPerfCounters,
+  setPerfCountersEnabled,
   run,
   setOversampleModes,
   setScalarGlobal,
@@ -141,6 +144,18 @@ export function getAudioVmArenaInfoAt(vmId: i32): usize {
   const state = audioVms.get(vmId)
   const stats = state.arena.getStats()
   return stats.dataStart
+}
+
+export function getAudioVmPerfCountersAt(vmId: i32): usize {
+  return getPerfCounters(audioVms.get(vmId))
+}
+
+export function resetAudioVmPerfCountersAt(vmId: i32): void {
+  resetPerfCounters(audioVms.get(vmId))
+}
+
+export function setAudioVmPerfCountersEnabledAt(vmId: i32, enabled: bool): void {
+  setPerfCountersEnabled(audioVms.get(vmId), enabled)
 }
 
 export function releaseAudioVmOutputsAt(vmId: i32): void {

@@ -146,6 +146,10 @@ export class MathOps {
           }
         }
         else if (leftIsAudio) {
+          if (rightScalar == f32(0)) {
+            memory.copy(outputPtr, leftPtr, usize(bufferLength) << 2)
+            break
+          }
           const right: v128 = f32x4.splat(rightScalar)
           let left$: usize = leftPtr
           let output$: usize = outputPtr
@@ -156,6 +160,10 @@ export class MathOps {
           }
         }
         else {
+          if (leftScalar == f32(0)) {
+            memory.copy(outputPtr, rightPtr, usize(bufferLength) << 2)
+            break
+          }
           const left: v128 = f32x4.splat(leftScalar)
           let right$: usize = rightPtr
           let output$: usize = outputPtr
@@ -180,6 +188,10 @@ export class MathOps {
           }
         }
         else if (leftIsAudio) {
+          if (rightScalar == f32(0)) {
+            memory.copy(outputPtr, leftPtr, usize(bufferLength) << 2)
+            break
+          }
           const right: v128 = f32x4.splat(rightScalar)
           let left$: usize = leftPtr
           let output$: usize = outputPtr
@@ -214,6 +226,14 @@ export class MathOps {
           }
         }
         else if (leftIsAudio) {
+          if (rightScalar == f32(1)) {
+            memory.copy(outputPtr, leftPtr, usize(bufferLength) << 2)
+            break
+          }
+          if (rightScalar == f32(0)) {
+            memory.fill(outputPtr, 0, usize(bufferLength) << 2)
+            break
+          }
           const right: v128 = f32x4.splat(rightScalar)
           let left$: usize = leftPtr
           let output$: usize = outputPtr
@@ -224,6 +244,14 @@ export class MathOps {
           }
         }
         else {
+          if (leftScalar == f32(1)) {
+            memory.copy(outputPtr, rightPtr, usize(bufferLength) << 2)
+            break
+          }
+          if (leftScalar == f32(0)) {
+            memory.fill(outputPtr, 0, usize(bufferLength) << 2)
+            break
+          }
           const left: v128 = f32x4.splat(leftScalar)
           let right$: usize = rightPtr
           let output$: usize = outputPtr
@@ -248,6 +276,10 @@ export class MathOps {
           }
         }
         else if (leftIsAudio) {
+          if (rightScalar == f32(1)) {
+            memory.copy(outputPtr, leftPtr, usize(bufferLength) << 2)
+            break
+          }
           const right: v128 = f32x4.splat(rightScalar)
           let left$: usize = leftPtr
           let output$: usize = outputPtr

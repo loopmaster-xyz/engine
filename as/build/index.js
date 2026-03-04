@@ -58,6 +58,15 @@ async function instantiate(module, imports = {}) {
       // as/assembly/index/getAudioVmArenaInfoAt(i32) => usize
       return exports.getAudioVmArenaInfoAt(vmId) >>> 0;
     },
+    getAudioVmPerfCountersAt(vmId) {
+      // as/assembly/index/getAudioVmPerfCountersAt(i32) => usize
+      return exports.getAudioVmPerfCountersAt(vmId) >>> 0;
+    },
+    setAudioVmPerfCountersEnabledAt(vmId, enabled) {
+      // as/assembly/index/setAudioVmPerfCountersEnabledAt(i32, bool) => void
+      enabled = enabled ? 1 : 0;
+      exports.setAudioVmPerfCountersEnabledAt(vmId, enabled);
+    },
     getAudioVmArrayElementIsUndefined(vmId, arrayGlobalIndex, elementIndex) {
       // as/assembly/index/getAudioVmArrayElementIsUndefined(i32, i32, i32) => bool
       return exports.getAudioVmArrayElementIsUndefined(vmId, arrayGlobalIndex, elementIndex) != 0;
@@ -110,6 +119,9 @@ export const {
   runAudioVmAt,
   getAudioVmInfoAt,
   getAudioVmArenaInfoAt,
+  getAudioVmPerfCountersAt,
+  resetAudioVmPerfCountersAt,
+  setAudioVmPerfCountersEnabledAt,
   releaseAudioVmOutputsAt,
   copyAudioVmState,
   resetAudioVmAt,

@@ -146,6 +146,10 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
       inputVar: string = 'inputTagged',
     ): string[] => {
       const specLines: string[] = []
+      const needsTempScope = variant.usesInput || spec.paramModes.includes('audio')
+      if (needsTempScope) {
+        specLines.push(indent.write('const tempScopeMark: i32 = this.beginTempAudioScope()'))
+      }
       specLines.push(indent.write(`const slot: GenSlot = this.genPools[${spec.id}].get()`))
       const gen = caseGenMap.get(spec.genName)
       specLines.push(indent.write('genOpHelpers.writeCallStackMetaToSlot(this, slot)'))
@@ -153,13 +157,8 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
       // when it is not a multiple of the unroll factor (tests sometimes use bufferLength=1).
       specLines.push(indent.write('const procLen: i32 = genOpHelpers.alignedProcLength(bufferLength)'))
       if (variant.usesInput) {
-        specLines.push(
-          indent.write(`const inputSrcResult = genOpHelpers.taggedToInputBuffer(this, ${inputVar}, procLen)`),
-        )
-        specLines.push(indent.write(`const inputSrcPtr: usize = inputSrcResult.ptr`))
-        specLines.push(indent.write(`const inputSrcBuf: Float32Array = inputSrcResult.buf`))
-        specLines.push(indent.write('genOpHelpers.writeInputToHistoryRing(slot.history, inputSrcPtr, bufferLength)'))
-        specLines.push(indent.write('const inputPtr: usize = inputSrcPtr'))
+        specLines.push(indent.write(`const inputPtr: usize = genOpHelpers.taggedToInputPtr(this, ${inputVar}, procLen)`))
+        specLines.push(indent.write('genOpHelpers.writeInputToHistoryRing(slot.history, inputPtr, bufferLength)'))
       }
       else {
         specLines.push(indent.write('genOpHelpers.writeInputToHistoryRingZero(slot.history)'))
@@ -182,11 +181,11 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
       ]
       const audioParamInfosForSpec = orderedParams.filter(p => p.mode === 'audio')
       for (const p of audioParamInfosForSpec) {
-        specLines.push(indent.write(`const ${p.paramName}AudioResult = genOpHelpers.taggedToAudioParamBuffer(this, ${p.paramName}Tagged, procLen)`))
+        specLines.push(indent.write(`const ${p.paramName}AudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(this, ${p.paramName}Tagged, procLen)`))
       }
       const callArg = (p: { paramName: string; mode: string }) => {
         if (p.paramName === 'key' && p.mode === 'scalar' && variant.usesInput) return 'inputPtr'
-        return p.mode === 'audio' ? `${p.paramName}AudioResult.ptr` : `${p.paramName}Value`
+        return p.mode === 'audio' ? `${p.paramName}AudioPtr` : `${p.paramName}Value`
       }
       const callArgs = [
         'bufferLength',
@@ -233,7 +232,7 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
               }
               for (const p of audioParamInfos) {
                 const n = p.paramName
-                activeLines.push(indent.write(`const ${n}Src: usize = ${n}AudioResult.ptr`))
+                activeLines.push(indent.write(`const ${n}Src: usize = ${n}AudioPtr`))
                 activeLines.push(indent.write(`const ${n}Buf: Float32Array = this.arena.get(baseProcLen)`))
                 activeLines.push(indent.write(`const ${n}Ptr: usize = ${n}Buf.dataStart`))
                 activeLines.push(indent.write(`this.downsample(${n}Src, ${n}Ptr, baseLen, osFactor)`))
@@ -280,7 +279,6 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
               for (const p of audioParamInfos) {
                 const n = p.paramName
                 activeLines.push(indent.write(`this.arena.release(${n}Buf)`))
-                activeLines.push(indent.write(`genOpHelpers.releaseTaggedAudioParamResult(this, ${n}AudioResult)`))
               }
               if (variant.usesInput) {
                 activeLines.push(indent.write('if (baseIn != changetype<Float32Array>(0)) this.arena.release(baseIn)'))
@@ -291,9 +289,6 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
               const inactiveLines: string[] = []
               inactiveLines.push(indent.write('slot.history.write(sampleCount, this.paramScratch)'))
               inactiveLines.push(indent.write(`instance.process(${callArgs.join(', ')})`))
-              for (const p of audioParamInfos) {
-                inactiveLines.push(indent.write(`genOpHelpers.releaseTaggedAudioParamResult(this, ${p.paramName}AudioResult)`))
-              }
               return inactiveLines
             },
           }),
@@ -304,12 +299,8 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
         specLines.push(indent.write(`instance.process(${callArgs.join(', ')})`))
       }
       specLines.push(indent.write('genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, bufferLength)'))
-
-      if (variant.usesInput) {
-        specLines.push(indent.write('genOpHelpers.releaseTaggedInputBuf(this, inputSrcBuf)'))
-      }
-      for (const p of audioParamInfosForSpec) {
-        specLines.push(indent.write(`genOpHelpers.releaseTaggedAudioParamResult(this, ${p.paramName}AudioResult)`))
+      if (needsTempScope) {
+        specLines.push(indent.write('this.endTempAudioScope(tempScopeMark)'))
       }
       return specLines
     }
@@ -322,6 +313,10 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
       paramNames: string[],
     ): string[] => {
       const specLines: string[] = []
+      const needsTempScope = spec.paramModes.includes('audio')
+      if (needsTempScope) {
+        specLines.push(indent.write('const tempScopeMark: i32 = this.beginTempAudioScope()'))
+      }
       specLines.push(indent.write(`const slot: GenSlot = this.genPools[${spec.id}].get()`))
       const gen = caseGenMap.get(spec.genName)
       specLines.push(indent.write('genOpHelpers.writeCallStackMetaToSlot(this, slot)'))
@@ -359,7 +354,7 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
       ]
       const stereoAudioParamInfos = orderedParams.filter(p => p.mode === 'audio')
       for (const p of stereoAudioParamInfos) {
-        specLines.push(indent.write(`const ${p.paramName}AudioResult = genOpHelpers.taggedToAudioParamBuffer(this, ${p.paramName}Tagged, procLen)`))
+        specLines.push(indent.write(`const ${p.paramName}AudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(this, ${p.paramName}Tagged, procLen)`))
       }
       const callArgs = [
         'bufferLength',
@@ -375,7 +370,7 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
         'inputRightPtr',
         'outputLeftPtr',
         'outputRightPtr',
-        ...orderedParams.map(p => p.mode === 'audio' ? `${p.paramName}AudioResult.ptr` : `${p.paramName}Value`),
+        ...orderedParams.map(p => p.mode === 'audio' ? `${p.paramName}AudioPtr` : `${p.paramName}Value`),
       ]
       specLines.push(indent.write(`instance.process(${callArgs.join(', ')})`))
       specLines.push(indent.write('if (bufferLength <= WAVEFORM_CHUNK_SAMPLES) {'))
@@ -420,8 +415,8 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
       specLines.push(indent.write('this.arrayLengths.push(2)'))
       specLines.push(indent.write('this.arrayRefcounts.push(0)'))
       specLines.push(indent.write('push(vm, encodeArray(u32(vm.arrays.length)))'))
-      for (const p of stereoAudioParamInfos) {
-        specLines.push(indent.write(`genOpHelpers.releaseTaggedAudioParamResult(this, ${p.paramName}AudioResult)`))
+      if (needsTempScope) {
+        specLines.push(indent.write('this.endTempAudioScope(tempScopeMark)'))
       }
       return specLines
     }
@@ -518,16 +513,13 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
             'const inputRightResolved: f64 = vmOpsVars.resolveCellRef(this, inputRightTagged)',
           ),
         )
+        outLines.push(wState('const stereoTempScopeMark: i32 = this.beginTempAudioScope()'))
         outLines.push(
-          wState('const leftResult = genOpHelpers.taggedToInputBuffer(this, inputLeftResolved, bufferLength)'),
+          wState('const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(this, inputLeftResolved, bufferLength)'),
         )
-        outLines.push(wState('const inputLeftPtr: usize = leftResult.ptr'))
-        outLines.push(wState('const inputLeftBuf: Float32Array = leftResult.buf'))
         outLines.push(
-          wState('const rightResult = genOpHelpers.taggedToInputBuffer(this, inputRightResolved, bufferLength)'),
+          wState('const inputRightPtr: usize = genOpHelpers.taggedToInputPtr(this, inputRightResolved, bufferLength)'),
         )
-        outLines.push(wState('const inputRightPtr: usize = rightResult.ptr'))
-        outLines.push(wState('const inputRightBuf: Float32Array = rightResult.buf'))
         outLines.push(wState('switch (modeMask) {'))
         outIndent.indent()
         variant.stereoSpecializations.forEach(spec => {
@@ -541,8 +533,7 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
         })
         outIndent.dedent()
         outLines.push(wState('}'))
-        outLines.push(wState('genOpHelpers.releaseTaggedInputResult(this, inputLeftPtr, inputLeftBuf)'))
-        outLines.push(wState('genOpHelpers.releaseTaggedInputResult(this, inputRightPtr, inputRightBuf)'))
+        outLines.push(wState('this.endTempAudioScope(stereoTempScopeMark)'))
         // Release only the consumed input tagged value (refcounted). Do not clear array slots directly.
         outLines.push(wState('heap.releaseValue(this, inputResolved)'))
         // Stereo path: L/R already pushed inside generateStereoSpecCode
@@ -553,13 +544,11 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
         outLines.push(wState('const monoInputFromArr: f64 = inputArrLen > 0 ? inputArr[0] : encodeScalar(0.0)'))
         if (variant.stereoOnly) {
           // Stereo-only: use stereo variant with [monoInputFromArr, monoInputFromArr]
+          outLines.push(wState('const monoStereoTempScopeMark: i32 = this.beginTempAudioScope()'))
           outLines.push(
-            wState('const monoInputResult = genOpHelpers.taggedToInputBuffer(this, monoInputFromArr, bufferLength)'),
+            wState('const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(this, monoInputFromArr, bufferLength)'),
           )
-          outLines.push(wState('const inputLeftPtr: usize = monoInputResult.ptr'))
-          outLines.push(wState('const inputRightPtr: usize = monoInputResult.ptr'))
-          outLines.push(wState('const inputLeftBuf: Float32Array = monoInputResult.buf'))
-          outLines.push(wState('const inputRightBuf: Float32Array = monoInputResult.buf'))
+          outLines.push(wState('const inputRightPtr: usize = inputLeftPtr'))
           outLines.push(wState('switch (modeMask) {'))
           outIndent.indent()
           variant.stereoSpecializations.forEach(spec => {
@@ -573,7 +562,7 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
           })
           outIndent.dedent()
           outLines.push(wState('}'))
-          outLines.push(wState('genOpHelpers.releaseTaggedInputResult(this, inputLeftPtr, inputLeftBuf)'))
+          outLines.push(wState('this.endTempAudioScope(monoStereoTempScopeMark)'))
         }
         else {
           outLines.push(wState('switch (modeMask) {'))
@@ -617,13 +606,11 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
         // Mono input path (not an array)
         if (variant.stereoOnly) {
           // Stereo-only gen (no audio block): use stereo variant with [input, input]
+          outLines.push(wState('const monoStereoTempScopeMark: i32 = this.beginTempAudioScope()'))
           outLines.push(
-            wState('const monoInputResult = genOpHelpers.taggedToInputBuffer(this, inputResolved, bufferLength)'),
+            wState('const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(this, inputResolved, bufferLength)'),
           )
-          outLines.push(wState('const inputLeftPtr: usize = monoInputResult.ptr'))
-          outLines.push(wState('const inputRightPtr: usize = monoInputResult.ptr'))
-          outLines.push(wState('const inputLeftBuf: Float32Array = monoInputResult.buf'))
-          outLines.push(wState('const inputRightBuf: Float32Array = monoInputResult.buf'))
+          outLines.push(wState('const inputRightPtr: usize = inputLeftPtr'))
           outLines.push(wState('switch (modeMask) {'))
           outIndent.indent()
           variant.stereoSpecializations.forEach(spec => {
@@ -637,7 +624,7 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
           })
           outIndent.dedent()
           outLines.push(wState('}'))
-          outLines.push(wState('genOpHelpers.releaseTaggedInputResult(this, inputLeftPtr, inputLeftBuf)'))
+          outLines.push(wState('this.endTempAudioScope(monoStereoTempScopeMark)'))
           outLines.push(
             wState('if (isAudio(inputTagged)) this.arena.releaseByPtr(u32(decodeAudio(inputTagged)))'),
           )
@@ -967,15 +954,19 @@ export function generateAudioVmAssembly(gens: Gen[]): AudioVmAssemblySplit {
       ),
     )
     cIndent.indent()
+    lines.push(cIndent.write('switch (op) {'))
+    cIndent.indent()
     for (const entry of genVariantsList) {
-      lines.push(
-        cIndent.write(
-          `if (op >= AudioVmOp.${entry.firstOpName} && op <= AudioVmOp.${entry.lastOpName}) return handleGenOp_${entry.gen.name}(vm, op, pc, opsPtr, params)`,
-        ),
-      )
+      for (const variant of entry.variants) {
+        lines.push(cIndent.write(`case AudioVmOp.${variant.opName}:`))
+      }
+      lines.push(cIndent.write(`  return handleGenOp_${entry.gen.name}(vm, op, pc, opsPtr, params)`))
     }
-    lines.push(cIndent.write('debugAudioVmOp(pc - 1, op, vm.stackTop)'))
-    lines.push(cIndent.write('throw new Error(`Unknown gen: ${op}`)'))
+    lines.push(cIndent.write('default:'))
+    lines.push(cIndent.write('  debugAudioVmOp(pc - 1, op, vm.stackTop)'))
+    lines.push(cIndent.write('  throw new Error(`Unknown gen: ${op}`)'))
+    cIndent.dedent()
+    lines.push(cIndent.write('}'))
     cIndent.dedent()
     lines.push(cIndent.write('}'))
     lines.push('')

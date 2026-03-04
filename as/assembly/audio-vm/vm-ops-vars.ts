@@ -655,6 +655,7 @@ export function handleReturn(
       const oversampledPtr: usize = decodeAudio(returnValue)
       const output: Float32Array = vm.arena.get(frame.savedBufferLength)
       const outputPtr: usize = output.dataStart
+      if (vm.perfCountersEnabled) vm.perfCounters[7]++
       downsample(changetype<VmState>(vm), oversampledPtr, outputPtr, frame.savedBufferLength, factor)
       vm.arena.releaseByPtr(u32(oversampledPtr))
       returnValue = encodeAudio(outputPtr)
@@ -674,7 +675,9 @@ export function handleReturn(
             const outputRight: Float32Array = vm.arena.get(frame.savedBufferLength)
             const outputLeftPtr: usize = outputLeft.dataStart
             const outputRightPtr: usize = outputRight.dataStart
+            if (vm.perfCountersEnabled) vm.perfCounters[7]++
             downsample(changetype<VmState>(vm), oversampledLeftPtr, outputLeftPtr, frame.savedBufferLength, factor)
+            if (vm.perfCountersEnabled) vm.perfCounters[7]++
             downsample(changetype<VmState>(vm), oversampledRightPtr, outputRightPtr, frame.savedBufferLength, factor)
             vm.arena.releaseByPtr(u32(oversampledLeftPtr))
             vm.arena.releaseByPtr(u32(oversampledRightPtr))
@@ -719,6 +722,7 @@ export function handleReturn(
                 const oversampledPtr: usize = decodeAudio(e)
                 const output: Float32Array = vm.arena.get(frame.savedBufferLength)
                 const outputPtr: usize = output.dataStart
+                if (vm.perfCountersEnabled) vm.perfCounters[7]++
                 downsample(changetype<VmState>(vm), oversampledPtr, outputPtr, frame.savedBufferLength, factor)
                 newArr[j] = encodeAudio(outputPtr)
               }

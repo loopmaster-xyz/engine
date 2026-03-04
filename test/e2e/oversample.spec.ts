@@ -171,6 +171,15 @@ describe('oversample function', () => {
     expect(audio('x=every(1) oversample(2,()->x) |> out($)')).toMatchAudio(audio('every(1) |> out($)'))
   })
 
+  it('oversample closure array roundtrip', () => {
+    expect(audio(`
+      pair=[sine(220),sine(330)]
+      oversample(2,()->pair) |> out($)
+    `)).toMatchAudio(audio(`
+      [sine(220),sine(330)] |> out($)
+    `), 1024)
+  })
+
   it('oversample using pipe', () => {
     expect(audio(`
       f=x->x|>oversample(2,()->$)

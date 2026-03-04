@@ -49,6 +49,7 @@ case AudioVmOp.GenEmit_default: {
       break
     }
     case 1: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[359].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -57,11 +58,11 @@ case AudioVmOp.GenEmit_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Emit_default_value_audio = changetype<Emit_default_value_audio>(slot.instance)
-      const valueAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, valueTagged, procLen)
+      const valueAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, valueTagged, procLen)
       slot.history.write(params.sampleCount, vm.paramScratch)
-      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, valueAudioResult.ptr)
+      instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, valueAudioPtr)
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, valueAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     default: {

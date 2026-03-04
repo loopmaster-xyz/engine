@@ -79,12 +79,33 @@ export function alignedProcLength(bufferLength: i32): i32 {
   return (bufferLength + 15) & ~15
 }
 
+// @ts-ignore
+// @inline
+function arenaGetCounted(vm: VmState, length: i32): Float32Array {
+  if (vm.perfCountersEnabled) vm.perfCounters[4]++
+  return vm.arena.get(length)
+}
+
+// @ts-ignore
+// @inline
+function arenaReleaseCounted(vm: VmState, buffer: Float32Array): void {
+  if (vm.perfCountersEnabled) vm.perfCounters[5]++
+  vm.arena.release(buffer)
+}
+
+// @ts-ignore
+// @inline
+function arenaReleaseByPtrCounted(vm: VmState, ptr: usize): void {
+  if (vm.perfCountersEnabled) vm.perfCounters[5]++
+  vm.arena.releaseByPtr(u32(ptr))
+}
+
 /** Allocate silence buffer, push as audio, return RunResult.normal. */
 export function pushSilenceAndReturn(vm: VmState, pc: i32, opsPtr: usize, params: RunParams): RunResult {
   const procLen: i32 = alignedProcLength(params.bufferLength)
-  const output: Float32Array = vm.arena.get(procLen)
+  const output: Float32Array = arenaGetCounted(vm, procLen)
   memory.fill(output.dataStart, 0, usize(procLen) << 2)
-  vmStack.push(vm, encodeAudio(output.dataStart))
+  vmStack.push(vm, encodeAudio(output.dataStart), true)
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }
 
@@ -197,7 +218,7 @@ function stereoArrayToMonoScalar(vm: VmState, tagged: f64): f32 {
 /** Allocate buffer, fill with (L[i]+R[i])*0.5. Call only when isStereoAudioArray returned true. Returns new instance. */
 function stereoArrayToMonoBuffer(vm: VmState, tagged: f64, length: i32): TaggedInputResult {
   const result = new TaggedInputResult()
-  result.buf = vm.arena.get(length)
+  result.buf = arenaGetCounted(vm, length)
   result.ptr = result.buf.dataStart
   const arr: Float64Array = vm.arrays.get(i32(decodeArray(tagged)) - 1)
   const leftTagged: f64 = vmOpsVars.resolveCellRef(vm, arr[0])
@@ -215,6 +236,28 @@ function stereoArrayToMonoBuffer(vm: VmState, tagged: f64, length: i32): TaggedI
     store<f32>(result.ptr + off, (leftSample + rightSample) * 0.5)
   }
   return result
+}
+
+function stereoArrayToMonoPtr(vm: VmState, tagged: f64, length: i32): usize {
+  const buf: Float32Array = arenaGetCounted(vm, length)
+  const ptr: usize = buf.dataStart
+  const arr: Float64Array = vm.arrays.get(i32(decodeArray(tagged)) - 1)
+  const leftTagged: f64 = vmOpsVars.resolveCellRef(vm, arr[0])
+  const rightTagged: f64 = vmOpsVars.resolveCellRef(vm, arr[1])
+  const leftIsAudio: bool = isAudio(leftTagged)
+  const rightIsAudio: bool = isAudio(rightTagged)
+  const leftPtr: usize = leftIsAudio ? decodeAudio(leftTagged) : 0
+  const rightPtr: usize = rightIsAudio ? decodeAudio(rightTagged) : 0
+  const leftScalar: f32 = leftIsAudio ? 0.0 : decodeScalar(leftTagged)
+  const rightScalar: f32 = rightIsAudio ? 0.0 : decodeScalar(rightTagged)
+  for (let i: i32 = 0; i < length; i++) {
+    const off: usize = usize(i) << 2
+    const leftSample: f32 = leftIsAudio ? load<f32>(leftPtr + off) : leftScalar
+    const rightSample: f32 = rightIsAudio ? load<f32>(rightPtr + off) : rightScalar
+    store<f32>(ptr + off, (leftSample + rightSample) * 0.5)
+  }
+  vm.trackTempAudioPtr(u32(ptr))
+  return ptr
 }
 
 /** Convert tagged to audio buffer: if isAudio return ptr (buf=null); if 2-element audio array allocate (L+R)*0.5 and return ptr+buf; else throw. Caller must release: releaseTaggedInputResult then releaseByPtr(ptr) when buf is null. Returns new instance per call. */
@@ -261,7 +304,7 @@ export function writeTaggedSampleAt(tagged: f64, outPtr: usize, sampleIndex: i32
 /** Allocate buffer, fill with scalar value, return encodeAudio(ptr). Caller owns the buffer (do not push to stack). */
 export function scalarToAudioEncoded(vm: VmState, scalarTagged: f64, length: i32): f64 {
   const scalarVal: f32 = decodeScalar(scalarTagged)
-  const output: Float32Array = vm.arena.get(length)
+  const output: Float32Array = arenaGetCounted(vm, length)
   const outputPtr: usize = output.dataStart
   for (let i: i32 = 0; i < length; i++) {
     store<f32>(outputPtr + (usize(i) << 2), scalarVal)
@@ -286,7 +329,7 @@ export function taggedToInputBuffer(vm: VmState, tagged: f64, length: i32): Tagg
     result.ptr = decodeAudio(tagged)
     return result
   }
-  result.buf = vm.arena.get(length)
+  result.buf = arenaGetCounted(vm, length)
   result.ptr = result.buf.dataStart
   if (isScalar(tagged)) {
     const scalarVal: f32 = decodeScalar(tagged)
@@ -304,24 +347,53 @@ export function taggedToInputBuffer(vm: VmState, tagged: f64, length: i32): Tagg
 // @ts-ignore
 // @inline
 export function releaseTaggedInputBuf(vm: VmState, buf: Float32Array): void {
-  if (buf != changetype<Float32Array>(0)) vm.arena.release(buf)
+  if (buf != changetype<Float32Array>(0)) arenaReleaseCounted(vm, buf)
 }
 
 /** Release result: releases buf when non-null (allocated path). When buf is null (audio), caller must vm.arena.releaseByPtr(ptr) when the reference is dropped. */
 // @ts-ignore
 // @inline
 export function releaseTaggedInputResult(vm: VmState, _ptr: usize, buf: Float32Array): void {
-  if (buf != changetype<Float32Array>(0)) vm.arena.release(buf)
+  if (buf != changetype<Float32Array>(0)) arenaReleaseCounted(vm, buf)
 }
 
 /** Release result from taggedToAudioParamBuffer: only releases buf when we allocated it (stereo downmix). When buf is null the ptr came from the stack and is released at tick end. */
 export function releaseTaggedAudioParamResult(vm: VmState, result: TaggedInputResult): void {
-  if (result.buf != changetype<Float32Array>(0)) vm.arena.release(result.buf)
+  if (result.buf != changetype<Float32Array>(0)) arenaReleaseCounted(vm, result.buf)
 }
 
 /** Release when we only have ptr (dataStart), e.g. from decodeAudio. Arena looks up the Float32Array via its ptr table and releases it. Use when the buffer is no longer referenced. */
 // @ts-ignore
 // @inline
 export function releaseTaggedInputByPtr(vm: VmState, ptr: usize): void {
-  if (ptr != 0) vm.arena.releaseByPtr(u32(ptr))
+  if (ptr != 0) arenaReleaseByPtrCounted(vm, ptr)
+}
+
+/** Convert tagged input to pointer-only representation. Allocated temporaries are tracked in vm temp scope. */
+export function taggedToInputPtr(vm: VmState, tagged: f64, length: i32): usize {
+  if (isCellRef(tagged)) return taggedToInputPtr(vm, vmOpsVars.resolveCellRef(vm, tagged), length)
+  if (isAudio(tagged)) return decodeAudio(tagged)
+  const buffer: Float32Array = arenaGetCounted(vm, length)
+  const ptr: usize = buffer.dataStart
+  vm.trackTempAudioPtr(u32(ptr))
+  if (isScalar(tagged)) {
+    const scalarVal: f32 = decodeScalar(tagged)
+    for (let i: i32 = 0; i < length; i++) {
+      store<f32>(ptr + (usize(i) << 2), scalarVal)
+    }
+  }
+  else {
+    memory.fill(ptr, 0, usize(length) << 2)
+  }
+  return ptr
+}
+
+/** Convert tagged param to pointer-only representation. Allocated temporaries are tracked in vm temp scope. */
+export function taggedToAudioParamPtr(vm: VmState, tagged: f64, length: i32): usize {
+  if (isCellRef(tagged)) return taggedToAudioParamPtr(vm, vmOpsVars.resolveCellRef(vm, tagged), length)
+  if (isAudio(tagged)) return decodeAudio(tagged)
+  if (isStereoScalarOrAudioArray(vm, tagged)) {
+    return stereoArrayToMonoPtr(vm, tagged, length)
+  }
+  throw new Error('Gen parameter expects scalar or audio, not array')
 }

@@ -101,6 +101,7 @@ export function handleTram(
       const barsSrc: usize = decodeAudio(barsTagged)
       barsBuf = vm.getOversampleScratchB(baseProcLen)
       const barsPtr: usize = barsBuf.dataStart
+      if (vm.perfCountersEnabled) vm.perfCounters[7]++
       downsample(changetype<VmState>(vm), barsSrc, barsPtr, baseLen, osFactor)
       genOpHelpers.extendBufferWithLastSample(barsPtr, baseLen, baseProcLen)
       baseBarsValue = load<f32>(barsPtr)
@@ -125,6 +126,7 @@ export function handleTram(
       baseOutPtr,
     )
 
+    if (vm.perfCountersEnabled) vm.perfCounters[6]++
     upsample(changetype<VmState>(vm), baseOutPtr, outputPtr, baseLen, osFactor)
     genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, outputLen)
 
@@ -337,6 +339,7 @@ export function handleOversample(
         else {
           const up: Float32Array = vm.arena.get(oversampledProcLen)
           const upData: usize = up.dataStart
+          if (vm.perfCountersEnabled) vm.perfCounters[6]++
           upsample(changetype<VmState>(vm), usize(basePtr), upData, params.bufferLength, factor)
           genOpHelpers.extendBufferWithLastSample(upData, oversampledLength, oversampledProcLen)
 
@@ -369,6 +372,7 @@ export function handleOversample(
               else {
                 const up: Float32Array = vm.arena.get(oversampledProcLen)
                 const upData: usize = up.dataStart
+                if (vm.perfCountersEnabled) vm.perfCounters[6]++
                 upsample(changetype<VmState>(vm), usize(basePtr), upData, params.bufferLength, factor)
                 genOpHelpers.extendBufferWithLastSample(upData, oversampledLength, oversampledProcLen)
 

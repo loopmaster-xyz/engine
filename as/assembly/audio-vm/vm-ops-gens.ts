@@ -142,60 +142,130 @@ export function initGenPools(vm: VmState): void {
 }
 
 export function handleGenOp(vm: VmState, op: AudioVmOp, pc: i32, opsPtr: usize, params: RunParams): i32 {
-  if (op >= AudioVmOp.GenPhasor_default && op <= AudioVmOp.GenPhasor_default) return handleGenOp_Phasor(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenEvery_default && op <= AudioVmOp.GenEvery_default) return handleGenOp_Every(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenWhite_default && op <= AudioVmOp.GenWhite_default) return handleGenOp_White(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenLfosqr_default && op <= AudioVmOp.GenLfosqr_default) return handleGenOp_Lfosqr(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenLfosah_default && op <= AudioVmOp.GenLfosah_default) return handleGenOp_Lfosah(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenDc_default && op <= AudioVmOp.GenDc_default) return handleGenOp_Dc(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenGauss_default && op <= AudioVmOp.GenGauss_default) return handleGenOp_Gauss(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenImpulse_default && op <= AudioVmOp.GenImpulse_default) return handleGenOp_Impulse(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenTestGain_default && op <= AudioVmOp.GenTestGain_default) return handleGenOp_TestGain(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenFreeverb_default && op <= AudioVmOp.GenFreeverb_default) return handleGenOp_Freeverb(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSaw_default && op <= AudioVmOp.GenSaw_default) return handleGenOp_Saw(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenTestOversample_default && op <= AudioVmOp.GenTestOversample_default) return handleGenOp_TestOversample(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSine_default && op <= AudioVmOp.GenSine_default) return handleGenOp_Sine(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenLfosine_default && op <= AudioVmOp.GenLfosine_default) return handleGenOp_Lfosine(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSlicer_default && op <= AudioVmOp.GenSlicer_default) return handleGenOp_Slicer(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenBrown_default && op <= AudioVmOp.GenBrown_default) return handleGenOp_Brown(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenEuclid_default && op <= AudioVmOp.GenEuclid_default) return handleGenOp_Euclid(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenMarkov_default && op <= AudioVmOp.GenMarkov_default) return handleGenOp_Markov(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenPwm_default && op <= AudioVmOp.GenPwm_default) return handleGenOp_Pwm(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenAd_default && op <= AudioVmOp.GenAd_default) return handleGenOp_Ad(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSustain_default && op <= AudioVmOp.GenSustain_default) return handleGenOp_Sustain(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenOnepole_lp1 && op <= AudioVmOp.GenOnepole_hp1) return handleGenOp_Onepole(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSqr_default && op <= AudioVmOp.GenSqr_default) return handleGenOp_Sqr(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenHold_default && op <= AudioVmOp.GenHold_default) return handleGenOp_Hold(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenLfosaw_default && op <= AudioVmOp.GenLfosaw_default) return handleGenOp_Lfosaw(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenCompressor_default && op <= AudioVmOp.GenCompressor_default) return handleGenOp_Compressor(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenEmit_default && op <= AudioVmOp.GenEmit_default) return handleGenOp_Emit(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenFractal_default && op <= AudioVmOp.GenFractal_default) return handleGenOp_Fractal(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenLforamp_default && op <= AudioVmOp.GenLforamp_default) return handleGenOp_Lforamp(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenTri_default && op <= AudioVmOp.GenTri_default) return handleGenOp_Tri(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenPitchshift_default && op <= AudioVmOp.GenPitchshift_default) return handleGenOp_Pitchshift(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenZerox_default && op <= AudioVmOp.GenZerox_default) return handleGenOp_Zerox(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenLimiter_default && op <= AudioVmOp.GenLimiter_default) return handleGenOp_Limiter(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenAt_default && op <= AudioVmOp.GenAt_default) return handleGenOp_At(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenDiodeladder_default && op <= AudioVmOp.GenDiodeladder_default) return handleGenOp_Diodeladder(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenRamp_default && op <= AudioVmOp.GenRamp_default) return handleGenOp_Ramp(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSmooth_default && op <= AudioVmOp.GenSmooth_default) return handleGenOp_Smooth(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenLfotri_default && op <= AudioVmOp.GenLfotri_default) return handleGenOp_Lfotri(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenAdsr_default && op <= AudioVmOp.GenAdsr_default) return handleGenOp_Adsr(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenAnalyser_default && op <= AudioVmOp.GenAnalyser_default) return handleGenOp_Analyser(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenBiquad_lp && op <= AudioVmOp.GenBiquad_ap) return handleGenOp_Biquad(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenEnvfollow_default && op <= AudioVmOp.GenEnvfollow_default) return handleGenOp_Envfollow(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSah_default && op <= AudioVmOp.GenSah_default) return handleGenOp_Sah(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenVelvet_default && op <= AudioVmOp.GenVelvet_default) return handleGenOp_Velvet(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenFdn_default && op <= AudioVmOp.GenFdn_default) return handleGenOp_Fdn(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenPink_default && op <= AudioVmOp.GenPink_default) return handleGenOp_Pink(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenDattorro_default && op <= AudioVmOp.GenDattorro_default) return handleGenOp_Dattorro(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenRandom_default && op <= AudioVmOp.GenRandom_default) return handleGenOp_Random(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSlew_default && op <= AudioVmOp.GenSlew_default) return handleGenOp_Slew(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenInc_default && op <= AudioVmOp.GenInc_default) return handleGenOp_Inc(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenBiquadshelf_ls && op <= AudioVmOp.GenBiquadshelf_peak) return handleGenOp_Biquadshelf(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSampler_default && op <= AudioVmOp.GenSampler_default) return handleGenOp_Sampler(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenMoog_lpm && op <= AudioVmOp.GenMoog_hpm) return handleGenOp_Moog(vm, op, pc, opsPtr, params)
-  if (op >= AudioVmOp.GenSvf_lps && op <= AudioVmOp.GenSvf_aps) return handleGenOp_Svf(vm, op, pc, opsPtr, params)
-  debugAudioVmOp(pc - 1, op, vm.stackTop)
-  throw new Error(`Unknown gen: ${op}`)
+  switch (op) {
+    case AudioVmOp.GenPhasor_default:
+      return handleGenOp_Phasor(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenEvery_default:
+      return handleGenOp_Every(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenWhite_default:
+      return handleGenOp_White(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenLfosqr_default:
+      return handleGenOp_Lfosqr(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenLfosah_default:
+      return handleGenOp_Lfosah(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenDc_default:
+      return handleGenOp_Dc(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenGauss_default:
+      return handleGenOp_Gauss(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenImpulse_default:
+      return handleGenOp_Impulse(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenTestGain_default:
+      return handleGenOp_TestGain(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenFreeverb_default:
+      return handleGenOp_Freeverb(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSaw_default:
+      return handleGenOp_Saw(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenTestOversample_default:
+      return handleGenOp_TestOversample(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSine_default:
+      return handleGenOp_Sine(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenLfosine_default:
+      return handleGenOp_Lfosine(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSlicer_default:
+      return handleGenOp_Slicer(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenBrown_default:
+      return handleGenOp_Brown(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenEuclid_default:
+      return handleGenOp_Euclid(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenMarkov_default:
+      return handleGenOp_Markov(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenPwm_default:
+      return handleGenOp_Pwm(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenAd_default:
+      return handleGenOp_Ad(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSustain_default:
+      return handleGenOp_Sustain(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenOnepole_lp1:
+    case AudioVmOp.GenOnepole_hp1:
+      return handleGenOp_Onepole(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSqr_default:
+      return handleGenOp_Sqr(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenHold_default:
+      return handleGenOp_Hold(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenLfosaw_default:
+      return handleGenOp_Lfosaw(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenCompressor_default:
+      return handleGenOp_Compressor(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenEmit_default:
+      return handleGenOp_Emit(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenFractal_default:
+      return handleGenOp_Fractal(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenLforamp_default:
+      return handleGenOp_Lforamp(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenTri_default:
+      return handleGenOp_Tri(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenPitchshift_default:
+      return handleGenOp_Pitchshift(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenZerox_default:
+      return handleGenOp_Zerox(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenLimiter_default:
+      return handleGenOp_Limiter(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenAt_default:
+      return handleGenOp_At(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenDiodeladder_default:
+      return handleGenOp_Diodeladder(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenRamp_default:
+      return handleGenOp_Ramp(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSmooth_default:
+      return handleGenOp_Smooth(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenLfotri_default:
+      return handleGenOp_Lfotri(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenAdsr_default:
+      return handleGenOp_Adsr(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenAnalyser_default:
+      return handleGenOp_Analyser(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenBiquad_lp:
+    case AudioVmOp.GenBiquad_hp:
+    case AudioVmOp.GenBiquad_bp:
+    case AudioVmOp.GenBiquad_bs:
+    case AudioVmOp.GenBiquad_ap:
+      return handleGenOp_Biquad(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenEnvfollow_default:
+      return handleGenOp_Envfollow(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSah_default:
+      return handleGenOp_Sah(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenVelvet_default:
+      return handleGenOp_Velvet(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenFdn_default:
+      return handleGenOp_Fdn(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenPink_default:
+      return handleGenOp_Pink(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenDattorro_default:
+      return handleGenOp_Dattorro(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenRandom_default:
+      return handleGenOp_Random(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSlew_default:
+      return handleGenOp_Slew(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenInc_default:
+      return handleGenOp_Inc(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenBiquadshelf_ls:
+    case AudioVmOp.GenBiquadshelf_hs:
+    case AudioVmOp.GenBiquadshelf_peak:
+      return handleGenOp_Biquadshelf(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSampler_default:
+      return handleGenOp_Sampler(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenMoog_lpm:
+    case AudioVmOp.GenMoog_hpm:
+      return handleGenOp_Moog(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenSvf_lps:
+    case AudioVmOp.GenSvf_hps:
+    case AudioVmOp.GenSvf_bps:
+    case AudioVmOp.GenSvf_bss:
+    case AudioVmOp.GenSvf_peaks:
+    case AudioVmOp.GenSvf_aps:
+      return handleGenOp_Svf(vm, op, pc, opsPtr, params)
+    default:
+      debugAudioVmOp(pc - 1, op, vm.stackTop)
+      throw new Error(`Unknown gen: ${op}`)
+  }
 }

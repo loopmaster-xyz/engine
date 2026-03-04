@@ -491,10 +491,12 @@ export function run(
   params.hadStereo = false
 
   while (pc < currentOpsLength) {
+    if (vm.perfCountersEnabled) vm.perfCounters[0]++
     const op: AudioVmOp = <AudioVmOp> load<u32>(currentOpsPtr + (pc << 2))
     // debugAudioVmOp(pc, op, vm.stackTop)
     pc++
     if (op >= FIRST_GEN_OP) {
+      if (vm.perfCountersEnabled) vm.perfCounters[1]++
       pc = handleGenOp(vm, op, pc, currentOpsPtr, params)
       continue
     }
@@ -753,6 +755,21 @@ export function getInfo(vm: VmState): usize {
   vm.info[27] = u32(vm.arrays.length)
   vm.info[28] = astats[8]
   return vm.info.dataStart
+}
+
+/** Host query: return ptr to vm perf counters buffer. */
+export function getPerfCounters(vm: VmState): usize {
+  return vm.perfCounters.dataStart
+}
+
+/** Host command: reset vm perf counters to zero. */
+export function resetPerfCounters(vm: VmState): void {
+  vm.resetPerfCounters()
+}
+
+/** Host command: enable/disable vm perf counter collection. */
+export function setPerfCountersEnabled(vm: VmState, enabled: bool): void {
+  vm.setPerfCountersEnabled(enabled)
 }
 
 /** Host query: return scalar value of global at index. */

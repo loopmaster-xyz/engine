@@ -129,6 +129,7 @@ case AudioVmOp.GenAd_default: {
       break
     }
     case 8: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[254].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -139,7 +140,7 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_scalar_decay_scalar_exponent_scalar_trig_audio = changetype<Ad_default_attack_scalar_decay_scalar_exponent_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -151,7 +152,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const trigSrc: usize = trigAudioResult.ptr
+        const trigSrc: usize = trigAudioPtr
         const trigBuf: Float32Array = vm.arena.get(baseProcLen)
         const trigPtr: usize = trigBuf.dataStart
         downsample(vm, trigSrc, trigPtr, baseLen, osFactor)
@@ -167,17 +168,16 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(trigBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, decayValue, exponentValue, trigAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, decayValue, exponentValue, trigAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 4: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[255].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -188,7 +188,7 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_scalar_decay_scalar_exponent_audio_trig_scalar = changetype<Ad_default_attack_scalar_decay_scalar_exponent_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const exponentAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, exponentTagged, procLen)
+      const exponentAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, exponentTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -200,7 +200,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const exponentSrc: usize = exponentAudioResult.ptr
+        const exponentSrc: usize = exponentAudioPtr
         const exponentBuf: Float32Array = vm.arena.get(baseProcLen)
         const exponentPtr: usize = exponentBuf.dataStart
         downsample(vm, exponentSrc, exponentPtr, baseLen, osFactor)
@@ -216,17 +216,16 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(exponentBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, decayValue, trigValue, exponentAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, decayValue, trigValue, exponentAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 12: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[256].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -237,8 +236,8 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_scalar_decay_scalar_exponent_audio_trig_audio = changetype<Ad_default_attack_scalar_decay_scalar_exponent_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const exponentAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, exponentTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const exponentAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, exponentTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -250,7 +249,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const exponentSrc: usize = exponentAudioResult.ptr
+        const exponentSrc: usize = exponentAudioPtr
         const exponentBuf: Float32Array = vm.arena.get(baseProcLen)
         const exponentPtr: usize = exponentBuf.dataStart
         downsample(vm, exponentSrc, exponentPtr, baseLen, osFactor)
@@ -260,7 +259,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(exponentPtr + (usize(k) << 2), last)
           }
         }
-        const trigSrc: usize = trigAudioResult.ptr
+        const trigSrc: usize = trigAudioPtr
         const trigBuf: Float32Array = vm.arena.get(baseProcLen)
         const trigPtr: usize = trigBuf.dataStart
         downsample(vm, trigSrc, trigPtr, baseLen, osFactor)
@@ -276,21 +275,17 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(exponentBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
         vm.arena.release(trigBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, decayValue, exponentAudioResult.ptr, trigAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, decayValue, exponentAudioPtr, trigAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 2: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[257].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -301,7 +296,7 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_scalar_decay_audio_exponent_scalar_trig_scalar = changetype<Ad_default_attack_scalar_decay_audio_exponent_scalar_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
+      const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -313,7 +308,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const decaySrc: usize = decayAudioResult.ptr
+        const decaySrc: usize = decayAudioPtr
         const decayBuf: Float32Array = vm.arena.get(baseProcLen)
         const decayPtr: usize = decayBuf.dataStart
         downsample(vm, decaySrc, decayPtr, baseLen, osFactor)
@@ -329,17 +324,16 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(decayBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, exponentValue, trigValue, decayAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, exponentValue, trigValue, decayAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 10: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[258].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -350,8 +344,8 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_scalar_decay_audio_exponent_scalar_trig_audio = changetype<Ad_default_attack_scalar_decay_audio_exponent_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -363,7 +357,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const decaySrc: usize = decayAudioResult.ptr
+        const decaySrc: usize = decayAudioPtr
         const decayBuf: Float32Array = vm.arena.get(baseProcLen)
         const decayPtr: usize = decayBuf.dataStart
         downsample(vm, decaySrc, decayPtr, baseLen, osFactor)
@@ -373,7 +367,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(decayPtr + (usize(k) << 2), last)
           }
         }
-        const trigSrc: usize = trigAudioResult.ptr
+        const trigSrc: usize = trigAudioPtr
         const trigBuf: Float32Array = vm.arena.get(baseProcLen)
         const trigPtr: usize = trigBuf.dataStart
         downsample(vm, trigSrc, trigPtr, baseLen, osFactor)
@@ -389,21 +383,17 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(decayBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
         vm.arena.release(trigBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, exponentValue, decayAudioResult.ptr, trigAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, exponentValue, decayAudioPtr, trigAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 6: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[259].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -414,8 +404,8 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_scalar_decay_audio_exponent_audio_trig_scalar = changetype<Ad_default_attack_scalar_decay_audio_exponent_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-      const exponentAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, exponentTagged, procLen)
+      const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+      const exponentAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, exponentTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -427,7 +417,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const decaySrc: usize = decayAudioResult.ptr
+        const decaySrc: usize = decayAudioPtr
         const decayBuf: Float32Array = vm.arena.get(baseProcLen)
         const decayPtr: usize = decayBuf.dataStart
         downsample(vm, decaySrc, decayPtr, baseLen, osFactor)
@@ -437,7 +427,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(decayPtr + (usize(k) << 2), last)
           }
         }
-        const exponentSrc: usize = exponentAudioResult.ptr
+        const exponentSrc: usize = exponentAudioPtr
         const exponentBuf: Float32Array = vm.arena.get(baseProcLen)
         const exponentPtr: usize = exponentBuf.dataStart
         downsample(vm, exponentSrc, exponentPtr, baseLen, osFactor)
@@ -453,21 +443,17 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(decayBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
         vm.arena.release(exponentBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, trigValue, decayAudioResult.ptr, exponentAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, trigValue, decayAudioPtr, exponentAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 14: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[260].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -478,9 +464,9 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_scalar_decay_audio_exponent_audio_trig_audio = changetype<Ad_default_attack_scalar_decay_audio_exponent_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-      const exponentAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, exponentTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+      const exponentAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, exponentTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -492,7 +478,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const decaySrc: usize = decayAudioResult.ptr
+        const decaySrc: usize = decayAudioPtr
         const decayBuf: Float32Array = vm.arena.get(baseProcLen)
         const decayPtr: usize = decayBuf.dataStart
         downsample(vm, decaySrc, decayPtr, baseLen, osFactor)
@@ -502,7 +488,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(decayPtr + (usize(k) << 2), last)
           }
         }
-        const exponentSrc: usize = exponentAudioResult.ptr
+        const exponentSrc: usize = exponentAudioPtr
         const exponentBuf: Float32Array = vm.arena.get(baseProcLen)
         const exponentPtr: usize = exponentBuf.dataStart
         downsample(vm, exponentSrc, exponentPtr, baseLen, osFactor)
@@ -512,7 +498,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(exponentPtr + (usize(k) << 2), last)
           }
         }
-        const trigSrc: usize = trigAudioResult.ptr
+        const trigSrc: usize = trigAudioPtr
         const trigBuf: Float32Array = vm.arena.get(baseProcLen)
         const trigPtr: usize = trigBuf.dataStart
         downsample(vm, trigSrc, trigPtr, baseLen, osFactor)
@@ -528,25 +514,18 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(decayBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
         vm.arena.release(exponentBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
         vm.arena.release(trigBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, decayAudioResult.ptr, exponentAudioResult.ptr, trigAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackValue, decayAudioPtr, exponentAudioPtr, trigAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 1: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[261].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -557,7 +536,7 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_audio_decay_scalar_exponent_scalar_trig_scalar = changetype<Ad_default_attack_audio_decay_scalar_exponent_scalar_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const attackAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, attackTagged, procLen)
+      const attackAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, attackTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -569,7 +548,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const attackSrc: usize = attackAudioResult.ptr
+        const attackSrc: usize = attackAudioPtr
         const attackBuf: Float32Array = vm.arena.get(baseProcLen)
         const attackPtr: usize = attackBuf.dataStart
         downsample(vm, attackSrc, attackPtr, baseLen, osFactor)
@@ -585,17 +564,16 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(attackBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, decayValue, exponentValue, trigValue, attackAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, decayValue, exponentValue, trigValue, attackAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 9: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[262].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -606,8 +584,8 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_audio_decay_scalar_exponent_scalar_trig_audio = changetype<Ad_default_attack_audio_decay_scalar_exponent_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const attackAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, attackTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const attackAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, attackTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -619,7 +597,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const attackSrc: usize = attackAudioResult.ptr
+        const attackSrc: usize = attackAudioPtr
         const attackBuf: Float32Array = vm.arena.get(baseProcLen)
         const attackPtr: usize = attackBuf.dataStart
         downsample(vm, attackSrc, attackPtr, baseLen, osFactor)
@@ -629,7 +607,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(attackPtr + (usize(k) << 2), last)
           }
         }
-        const trigSrc: usize = trigAudioResult.ptr
+        const trigSrc: usize = trigAudioPtr
         const trigBuf: Float32Array = vm.arena.get(baseProcLen)
         const trigPtr: usize = trigBuf.dataStart
         downsample(vm, trigSrc, trigPtr, baseLen, osFactor)
@@ -645,21 +623,17 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(attackBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
         vm.arena.release(trigBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, decayValue, exponentValue, attackAudioResult.ptr, trigAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, decayValue, exponentValue, attackAudioPtr, trigAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 5: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[263].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -670,8 +644,8 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_audio_decay_scalar_exponent_audio_trig_scalar = changetype<Ad_default_attack_audio_decay_scalar_exponent_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const attackAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, attackTagged, procLen)
-      const exponentAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, exponentTagged, procLen)
+      const attackAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, attackTagged, procLen)
+      const exponentAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, exponentTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -683,7 +657,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const attackSrc: usize = attackAudioResult.ptr
+        const attackSrc: usize = attackAudioPtr
         const attackBuf: Float32Array = vm.arena.get(baseProcLen)
         const attackPtr: usize = attackBuf.dataStart
         downsample(vm, attackSrc, attackPtr, baseLen, osFactor)
@@ -693,7 +667,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(attackPtr + (usize(k) << 2), last)
           }
         }
-        const exponentSrc: usize = exponentAudioResult.ptr
+        const exponentSrc: usize = exponentAudioPtr
         const exponentBuf: Float32Array = vm.arena.get(baseProcLen)
         const exponentPtr: usize = exponentBuf.dataStart
         downsample(vm, exponentSrc, exponentPtr, baseLen, osFactor)
@@ -709,21 +683,17 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(attackBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
         vm.arena.release(exponentBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, decayValue, trigValue, attackAudioResult.ptr, exponentAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, decayValue, trigValue, attackAudioPtr, exponentAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 13: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[264].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -734,9 +704,9 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_audio_decay_scalar_exponent_audio_trig_audio = changetype<Ad_default_attack_audio_decay_scalar_exponent_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const attackAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, attackTagged, procLen)
-      const exponentAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, exponentTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const attackAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, attackTagged, procLen)
+      const exponentAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, exponentTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -748,7 +718,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const attackSrc: usize = attackAudioResult.ptr
+        const attackSrc: usize = attackAudioPtr
         const attackBuf: Float32Array = vm.arena.get(baseProcLen)
         const attackPtr: usize = attackBuf.dataStart
         downsample(vm, attackSrc, attackPtr, baseLen, osFactor)
@@ -758,7 +728,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(attackPtr + (usize(k) << 2), last)
           }
         }
-        const exponentSrc: usize = exponentAudioResult.ptr
+        const exponentSrc: usize = exponentAudioPtr
         const exponentBuf: Float32Array = vm.arena.get(baseProcLen)
         const exponentPtr: usize = exponentBuf.dataStart
         downsample(vm, exponentSrc, exponentPtr, baseLen, osFactor)
@@ -768,7 +738,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(exponentPtr + (usize(k) << 2), last)
           }
         }
-        const trigSrc: usize = trigAudioResult.ptr
+        const trigSrc: usize = trigAudioPtr
         const trigBuf: Float32Array = vm.arena.get(baseProcLen)
         const trigPtr: usize = trigBuf.dataStart
         downsample(vm, trigSrc, trigPtr, baseLen, osFactor)
@@ -784,25 +754,18 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(attackBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
         vm.arena.release(exponentBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
         vm.arena.release(trigBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, decayValue, attackAudioResult.ptr, exponentAudioResult.ptr, trigAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, decayValue, attackAudioPtr, exponentAudioPtr, trigAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 3: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[265].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -813,8 +776,8 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_audio_decay_audio_exponent_scalar_trig_scalar = changetype<Ad_default_attack_audio_decay_audio_exponent_scalar_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const attackAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, attackTagged, procLen)
-      const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
+      const attackAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, attackTagged, procLen)
+      const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -826,7 +789,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const attackSrc: usize = attackAudioResult.ptr
+        const attackSrc: usize = attackAudioPtr
         const attackBuf: Float32Array = vm.arena.get(baseProcLen)
         const attackPtr: usize = attackBuf.dataStart
         downsample(vm, attackSrc, attackPtr, baseLen, osFactor)
@@ -836,7 +799,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(attackPtr + (usize(k) << 2), last)
           }
         }
-        const decaySrc: usize = decayAudioResult.ptr
+        const decaySrc: usize = decayAudioPtr
         const decayBuf: Float32Array = vm.arena.get(baseProcLen)
         const decayPtr: usize = decayBuf.dataStart
         downsample(vm, decaySrc, decayPtr, baseLen, osFactor)
@@ -852,21 +815,17 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(attackBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
         vm.arena.release(decayBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, exponentValue, trigValue, attackAudioResult.ptr, decayAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, exponentValue, trigValue, attackAudioPtr, decayAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 11: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[266].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -877,9 +836,9 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_audio_decay_audio_exponent_scalar_trig_audio = changetype<Ad_default_attack_audio_decay_audio_exponent_scalar_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const attackAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, attackTagged, procLen)
-      const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const attackAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, attackTagged, procLen)
+      const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -891,7 +850,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const attackSrc: usize = attackAudioResult.ptr
+        const attackSrc: usize = attackAudioPtr
         const attackBuf: Float32Array = vm.arena.get(baseProcLen)
         const attackPtr: usize = attackBuf.dataStart
         downsample(vm, attackSrc, attackPtr, baseLen, osFactor)
@@ -901,7 +860,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(attackPtr + (usize(k) << 2), last)
           }
         }
-        const decaySrc: usize = decayAudioResult.ptr
+        const decaySrc: usize = decayAudioPtr
         const decayBuf: Float32Array = vm.arena.get(baseProcLen)
         const decayPtr: usize = decayBuf.dataStart
         downsample(vm, decaySrc, decayPtr, baseLen, osFactor)
@@ -911,7 +870,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(decayPtr + (usize(k) << 2), last)
           }
         }
-        const trigSrc: usize = trigAudioResult.ptr
+        const trigSrc: usize = trigAudioPtr
         const trigBuf: Float32Array = vm.arena.get(baseProcLen)
         const trigPtr: usize = trigBuf.dataStart
         downsample(vm, trigSrc, trigPtr, baseLen, osFactor)
@@ -927,25 +886,18 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(attackBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
         vm.arena.release(decayBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
         vm.arena.release(trigBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, exponentValue, attackAudioResult.ptr, decayAudioResult.ptr, trigAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, exponentValue, attackAudioPtr, decayAudioPtr, trigAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 7: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[267].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -956,9 +908,9 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_audio_decay_audio_exponent_audio_trig_scalar = changetype<Ad_default_attack_audio_decay_audio_exponent_audio_trig_scalar>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const attackAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, attackTagged, procLen)
-      const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-      const exponentAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, exponentTagged, procLen)
+      const attackAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, attackTagged, procLen)
+      const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+      const exponentAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, exponentTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -970,7 +922,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const attackSrc: usize = attackAudioResult.ptr
+        const attackSrc: usize = attackAudioPtr
         const attackBuf: Float32Array = vm.arena.get(baseProcLen)
         const attackPtr: usize = attackBuf.dataStart
         downsample(vm, attackSrc, attackPtr, baseLen, osFactor)
@@ -980,7 +932,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(attackPtr + (usize(k) << 2), last)
           }
         }
-        const decaySrc: usize = decayAudioResult.ptr
+        const decaySrc: usize = decayAudioPtr
         const decayBuf: Float32Array = vm.arena.get(baseProcLen)
         const decayPtr: usize = decayBuf.dataStart
         downsample(vm, decaySrc, decayPtr, baseLen, osFactor)
@@ -990,7 +942,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(decayPtr + (usize(k) << 2), last)
           }
         }
-        const exponentSrc: usize = exponentAudioResult.ptr
+        const exponentSrc: usize = exponentAudioPtr
         const exponentBuf: Float32Array = vm.arena.get(baseProcLen)
         const exponentPtr: usize = exponentBuf.dataStart
         downsample(vm, exponentSrc, exponentPtr, baseLen, osFactor)
@@ -1006,25 +958,18 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(attackBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
         vm.arena.release(decayBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
         vm.arena.release(exponentBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, trigValue, attackAudioResult.ptr, decayAudioResult.ptr, exponentAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, trigValue, attackAudioPtr, decayAudioPtr, exponentAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     case 15: {
+      const tempScopeMark: i32 = vm.beginTempAudioScope()
       const slot: GenSlot = vm.genPools[268].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1035,10 +980,10 @@ case AudioVmOp.GenAd_default: {
       const instance: Ad_default_attack_audio_decay_audio_exponent_audio_trig_audio = changetype<Ad_default_attack_audio_decay_audio_exponent_audio_trig_audio>(slot.instance)
       vm.paramScratch[4] = instance.stage
       vm.paramScratch[5] = instance.env
-      const attackAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, attackTagged, procLen)
-      const decayAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, decayTagged, procLen)
-      const exponentAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, exponentTagged, procLen)
-      const trigAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, trigTagged, procLen)
+      const attackAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, attackTagged, procLen)
+      const decayAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, decayTagged, procLen)
+      const exponentAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, exponentTagged, procLen)
+      const trigAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, trigTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -1050,7 +995,7 @@ case AudioVmOp.GenAd_default: {
         const baseOut: Float32Array = vm.arena.get(baseProcLen)
         const baseOutPtr: usize = baseOut.dataStart
         let baseInputPtr: usize = inputPtr
-        const attackSrc: usize = attackAudioResult.ptr
+        const attackSrc: usize = attackAudioPtr
         const attackBuf: Float32Array = vm.arena.get(baseProcLen)
         const attackPtr: usize = attackBuf.dataStart
         downsample(vm, attackSrc, attackPtr, baseLen, osFactor)
@@ -1060,7 +1005,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(attackPtr + (usize(k) << 2), last)
           }
         }
-        const decaySrc: usize = decayAudioResult.ptr
+        const decaySrc: usize = decayAudioPtr
         const decayBuf: Float32Array = vm.arena.get(baseProcLen)
         const decayPtr: usize = decayBuf.dataStart
         downsample(vm, decaySrc, decayPtr, baseLen, osFactor)
@@ -1070,7 +1015,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(decayPtr + (usize(k) << 2), last)
           }
         }
-        const exponentSrc: usize = exponentAudioResult.ptr
+        const exponentSrc: usize = exponentAudioPtr
         const exponentBuf: Float32Array = vm.arena.get(baseProcLen)
         const exponentPtr: usize = exponentBuf.dataStart
         downsample(vm, exponentSrc, exponentPtr, baseLen, osFactor)
@@ -1080,7 +1025,7 @@ case AudioVmOp.GenAd_default: {
             store<f32>(exponentPtr + (usize(k) << 2), last)
           }
         }
-        const trigSrc: usize = trigAudioResult.ptr
+        const trigSrc: usize = trigAudioPtr
         const trigBuf: Float32Array = vm.arena.get(baseProcLen)
         const trigPtr: usize = trigBuf.dataStart
         downsample(vm, trigSrc, trigPtr, baseLen, osFactor)
@@ -1096,26 +1041,15 @@ case AudioVmOp.GenAd_default: {
         genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, genOpHelpers.alignedProcLength(params.bufferLength))
         vm.arena.release(baseOut)
         vm.arena.release(attackBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
         vm.arena.release(decayBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
         vm.arena.release(exponentBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
         vm.arena.release(trigBuf)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
       } else {
         slot.history.write(params.sampleCount, vm.paramScratch)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackAudioResult.ptr, decayAudioResult.ptr, exponentAudioResult.ptr, trigAudioResult.ptr)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputPtr, outputPtr, attackAudioPtr, decayAudioPtr, exponentAudioPtr, trigAudioPtr)
       }
       genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, attackAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, decayAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, exponentAudioResult)
-      genOpHelpers.releaseTaggedAudioParamResult(vm, trigAudioResult)
+      vm.endTempAudioScope(tempScopeMark)
       break
     }
     default: {

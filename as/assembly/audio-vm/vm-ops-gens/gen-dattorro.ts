@@ -121,12 +121,9 @@ case AudioVmOp.GenDattorro_default: {
         const inputRightTagged: f64 = inputArr[1]
         const inputLeftResolved: f64 = vmOpsVars.resolveCellRef(vm, inputLeftTagged)
         const inputRightResolved: f64 = vmOpsVars.resolveCellRef(vm, inputRightTagged)
-        const leftResult = genOpHelpers.taggedToInputBuffer(vm, inputLeftResolved, params.bufferLength)
-        const inputLeftPtr: usize = leftResult.ptr
-        const inputLeftBuf: Float32Array = leftResult.buf
-        const rightResult = genOpHelpers.taggedToInputBuffer(vm, inputRightResolved, params.bufferLength)
-        const inputRightPtr: usize = rightResult.ptr
-        const inputRightBuf: Float32Array = rightResult.buf
+        const stereoTempScopeMark: i32 = vm.beginTempAudioScope()
+        const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, params.bufferLength)
+        const inputRightPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, params.bufferLength)
         switch (modeMask) {
           case 0: {
             const slot: GenSlot = vm.genPools[596].get()
@@ -173,6 +170,7 @@ case AudioVmOp.GenDattorro_default: {
             break
           }
           case 4: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[597].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -188,8 +186,8 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, bandwidthAudioResult.ptr)
+            const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, bandwidthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -215,10 +213,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 2: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[598].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -234,8 +233,8 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -261,10 +260,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 6: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[599].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -280,9 +280,9 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioResult.ptr, bandwidthAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioPtr, bandwidthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -308,11 +308,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 1: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[600].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -328,8 +328,8 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -355,10 +355,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 5: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[601].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -374,9 +375,9 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr, bandwidthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr, bandwidthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -402,11 +403,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 3: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[602].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -422,9 +423,9 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr, dampingAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -450,11 +451,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 7: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[603].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -470,10 +471,10 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr, dampingAudioResult.ptr, bandwidthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr, dampingAudioPtr, bandwidthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -499,22 +500,17 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
         }
-        genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
-        genOpHelpers.releaseTaggedInputResult(vm, inputRightPtr, inputRightBuf)
+        vm.endTempAudioScope(stereoTempScopeMark)
         heap.releaseValue(vm, inputResolved)
       } else {
         const monoInputFromArr: f64 = inputArrLen > 0 ? inputArr[0] : encodeScalar(0.0)
-        const monoInputResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, params.bufferLength)
-        const inputLeftPtr: usize = monoInputResult.ptr
-        const inputRightPtr: usize = monoInputResult.ptr
-        const inputLeftBuf: Float32Array = monoInputResult.buf
-        const inputRightBuf: Float32Array = monoInputResult.buf
+        const monoStereoTempScopeMark: i32 = vm.beginTempAudioScope()
+        const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(vm, monoInputFromArr, params.bufferLength)
+        const inputRightPtr: usize = inputLeftPtr
         switch (modeMask) {
           case 0: {
             const slot: GenSlot = vm.genPools[596].get()
@@ -561,6 +557,7 @@ case AudioVmOp.GenDattorro_default: {
             break
           }
           case 4: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[597].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -576,8 +573,8 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, bandwidthAudioResult.ptr)
+            const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, bandwidthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -603,10 +600,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 2: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[598].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -622,8 +620,8 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -649,10 +647,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 6: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[599].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -668,9 +667,9 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioResult.ptr, bandwidthAudioResult.ptr)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioPtr, bandwidthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -696,11 +695,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 1: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[600].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -716,8 +715,8 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -743,10 +742,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 5: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[601].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -762,9 +762,9 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr, bandwidthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr, bandwidthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -790,11 +790,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 3: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[602].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -810,9 +810,9 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr, dampingAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr, dampingAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -838,11 +838,11 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
           case 7: {
+            const tempScopeMark: i32 = vm.beginTempAudioScope()
             const slot: GenSlot = vm.genPools[603].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -858,10 +858,10 @@ case AudioVmOp.GenDattorro_default: {
             const outputRightPtr: usize = outputR.dataStart
             const instance: Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
             slot.history.write(params.sampleCount, vm.paramScratch)
-            const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-            const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-            const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr, dampingAudioResult.ptr, bandwidthAudioResult.ptr)
+            const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+            const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+            const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+            instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr, dampingAudioPtr, bandwidthAudioPtr)
             if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
               memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
               memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -887,22 +887,18 @@ case AudioVmOp.GenDattorro_default: {
             vm.arrayLengths.push(2)
             vm.arrayRefcounts.push(0)
             push(vm, encodeArray(u32(vm.arrays.length)))
-            genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-            genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+            vm.endTempAudioScope(tempScopeMark)
             break
           }
         }
-        genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
+        vm.endTempAudioScope(monoStereoTempScopeMark)
         if (isAudio(monoInputFromArr)) vm.arena.releaseByPtr(u32(decodeAudio(monoInputFromArr)))
       }
     }
   } else {
-    const monoInputResult = genOpHelpers.taggedToInputBuffer(vm, inputResolved, params.bufferLength)
-    const inputLeftPtr: usize = monoInputResult.ptr
-    const inputRightPtr: usize = monoInputResult.ptr
-    const inputLeftBuf: Float32Array = monoInputResult.buf
-    const inputRightBuf: Float32Array = monoInputResult.buf
+    const monoStereoTempScopeMark: i32 = vm.beginTempAudioScope()
+    const inputLeftPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, params.bufferLength)
+    const inputRightPtr: usize = inputLeftPtr
     switch (modeMask) {
       case 0: {
         const slot: GenSlot = vm.genPools[596].get()
@@ -949,6 +945,7 @@ case AudioVmOp.GenDattorro_default: {
         break
       }
       case 4: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[597].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -964,8 +961,8 @@ case AudioVmOp.GenDattorro_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, bandwidthAudioResult.ptr)
+        const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, bandwidthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -991,10 +988,11 @@ case AudioVmOp.GenDattorro_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 2: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[598].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1010,8 +1008,8 @@ case AudioVmOp.GenDattorro_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioResult.ptr)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1037,10 +1035,11 @@ case AudioVmOp.GenDattorro_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 6: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[599].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1056,9 +1055,9 @@ case AudioVmOp.GenDattorro_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioResult.ptr, bandwidthAudioResult.ptr)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, roomValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, dampingAudioPtr, bandwidthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1084,11 +1083,11 @@ case AudioVmOp.GenDattorro_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 1: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[600].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1104,8 +1103,8 @@ case AudioVmOp.GenDattorro_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1131,10 +1130,11 @@ case AudioVmOp.GenDattorro_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 5: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[601].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1150,9 +1150,9 @@ case AudioVmOp.GenDattorro_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr, bandwidthAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, dampingValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr, bandwidthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1178,11 +1178,11 @@ case AudioVmOp.GenDattorro_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 3: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[602].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1198,9 +1198,9 @@ case AudioVmOp.GenDattorro_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr, dampingAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, bandwidthValue, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr, dampingAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1226,11 +1226,11 @@ case AudioVmOp.GenDattorro_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
       case 7: {
+        const tempScopeMark: i32 = vm.beginTempAudioScope()
         const slot: GenSlot = vm.genPools[603].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
@@ -1246,10 +1246,10 @@ case AudioVmOp.GenDattorro_default: {
         const outputRightPtr: usize = outputR.dataStart
         const instance: Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo = changetype<Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(slot.instance)
         slot.history.write(params.sampleCount, vm.paramScratch)
-        const roomAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, roomTagged, procLen)
-        const dampingAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, dampingTagged, procLen)
-        const bandwidthAudioResult = genOpHelpers.taggedToAudioParamBuffer(vm, bandwidthTagged, procLen)
-        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioResult.ptr, dampingAudioResult.ptr, bandwidthAudioResult.ptr)
+        const roomAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, roomTagged, procLen)
+        const dampingAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, dampingTagged, procLen)
+        const bandwidthAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, bandwidthTagged, procLen)
+        instance.process(params.bufferLength, params.sampleCount, params.sampleRate, params.nyquist, params.piOverNyquist, vm.currentBpm, vm.co, vm.samplesPerBeat, vm.samplesPerBar, inputLeftPtr, inputRightPtr, outputLeftPtr, outputRightPtr, indiff1Value, indiff2Value, decdiff1Value, decdiff2Value, excrateValue, excdepthValue, predelayValue, roomAudioPtr, dampingAudioPtr, bandwidthAudioPtr)
         if (params.bufferLength <= WAVEFORM_CHUNK_SAMPLES) {
           memory.copy(outputLeftRingPtr, outputLeftPtr, usize(params.bufferLength) << 2)
           memory.copy(outputRightRingPtr, outputRightPtr, usize(params.bufferLength) << 2)
@@ -1275,13 +1275,11 @@ case AudioVmOp.GenDattorro_default: {
         vm.arrayLengths.push(2)
         vm.arrayRefcounts.push(0)
         push(vm, encodeArray(u32(vm.arrays.length)))
-        genOpHelpers.releaseTaggedAudioParamResult(vm, roomAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, dampingAudioResult)
-        genOpHelpers.releaseTaggedAudioParamResult(vm, bandwidthAudioResult)
+        vm.endTempAudioScope(tempScopeMark)
         break
       }
     }
-    genOpHelpers.releaseTaggedInputResult(vm, inputLeftPtr, inputLeftBuf)
+    vm.endTempAudioScope(monoStereoTempScopeMark)
     if (isAudio(inputTagged)) vm.arena.releaseByPtr(u32(decodeAudio(inputTagged)))
     if (vm.absolutePCCallStackTop > 0) vm.absolutePCCallStackTop--
     return pc

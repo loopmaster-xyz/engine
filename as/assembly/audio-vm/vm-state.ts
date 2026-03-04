@@ -84,6 +84,8 @@ export class VmState {
   outputBufferLength: i32
   oversampleScratchA!: Float32Array
   oversampleScratchB!: Float32Array
+  perfCounters!: Uint32Array
+  perfCountersEnabled: bool
   osUpMode: i32
   osDownMode: i32
   tableGenPoolIndex: i32
@@ -96,6 +98,7 @@ export class VmState {
   work!: FastArray<i32>
   pendingReleaseAudio!: FastSetU32
   upsampleCache!: FastMapU32U32
+  tempAudioPtrs!: FastArray<u32>
   nextBufferHandle: i32
   bufferRegistry!: HashTable<BufferEntry>
   stepRegistry!: HashTable<StepEntry>
@@ -194,6 +197,7 @@ export class VmState {
     this.work = new FastArray<i32>(16, this.arrayBufferPoolI32)
     this.pendingReleaseAudio = new FastSetU32(16, this.arrayBufferPoolU32)
     this.upsampleCache = new FastMapU32U32(16, this.arrayBufferPoolU32)
+    this.tempAudioPtrs = new FastArray<u32>(32, this.arrayBufferPoolU32)
     this.nextBufferHandle = 0
     this.bufferRegistry = new HashTable<BufferEntry>(
       4,
@@ -237,6 +241,8 @@ export class VmState {
 
     this.info = new Uint32Array(AUDIO_VM_INFO_STRIDE)
     this.paramScratch = new Float32Array(MAX_PARAM_COUNT)
+    this.perfCounters = new Uint32Array(16)
+    this.perfCountersEnabled = false
     this.absolutePCCallStack = new Int32Array(8)
     this.arena = new AudioBufferArena(
       this.audioBufferPtrUint8Arena,
@@ -312,6 +318,7 @@ export class VmState {
     this.outputBufferLength = 0
     this.work.clear()
     this.pendingReleaseAudio.clear()
+    this.tempAudioPtrs.clear()
     this.nextBufferHandle = 0
     const bufferIds: FastArray<i32> = this.bufferRegistry.keys()
     for (let i: i32 = 0; i < bufferIds.length; i++) {
@@ -323,6 +330,8 @@ export class VmState {
       this.stepEntryPool.release(this.stepRegistry.get(stepIds.get(i)))
     }
     this.stepRegistry.clear()
+    this.perfCounters.fill(0)
+    this.perfCountersEnabled = false
   }
 
   // @inline
@@ -345,6 +354,39 @@ export class VmState {
     if (required <= 0) required = 1
     this.oversampleScratchB = this.ensureScratchLength(required, this.oversampleScratchB)
     return this.oversampleScratchB
+  }
+
+  // @inline
+  beginTempAudioScope(): i32 {
+    return this.tempAudioPtrs.length
+  }
+
+  // @inline
+  trackTempAudioPtr(ptr: u32): void {
+    if (ptr == 0) return
+    this.tempAudioPtrs.push(ptr)
+    if (this.perfCountersEnabled) this.perfCounters[2]++
+  }
+
+  // @inline
+  endTempAudioScope(mark: i32): void {
+    let target: i32 = mark
+    if (target < 0) target = 0
+    if (target > this.tempAudioPtrs.length) target = this.tempAudioPtrs.length
+    for (let i: i32 = this.tempAudioPtrs.length - 1; i >= target; i--) {
+      this.arena.releaseByPtr(this.tempAudioPtrs.get(i))
+      if (this.perfCountersEnabled) this.perfCounters[3]++
+    }
+    this.tempAudioPtrs.length = target
+  }
+
+  resetPerfCounters(): void {
+    this.perfCounters.fill(0)
+  }
+
+  // @inline
+  setPerfCountersEnabled(enabled: bool): void {
+    this.perfCountersEnabled = enabled
   }
 
   resetArenaPoolCounters(): void {

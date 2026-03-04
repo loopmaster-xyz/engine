@@ -46,7 +46,7 @@ export function handleTableLookup(
       // Fix #2: release the arena buffer backing the popped audio index directly,
       // rather than calling releaseStackRange with an already-adjusted stackTop.
       heap.releaseValue(vm, indexTagged)
-      vmStack.push(vm, encodeAudio(outPtr))
+      vmStack.push(vm, encodeAudio(outPtr), true)
     }
     else {
       vmStack.push(vm, encodeUndefined())
@@ -85,7 +85,7 @@ export function handleTableLookup(
     vm.genPools[vm.tableGenPoolIndex].get().history.write(params.sampleCount, vm.paramScratch)
     // Fix #2: same as above — release the index buffer directly.
     heap.releaseValue(vm, indexTagged)
-    vmStack.push(vm, encodeAudio(outPtr))
+    vmStack.push(vm, encodeAudio(outPtr), true)
   }
   else {
     vmStack.push(vm, encodeUndefined())

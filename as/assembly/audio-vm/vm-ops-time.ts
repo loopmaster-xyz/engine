@@ -29,6 +29,6 @@ export function handleTime(
 ): RunResult {
   const output: Float32Array = vm.arena.get(params.bufferLength)
   util.writeTimeBuffer(output.dataStart, params.bufferLength, params.sampleCount, vm.samplesPerBeat)
-  vmStack.push(vm, encodeAudio(output.dataStart))
+  vmStack.push(vm, encodeAudio(output.dataStart), true)
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }

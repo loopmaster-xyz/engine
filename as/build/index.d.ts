@@ -76,6 +76,23 @@ export declare function getAudioVmInfoAt(vmId: number): number;
  */
 export declare function getAudioVmArenaInfoAt(vmId: number): number;
 /**
+ * as/assembly/index/getAudioVmPerfCountersAt
+ * @param vmId `i32`
+ * @returns `usize`
+ */
+export declare function getAudioVmPerfCountersAt(vmId: number): number;
+/**
+ * as/assembly/index/resetAudioVmPerfCountersAt
+ * @param vmId `i32`
+ */
+export declare function resetAudioVmPerfCountersAt(vmId: number): void;
+/**
+ * as/assembly/index/setAudioVmPerfCountersEnabledAt
+ * @param vmId `i32`
+ * @param enabled `bool`
+ */
+export declare function setAudioVmPerfCountersEnabledAt(vmId: number, enabled: boolean): void;
+/**
  * as/assembly/index/releaseAudioVmOutputsAt
  * @param vmId `i32`
  */
