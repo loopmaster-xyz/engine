@@ -115,6 +115,12 @@ export async function createDsp(state: DspState) {
     })
   }
 
+  function setSyncChanges(enabled: boolean) {
+    return control(async () => {
+      await core.worklet.setSyncChanges({ enabled })
+    })
+  }
+
   function createProgram(): Promise<DspProgram> {
     return control(async () => {
       const historyMetaBuffers: [SharedArrayBuffer, SharedArrayBuffer] = [
@@ -210,6 +216,7 @@ export async function createDsp(state: DspState) {
     seekPrograms,
     setProgramGain,
     bpmOverride,
+    setSyncChanges,
 
     createProgram,
     playProgram,

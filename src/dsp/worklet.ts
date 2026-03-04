@@ -43,6 +43,20 @@ type LimiterState = {
   thresholdLinear: number
 }
 
+type PendingSyncedControlOps =
+  | {
+    mode: 'set'
+    ops: Float32Array
+    targetBar: number
+  }
+  | {
+    mode: 'swap'
+    ops: Float32Array
+    targetBar: number
+    fadeSamples?: number
+    resetState?: boolean
+  }
+
 function createProgramRuntime(opts: {
   vmIds: [number, number]
   vms: [AudioVm, AudioVm]
@@ -174,6 +188,7 @@ function applyTransportSeek(
 ): void {
   state.transportSeekVersion = state.transportSeekVersion + 1
   state.transportSampleCount = newSampleCount
+  state.playbackSampleClock = newSampleCount
 }
 
 function applyProgramSeek(
@@ -276,6 +291,7 @@ export async function createProcessorState(
   const programsById = new Map<number, ProgramRuntime>()
   const runtime = createWasmRuntime(core)
   const sampleCountRef = { value: 0 }
+  const playbackSampleClockRef = { value: 0 }
   const bpmRef = { value: 120.0 }
   const bpmOverrideValueRef = { value: 0 }
   const quantumRef = { value: 128 }
@@ -366,6 +382,92 @@ export async function createProcessorState(
     state.currentGain = currentGain
   }
 
+  function getBarSamples(bpm: number): number {
+    if (bpm <= 0) return 0
+    return sampleRate * 60 * 4 / bpm
+  }
+
+  function getSwapFadeSamples(fadeSamples?: number): number {
+    return Math.max(0, Math.round(fadeSamples ?? PROGRAM_SWAP_FADE_SAMPLES))
+      || PROGRAM_SWAP_FADE_SAMPLES
+  }
+
+  function shouldApplyPendingSyncedControlOps(
+    pending: PendingSyncedControlOps,
+    barSamples: number,
+    playbackSampleClock: number,
+    quantumSamples: number,
+  ): boolean {
+    if (barSamples <= 0) return true
+    const boundarySample = pending.targetBar * barSamples
+    if (pending.mode === 'set') return playbackSampleClock >= boundarySample
+    const swapStartSample = Math.max(0, boundarySample - getSwapFadeSamples(pending.fadeSamples))
+    return playbackSampleClock + quantumSamples >= swapStartSample
+  }
+
+  function applyControlOps(p: ProgramRuntime, slot: 0 | 1, ops: Float32Array): void {
+    const target = p.slots[slot]
+    const max = target.vm.controlOpsCapacity >>> 0
+    const len = Math.min(ops.length, max)
+    const nextPtr = target.localControlOpsActive === 0 ? target.vm.localControlOpsPtr1 : target.vm.localControlOpsPtr0
+    const nextOps = new Float32Array(runtime.buffer, nextPtr, max)
+    if (len > 0) nextOps.set(ops.subarray(0, len))
+    target.controlOpsLength = len
+    target.localControlOpsActive = target.localControlOpsActive === 0 ? 1 : 0
+    if (!bpmOverrideValueRef.value && len > 0) {
+      const nextBpm = scanSetBpm(nextOps, len)
+      if (nextBpm && nextBpm !== bpmRef.value) {
+        bpmRef.value = nextBpm
+        for (const other of programsById.values()) other.bpm = nextBpm
+      }
+    }
+  }
+
+  function applyControlOpsSwap(
+    p: ProgramRuntime,
+    opts: { ops: Float32Array; fadeSamples?: number; resetState?: boolean; transportPlaying: boolean },
+  ): void {
+    const from = p.activeSlot
+    const to = (from ^ 1) as 0 | 1
+    if (opts.resetState) {
+      p.slots[to].vm.reset()
+      clearProgramHistoryMeta(p)
+    }
+    else {
+      runtime.copyAudioVmState(p.slots[from].vm.id, p.slots[to].vm.id)
+    }
+    applyControlOps(p, to, opts.ops)
+    if (opts.transportPlaying) {
+      const fadeSamples = getSwapFadeSamples(opts.fadeSamples)
+      p.swapFadeFrom = from
+      p.swapFadeTo = to
+      p.swapFadeRemaining = fadeSamples
+      p.swapFadeTotal = fadeSamples
+      p.activeSlot = to
+      return
+    }
+    p.swapFadeRemaining = 0
+    p.swapFadeTotal = 0
+    p.activeSlot = to
+  }
+
+  function applyPendingSyncedControlOps(
+    p: ProgramRuntime,
+    pending: PendingSyncedControlOps,
+    transportPlaying: boolean,
+  ): void {
+    if (pending.mode === 'set') {
+      applyControlOps(p, p.activeSlot, pending.ops)
+      return
+    }
+    applyControlOpsSwap(p, {
+      ops: pending.ops,
+      fadeSamples: pending.fadeSamples,
+      resetState: pending.resetState,
+      transportPlaying,
+    })
+  }
+
   function processBuffer(outputs: Float32Array[][], dsp: Dsp | null): boolean {
     const bufferLength = outputs[0]?.[0]?.length ?? 0
     const outputL = outputs[0]?.[0]
@@ -398,6 +500,7 @@ export async function createProcessorState(
       Atomics.store(transportU32, SharedTransportIndex.Running, SharedTransportRunningState.Stop)
       Atomics.store(transportU32, SharedTransportIndex.ActuallyPlaying, SharedTransportRunningState.Stop)
       applyTransportSeek(state, 0)
+      state.flushPendingSyncedControlOps(false)
       setProgramsState(programsById, DspProgramState.Stop, stopAndSeekIds)
       applyProgramSeek(programsById, 0, stopAndSeekIds)
       state.scheduleStopAndSeekToZero = []
@@ -427,11 +530,13 @@ export async function createProcessorState(
     if (seekVersion !== Atomics.load(transportU32, SharedTransportIndex.SeekVersion)) {
       Atomics.store(transportU32, SharedTransportIndex.SeekVersion, seekVersion)
       sampleCountRef.value = next
+      playbackSampleClockRef.value = next
       for (const p of programsById.values()) p.sampleCount = next
     }
     const transportRunning = Atomics.load(transportU32, SharedTransportIndex.Running)
     const running = transportRunning === SharedTransportRunningState.Start
     if (!running && !scheduleProgramsSeekChunks) {
+      state.flushPendingSyncedControlOps(false)
       Atomics.store(transportU32, SharedTransportIndex.ActuallyPlaying, transportRunning)
       transportF32[SharedTransportIndex.SampleCount] = sampleCountRef.value
       if (wasPlaying) {
@@ -450,6 +555,7 @@ export async function createProcessorState(
     const advanceSampleCount = scheduleProgramsSeekChunks === 0
     const bpmOverrideValue = bpmOverrideValueRef.value
     const bpm = bpmRef.value
+    const barSamples = getBarSamples(bpm)
     const {
       loopBeginSamples,
       loopEndSamples,
@@ -466,6 +572,19 @@ export async function createProcessorState(
 
     try {
       for (const p of programsById.values()) {
+        if (running && state.syncChanges) {
+          const pendingSynced = state.pendingSyncedControlOps.get(p.id)
+          if (pendingSynced && shouldApplyPendingSyncedControlOps(
+            pendingSynced,
+            barSamples,
+            playbackSampleClockRef.value,
+            bufferLength,
+          )) {
+            applyPendingSyncedControlOps(p, pendingSynced, true)
+            state.pendingSyncedControlOps.delete(p.id)
+            scheduleRefresh = true
+          }
+        }
         const activeSlot = p.slots[p.activeSlot]
         if ((p.state !== DspProgramState.Start || activeSlot.controlOpsLength <= 0)
           && !scheduleProgramsSeekSet?.has(p.id))
@@ -625,6 +744,7 @@ export async function createProcessorState(
       }
     }
     sampleCountRef.value = sampleCount
+    if (running) playbackSampleClockRef.value += bufferLength
     transportF32[SharedTransportIndex.SampleCount] = sampleCount
 
     let playingSetChanged = false
@@ -673,6 +793,7 @@ export async function createProcessorState(
 
   const pendingProgramApplied = new Map<number, ReturnType<typeof Deferred<void>>>()
   const pendingProgramAppliedSlot = new Map<number, 0 | 1>()
+  const pendingSyncedControlOps = new Map<number, PendingSyncedControlOps>()
 
   const state = {
     dispose,
@@ -681,6 +802,7 @@ export async function createProcessorState(
     programsById,
     pendingProgramApplied,
     pendingProgramAppliedSlot,
+    pendingSyncedControlOps,
     nextProgramId: 0,
     nextId: 0,
     freeProgramIds: [] as number[],
@@ -693,6 +815,7 @@ export async function createProcessorState(
     programBId: -1,
 
     scheduleStopAndSeekToZero: [] as number[],
+    syncChanges: false,
 
     get transportSampleCount(): number {
       return transportF32[SharedTransportIndex.SampleCount]
@@ -761,6 +884,12 @@ export async function createProcessorState(
     set sampleCount(v: number) {
       sampleCountRef.value = v
     },
+    get playbackSampleClock(): number {
+      return playbackSampleClockRef.value
+    },
+    set playbackSampleClock(v: number) {
+      playbackSampleClockRef.value = v
+    },
     get bpm(): number {
       return bpmRef.value
     },
@@ -779,28 +908,38 @@ export async function createProcessorState(
     set bpmOverrideValue(v: number) {
       bpmOverrideValueRef.value = v
     },
+    get barSamples(): number {
+      return getBarSamples(bpmRef.value)
+    },
+    get currentBar(): number {
+      const barSamples = getBarSamples(bpmRef.value)
+      return barSamples > 0 ? Math.floor(playbackSampleClockRef.value / barSamples) : 0
+    },
     getProgramById(id: number): ProgramRuntime | null {
       return getProgramById(programsById, id)
     },
     applyControlOps(p: ProgramRuntime, slot: 0 | 1, ops: Float32Array): void {
-      const target = p.slots[slot]
-      const max = target.vm.controlOpsCapacity >>> 0
-      const len = Math.min(ops.length, max)
-      const nextPtr = target.localControlOpsActive === 0 ? target.vm.localControlOpsPtr1 : target.vm.localControlOpsPtr0
-      const nextOps = new Float32Array(runtime.buffer, nextPtr, max)
-      if (len > 0) nextOps.set(ops.subarray(0, len))
-      target.controlOpsLength = len
-      target.localControlOpsActive = target.localControlOpsActive === 0 ? 1 : 0
-      if (!bpmOverrideValueRef.value && len > 0) {
-        const nextBpm = scanSetBpm(nextOps, len)
-        if (nextBpm && nextBpm !== bpmRef.value) {
-          bpmRef.value = nextBpm
-          for (const other of programsById.values()) other.bpm = nextBpm
-        }
-      }
+      applyControlOps(p, slot, ops)
+    },
+    applyControlOpsSwap(p: ProgramRuntime, opts: {
+      ops: Float32Array
+      fadeSamples?: number
+      resetState?: boolean
+      transportPlaying: boolean
+    }): void {
+      applyControlOpsSwap(p, opts)
     },
     setProgramsState(state: DspProgramState, ids: number[]): void {
       setProgramsState(programsById, state, ids)
+    },
+    flushPendingSyncedControlOps(transportPlaying: boolean): void {
+      if (pendingSyncedControlOps.size === 0) return
+      for (const [programId, pending] of pendingSyncedControlOps) {
+        const p = programsById.get(programId)
+        if (!p) continue
+        applyPendingSyncedControlOps(p, pending, transportPlaying)
+      }
+      pendingSyncedControlOps.clear()
     },
     applyTransportSeek(sampleCount: number): void {
       applyTransportSeek(state, sampleCount)
@@ -973,12 +1112,25 @@ export class DspProcessor extends AudioWorkletProcessor {
     s.programsByVmId.delete(p.slots[0].vm.id)
     s.programsByVmId.delete(p.slots[1].vm.id)
     s.programsById.delete(p.id)
+    s.pendingProgramApplied.delete(p.id)
+    s.pendingProgramAppliedSlot.delete(p.id)
+    s.pendingSyncedControlOps.delete(p.id)
     p.dispose()
     s.freeProgramIds.push(p.slots[0].vm.id)
     s.freeProgramIds.push(p.slots[1].vm.id)
   }
 
   async setProgramSync(_opts: { programId: number; enabled: boolean; bars: number }): Promise<void> {}
+
+  async setSyncChanges(opts: { enabled: boolean }): Promise<void> {
+    const s = this.state
+    if (!s) return
+    s.syncChanges = !!opts.enabled
+    if (!s.syncChanges) {
+      const transportPlaying = s.transportRunning === SharedTransportRunningState.Start
+      s.flushPendingSyncedControlOps(transportPlaying)
+    }
+  }
 
   async getProgramShared(opts: { programId: number }) {
     const s = this.state
@@ -1000,8 +1152,16 @@ export class DspProcessor extends AudioWorkletProcessor {
     const p = s.getProgramById(opts.programId)
     if (!p) throw new Error('Program not found with id: ' + opts.programId)
 
-    s.applyControlOps(p, p.activeSlot, opts.ops)
     const transportPlaying = s.transportRunning === SharedTransportRunningState.Start
+    if (s.syncChanges && p.state === DspProgramState.Start && transportPlaying) {
+      s.pendingSyncedControlOps.set(p.id, {
+        mode: 'set',
+        ops: new Float32Array(opts.ops),
+        targetBar: s.currentBar + 1,
+      })
+      return
+    }
+    s.applyControlOps(p, p.activeSlot, opts.ops)
     if (p.state !== DspProgramState.Start || !transportPlaying) {
       return
     }
@@ -1023,32 +1183,23 @@ export class DspProcessor extends AudioWorkletProcessor {
     const p = s.getProgramById(opts.programId)
     if (!p) throw new Error('Program not found with id: ' + opts.programId)
 
-    const from = p.activeSlot
-    const to = (from ^ 1) as 0 | 1
-    if (opts.resetState) {
-      p.slots[to].vm.reset()
-      clearProgramHistoryMeta(p)
-    }
-    else {
-      s.runtime.copyAudioVmState(p.slots[from].vm.id, p.slots[to].vm.id)
-    }
-    s.applyControlOps(p, to, opts.ops)
-
     const transportPlaying = s.transportRunning === SharedTransportRunningState.Start
-    if (p.state === DspProgramState.Start && transportPlaying) {
-      const fadeSamples = Math.max(0, Math.round(opts.fadeSamples ?? PROGRAM_SWAP_FADE_SAMPLES))
-        || PROGRAM_SWAP_FADE_SAMPLES
-      p.swapFadeFrom = from
-      p.swapFadeTo = to
-      p.swapFadeRemaining = fadeSamples
-      p.swapFadeTotal = fadeSamples
-      p.activeSlot = to
+    if (s.syncChanges && p.state === DspProgramState.Start && transportPlaying) {
+      s.pendingSyncedControlOps.set(p.id, {
+        mode: 'swap',
+        ops: new Float32Array(opts.ops),
+        targetBar: s.currentBar + 1,
+        fadeSamples: opts.fadeSamples,
+        resetState: opts.resetState,
+      })
+      return
     }
-    else {
-      p.swapFadeRemaining = 0
-      p.swapFadeTotal = 0
-      p.activeSlot = to
-    }
+    s.applyControlOpsSwap(p, {
+      ops: opts.ops,
+      fadeSamples: opts.fadeSamples,
+      resetState: opts.resetState,
+      transportPlaying: p.state === DspProgramState.Start && transportPlaying,
+    })
 
     if (p.state !== DspProgramState.Start || !transportPlaying) {
       return
