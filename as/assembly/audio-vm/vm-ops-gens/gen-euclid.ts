@@ -13,52 +13,52 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Euclid(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar(), 151, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar(), 157, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio(), 152, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio(), 158, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar(), 153, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar(), 159, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio(), 154, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio(), 160, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar(), 155, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar(), 161, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio(), 156, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio(), 162, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar(), 157, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar(), 163, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio(), 158, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio(), 164, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar(), 159, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar(), 165, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio(), 160, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio(), 166, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar(), 161, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar(), 167, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio(), 162, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio(), 168, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar(), 163, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar(), 169, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio(), 164, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio(), 170, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar(), 165, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar(), 171, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio(), 166, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio(), 172, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio>(dst).reset() }))
 }
@@ -95,7 +95,7 @@ case AudioVmOp.GenEuclid_default: {
   vm.paramScratch[3] = barValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[151].get()
+      const slot: GenSlot = vm.genPools[157].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -127,7 +127,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 8: {
-      const slot: GenSlot = vm.genPools[152].get()
+      const slot: GenSlot = vm.genPools[158].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -174,7 +174,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 4: {
-      const slot: GenSlot = vm.genPools[153].get()
+      const slot: GenSlot = vm.genPools[159].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -221,7 +221,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 12: {
-      const slot: GenSlot = vm.genPools[154].get()
+      const slot: GenSlot = vm.genPools[160].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -283,7 +283,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[155].get()
+      const slot: GenSlot = vm.genPools[161].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -330,7 +330,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 10: {
-      const slot: GenSlot = vm.genPools[156].get()
+      const slot: GenSlot = vm.genPools[162].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -392,7 +392,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 6: {
-      const slot: GenSlot = vm.genPools[157].get()
+      const slot: GenSlot = vm.genPools[163].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -454,7 +454,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 14: {
-      const slot: GenSlot = vm.genPools[158].get()
+      const slot: GenSlot = vm.genPools[164].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -531,7 +531,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 1: {
-      const slot: GenSlot = vm.genPools[159].get()
+      const slot: GenSlot = vm.genPools[165].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -578,7 +578,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 9: {
-      const slot: GenSlot = vm.genPools[160].get()
+      const slot: GenSlot = vm.genPools[166].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -640,7 +640,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 5: {
-      const slot: GenSlot = vm.genPools[161].get()
+      const slot: GenSlot = vm.genPools[167].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -702,7 +702,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 13: {
-      const slot: GenSlot = vm.genPools[162].get()
+      const slot: GenSlot = vm.genPools[168].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -779,7 +779,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 3: {
-      const slot: GenSlot = vm.genPools[163].get()
+      const slot: GenSlot = vm.genPools[169].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -841,7 +841,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 11: {
-      const slot: GenSlot = vm.genPools[164].get()
+      const slot: GenSlot = vm.genPools[170].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -918,7 +918,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 7: {
-      const slot: GenSlot = vm.genPools[165].get()
+      const slot: GenSlot = vm.genPools[171].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -995,7 +995,7 @@ case AudioVmOp.GenEuclid_default: {
       break
     }
     case 15: {
-      const slot: GenSlot = vm.genPools[166].get()
+      const slot: GenSlot = vm.genPools[172].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

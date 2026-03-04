@@ -13,10 +13,10 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_White(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new White_default_seed_scalar_trig_scalar(), 10, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new White_default_seed_scalar_trig_scalar(), 16, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<White_default_seed_scalar_trig_scalar>(dst).copyFrom(changetype<White_default_seed_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<White_default_seed_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new White_default_seed_scalar_trig_audio(), 11, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new White_default_seed_scalar_trig_audio(), 17, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<White_default_seed_scalar_trig_audio>(dst).copyFrom(changetype<White_default_seed_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<White_default_seed_scalar_trig_audio>(dst).reset() }))
 }
@@ -38,7 +38,7 @@ case AudioVmOp.GenWhite_default: {
   vm.paramScratch[1] = trigValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[10].get()
+      const slot: GenSlot = vm.genPools[16].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -52,7 +52,7 @@ case AudioVmOp.GenWhite_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[11].get()
+      const slot: GenSlot = vm.genPools[17].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

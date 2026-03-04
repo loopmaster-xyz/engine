@@ -13,10 +13,10 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Gauss(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Gauss_default_seed_scalar_trig_scalar(), 37, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Gauss_default_seed_scalar_trig_scalar(), 43, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Gauss_default_seed_scalar_trig_scalar>(dst).copyFrom(changetype<Gauss_default_seed_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Gauss_default_seed_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Gauss_default_seed_scalar_trig_audio(), 38, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Gauss_default_seed_scalar_trig_audio(), 44, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Gauss_default_seed_scalar_trig_audio>(dst).copyFrom(changetype<Gauss_default_seed_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Gauss_default_seed_scalar_trig_audio>(dst).reset() }))
 }
@@ -38,7 +38,7 @@ case AudioVmOp.GenGauss_default: {
   vm.paramScratch[1] = trigValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[37].get()
+      const slot: GenSlot = vm.genPools[43].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -52,7 +52,7 @@ case AudioVmOp.GenGauss_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[38].get()
+      const slot: GenSlot = vm.genPools[44].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

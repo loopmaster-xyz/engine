@@ -15,6 +15,10 @@ describe('tram e2e', () => {
     expect(audio(`f = () -> { tram('x-x-x-x-') |> out($) }; f()`)).toMatchAudio(audio('every(1/4) |> out($)'), 48000)
   })
 
+  it('every offset is in bars', () => {
+    expect(audio('every(1/4, offset:1/8) |> out($)')).toMatchAudio(audio('at(bar:1/8, every:1/4) |> out($)'), 48000)
+  })
+
   it('subdivision', () => {
     expect(audio(`tram('[x-x-x-x-]') |> out($)`)).toMatchAudio(audio(`tram('x-x-x-x-') |> out($)`), 48000)
   })

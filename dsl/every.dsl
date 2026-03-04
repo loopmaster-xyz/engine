@@ -6,6 +6,10 @@ rate: "control"
 parameters {
   bars { default: 0.25, min: 0.0001, unit: "bars",
          description: "Number of bars per impulse" }
+  offset { default: 0, min: 0, unit: "bars",
+           description: "Start offset in bars" }
+  length { default: 1, min: 0.0001, unit: "bars",
+        description: "Bar length multiplier" }
 }
 
 fields {
@@ -19,7 +23,9 @@ emit {
 }
 
 control {
-  periodSamples = samplesPerBar * bars
+  barSamples = samplesPerBar * length
+  periodSamples = barSamples * bars
+  offsetSamples = barSamples * offset
   isLateStart = f32(sampleCount > 0 && lastPeriodIndex < 0.0)
   nextSampleCount = f32(sampleCount) + f32(bufferLength)
   if fired {
@@ -28,9 +34,9 @@ control {
 }
 
 audio {
-  periodIndex = floor(sampleCount / periodSamples)
-  prevSamplePeriodIndex = floor((sampleCount - 1.0) / periodSamples)
-  isBoundary = f32(prevSamplePeriodIndex != periodIndex)
+  periodIndex = floor((sampleCount - offsetSamples) / periodSamples)
+  prevSamplePeriodIndex = floor((sampleCount - 1.0 - offsetSamples) / periodSamples)
+  isBoundary = f32(prevSamplePeriodIndex != periodIndex && periodIndex >= 0.0)
   shouldTrigger = f32(isBoundary)
   output = shouldTrigger ? 1.0 : 0.0
   if shouldTrigger > 0.0 {

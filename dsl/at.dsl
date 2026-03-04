@@ -7,8 +7,8 @@ import { floor, max, sahValue }
 
 parameters {
   bar   { default: 0, min: 0, unit: "bars", description: "Start time in bars" }
-  every { default: 0.25, min: 0, unit: "bars", description: "Interval in bars (0 = single trigger at start)" }
-  prob  { default: 1, min: 0, max: 1, unit: "factor", description: "Probability of 1 when trigger fires" }
+  every { default: 0, min: 0, unit: "bars", description: "Interval in bars (0 = single trigger at start)" }
+  probability  { default: 1, min: 0, max: 1, unit: "factor", description: "Probability of 1 when trigger fires" }
   seed  { default: 0, types: [scalar], description: "Seed for deterministic random" }
 }
 
@@ -56,7 +56,7 @@ audio {
   }
   if shouldTrigger > 0.0 {
     random = sahValue(baseSeed, cycle)
-    out = random < prob ? 1.0 : 0.0
+    out = random < probability ? 1.0 : 0.0
     output = out
     if out > 0.0 {
       fired = 1.0

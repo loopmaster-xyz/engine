@@ -13,52 +13,52 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Fractal(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_scalar(), 354, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_scalar(), 360, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_scalar>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_audio(), 355, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_audio(), 361, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_audio>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_scalar(), 356, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_scalar(), 362, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_scalar>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_audio(), 357, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_audio(), 363, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_audio>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_scalar_octaves_scalar_gain_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_scalar(), 358, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_scalar(), 364, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_scalar>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_audio(), 359, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_audio(), 365, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_audio>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_scalar(), 360, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_scalar(), 366, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_scalar>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_audio(), 361, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_audio(), 367, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_audio>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_scalar_octaves_audio_gain_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_scalar(), 362, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_scalar(), 368, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_scalar>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_audio(), 363, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_audio(), 369, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_audio>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_scalar(), 364, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_scalar(), 370, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_scalar>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_audio(), 365, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_audio(), 371, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_audio>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_audio_octaves_scalar_gain_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_scalar(), 366, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_scalar(), 372, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_scalar>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_audio(), 367, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_audio(), 373, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_audio>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_scalar(), 368, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_scalar(), 374, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_scalar>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_audio(), 369, 6, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_audio(), 375, 6, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_audio>(dst).copyFrom(changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Fractal_default_seed_scalar_rate_audio_octaves_audio_gain_audio_trig_audio>(dst).reset() }))
 }
@@ -98,7 +98,7 @@ case AudioVmOp.GenFractal_default: {
   vm.paramScratch[4] = trigValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[354].get()
+      const slot: GenSlot = vm.genPools[360].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -113,7 +113,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 16: {
-      const slot: GenSlot = vm.genPools[355].get()
+      const slot: GenSlot = vm.genPools[361].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -130,7 +130,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 8: {
-      const slot: GenSlot = vm.genPools[356].get()
+      const slot: GenSlot = vm.genPools[362].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -147,7 +147,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 24: {
-      const slot: GenSlot = vm.genPools[357].get()
+      const slot: GenSlot = vm.genPools[363].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -166,7 +166,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 4: {
-      const slot: GenSlot = vm.genPools[358].get()
+      const slot: GenSlot = vm.genPools[364].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -183,7 +183,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 20: {
-      const slot: GenSlot = vm.genPools[359].get()
+      const slot: GenSlot = vm.genPools[365].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -202,7 +202,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 12: {
-      const slot: GenSlot = vm.genPools[360].get()
+      const slot: GenSlot = vm.genPools[366].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -221,7 +221,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 28: {
-      const slot: GenSlot = vm.genPools[361].get()
+      const slot: GenSlot = vm.genPools[367].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -242,7 +242,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[362].get()
+      const slot: GenSlot = vm.genPools[368].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -259,7 +259,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 18: {
-      const slot: GenSlot = vm.genPools[363].get()
+      const slot: GenSlot = vm.genPools[369].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -278,7 +278,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 10: {
-      const slot: GenSlot = vm.genPools[364].get()
+      const slot: GenSlot = vm.genPools[370].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -297,7 +297,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 26: {
-      const slot: GenSlot = vm.genPools[365].get()
+      const slot: GenSlot = vm.genPools[371].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -318,7 +318,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 6: {
-      const slot: GenSlot = vm.genPools[366].get()
+      const slot: GenSlot = vm.genPools[372].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -337,7 +337,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 22: {
-      const slot: GenSlot = vm.genPools[367].get()
+      const slot: GenSlot = vm.genPools[373].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -358,7 +358,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 14: {
-      const slot: GenSlot = vm.genPools[368].get()
+      const slot: GenSlot = vm.genPools[374].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -379,7 +379,7 @@ case AudioVmOp.GenFractal_default: {
       break
     }
     case 30: {
-      const slot: GenSlot = vm.genPools[369].get()
+      const slot: GenSlot = vm.genPools[375].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

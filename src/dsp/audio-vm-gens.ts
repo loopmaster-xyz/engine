@@ -35,7 +35,9 @@ export const gens: Record<string, GenDescriptor> = {
     description: 'Generates an impulse on a regular period in bars',
     category: 'sequencers',
     parameters: [
-      { name: 'bars', default: 0.25, min: 0.0001, unit: 'bars', description: 'Number of bars per impulse' }
+      { name: 'bars', default: 0.25, min: 0.0001, unit: 'bars', description: 'Number of bars per impulse' },
+      { name: 'offset', default: 0, min: 0, unit: 'bars', description: 'Start offset in bars' },
+      { name: 'length', default: 1, min: 0.0001, unit: 'bars', description: 'Bar length multiplier' }
     ]
   },
   White: {
@@ -182,7 +184,7 @@ export const gens: Record<string, GenDescriptor> = {
       { name: 'pulses', default: 4, min: 0, description: 'Number of hits' },
       { name: 'steps', default: 8, min: 1, description: 'Number of steps' },
       { name: 'offset', default: 0, min: 0, description: 'Rotation offset' },
-      { name: 'bar', default: 1, min: 0, unit: 'bars', description: 'Pattern length in bars' }
+      { name: 'bar', default: 1, min: 0.0001, unit: 'bars', description: 'Pattern length in bars' }
     ]
   },
   Markov: {
@@ -357,8 +359,8 @@ export const gens: Record<string, GenDescriptor> = {
     category: 'sequencers',
     parameters: [
       { name: 'bar', default: 0, min: 0, unit: 'bars', description: 'Start time in bars' },
-      { name: 'every', default: 0.25, min: 0, unit: 'bars', description: 'Interval in bars (0 = single trigger at start)' },
-      { name: 'prob', default: 1, min: 0, max: 1, unit: 'factor', description: 'Probability of 1 when trigger fires' },
+      { name: 'every', default: 0, min: 0, unit: 'bars', description: 'Interval in bars (0 = single trigger at start)' },
+      { name: 'probability', default: 1, min: 0, max: 1, unit: 'factor', description: 'Probability of 1 when trigger fires' },
       { name: 'seed', default: 0, description: 'Seed for deterministic random' }
     ]
   },

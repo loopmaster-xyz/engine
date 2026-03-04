@@ -2,8 +2,8 @@
 // DO NOT MODIFY DIRECTLY, modify src/dsl/generator.ts to make changes
 import { TWO_PI, applyCurve, clamp, cos, cosNormalized, floor, fract01, log, max, min, polyBlep, pow, sahValue, sin, sinNormalized, sqrt, warn } from '../util'
 
-export class At_default_bar_scalar_every_scalar_prob_scalar_seed_scalar {
-  static readonly defaultInstance: At_default_bar_scalar_every_scalar_prob_scalar_seed_scalar = new At_default_bar_scalar_every_scalar_prob_scalar_seed_scalar()
+export class At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar {
+  static readonly defaultInstance: At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar = new At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar()
 
   prevSeed: f32 =-1
   baseSeed: f32 = 0
@@ -11,20 +11,20 @@ export class At_default_bar_scalar_every_scalar_prob_scalar_seed_scalar {
   lastSeed: f32 = Infinity
 
   reset(): void {
-    this.copyFrom(At_default_bar_scalar_every_scalar_prob_scalar_seed_scalar.defaultInstance)
+    this.copyFrom(At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar.defaultInstance)
   }
 
-  copyFrom(src: At_default_bar_scalar_every_scalar_prob_scalar_seed_scalar): void {
+  copyFrom(src: At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar): void {
     this.prevSeed = src.prevSeed
     this.baseSeed = src.baseSeed
     this.fired = src.fired
     this.lastSeed = src.lastSeed
   }
 
-  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, bar: f32, every: f32, prob: f32, seed: f32): void {
+  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, bar: f32, every: f32, probability: f32, seed: f32): void {
     const barClamped: f32 = max(bar, 0)
     const everyClamped: f32 = max(every, 0)
-    const probClamped: f32 = clamp(prob, 0, 1)
+    const probabilityClamped: f32 = clamp(probability, 0, 1)
     const seedChanged: boolean = seed !== this.lastSeed
 
 
@@ -79,7 +79,7 @@ export class At_default_bar_scalar_every_scalar_prob_scalar_seed_scalar {
         }
         if ((shouldTrigger > 0)) {
           random = sahValue(baseSeed, cycle)
-          out = (random < probClamped) ? 1 : 0
+          out = (random < probabilityClamped) ? 1 : 0
           output = out
           if ((out > 0)) {
             fired = 1
@@ -97,8 +97,8 @@ export class At_default_bar_scalar_every_scalar_prob_scalar_seed_scalar {
   }
 }
 
-export class At_default_bar_scalar_every_scalar_prob_audio_seed_scalar {
-  static readonly defaultInstance: At_default_bar_scalar_every_scalar_prob_audio_seed_scalar = new At_default_bar_scalar_every_scalar_prob_audio_seed_scalar()
+export class At_default_bar_scalar_every_scalar_probability_audio_seed_scalar {
+  static readonly defaultInstance: At_default_bar_scalar_every_scalar_probability_audio_seed_scalar = new At_default_bar_scalar_every_scalar_probability_audio_seed_scalar()
 
   prevSeed: f32 =-1
   baseSeed: f32 = 0
@@ -106,17 +106,17 @@ export class At_default_bar_scalar_every_scalar_prob_audio_seed_scalar {
   lastSeed: f32 = Infinity
 
   reset(): void {
-    this.copyFrom(At_default_bar_scalar_every_scalar_prob_audio_seed_scalar.defaultInstance)
+    this.copyFrom(At_default_bar_scalar_every_scalar_probability_audio_seed_scalar.defaultInstance)
   }
 
-  copyFrom(src: At_default_bar_scalar_every_scalar_prob_audio_seed_scalar): void {
+  copyFrom(src: At_default_bar_scalar_every_scalar_probability_audio_seed_scalar): void {
     this.prevSeed = src.prevSeed
     this.baseSeed = src.baseSeed
     this.fired = src.fired
     this.lastSeed = src.lastSeed
   }
 
-  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, bar: f32, every: f32, seed: f32, prob$: usize): void {
+  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, bar: f32, every: f32, seed: f32, probability$: usize): void {
     const barClamped: f32 = max(bar, 0)
     const everyClamped: f32 = max(every, 0)
     const seedChanged: boolean = seed !== this.lastSeed
@@ -151,11 +151,11 @@ export class At_default_bar_scalar_every_scalar_prob_audio_seed_scalar {
     let shouldTrigger: f32
     let startSample: f32
 
-    let probClamped: f32
+    let probabilityClamped: f32
     let sc: i32 = sampleCount
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
-        probClamped = clamp(load<f32>(prob$), 0, 1)
+        probabilityClamped = clamp(load<f32>(probability$), 0, 1)
         startSample = (barClamped * samplesPerBar)
         globalSample = f32(sc)
         prevSample = (globalSample - 1)
@@ -176,7 +176,7 @@ export class At_default_bar_scalar_every_scalar_prob_audio_seed_scalar {
         }
         if ((shouldTrigger > 0)) {
           random = sahValue(baseSeed, cycle)
-          out = (random < probClamped) ? 1 : 0
+          out = (random < probabilityClamped) ? 1 : 0
           output = out
           if ((out > 0)) {
             fired = 1
@@ -186,7 +186,7 @@ export class At_default_bar_scalar_every_scalar_prob_audio_seed_scalar {
         }
         store<f32>(output$, output)
         output$ += 4
-        prob$ += 4
+        probability$ += 4
         sc = sc + 1
       })
     }
@@ -195,8 +195,8 @@ export class At_default_bar_scalar_every_scalar_prob_audio_seed_scalar {
   }
 }
 
-export class At_default_bar_scalar_every_audio_prob_scalar_seed_scalar {
-  static readonly defaultInstance: At_default_bar_scalar_every_audio_prob_scalar_seed_scalar = new At_default_bar_scalar_every_audio_prob_scalar_seed_scalar()
+export class At_default_bar_scalar_every_audio_probability_scalar_seed_scalar {
+  static readonly defaultInstance: At_default_bar_scalar_every_audio_probability_scalar_seed_scalar = new At_default_bar_scalar_every_audio_probability_scalar_seed_scalar()
 
   prevSeed: f32 =-1
   baseSeed: f32 = 0
@@ -204,19 +204,19 @@ export class At_default_bar_scalar_every_audio_prob_scalar_seed_scalar {
   lastSeed: f32 = Infinity
 
   reset(): void {
-    this.copyFrom(At_default_bar_scalar_every_audio_prob_scalar_seed_scalar.defaultInstance)
+    this.copyFrom(At_default_bar_scalar_every_audio_probability_scalar_seed_scalar.defaultInstance)
   }
 
-  copyFrom(src: At_default_bar_scalar_every_audio_prob_scalar_seed_scalar): void {
+  copyFrom(src: At_default_bar_scalar_every_audio_probability_scalar_seed_scalar): void {
     this.prevSeed = src.prevSeed
     this.baseSeed = src.baseSeed
     this.fired = src.fired
     this.lastSeed = src.lastSeed
   }
 
-  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, bar: f32, prob: f32, seed: f32, every$: usize): void {
+  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, bar: f32, probability: f32, seed: f32, every$: usize): void {
     const barClamped: f32 = max(bar, 0)
-    const probClamped: f32 = clamp(prob, 0, 1)
+    const probabilityClamped: f32 = clamp(probability, 0, 1)
     const seedChanged: boolean = seed !== this.lastSeed
 
 
@@ -274,7 +274,7 @@ export class At_default_bar_scalar_every_audio_prob_scalar_seed_scalar {
         }
         if ((shouldTrigger > 0)) {
           random = sahValue(baseSeed, cycle)
-          out = (random < probClamped) ? 1 : 0
+          out = (random < probabilityClamped) ? 1 : 0
           output = out
           if ((out > 0)) {
             fired = 1
@@ -293,8 +293,8 @@ export class At_default_bar_scalar_every_audio_prob_scalar_seed_scalar {
   }
 }
 
-export class At_default_bar_scalar_every_audio_prob_audio_seed_scalar {
-  static readonly defaultInstance: At_default_bar_scalar_every_audio_prob_audio_seed_scalar = new At_default_bar_scalar_every_audio_prob_audio_seed_scalar()
+export class At_default_bar_scalar_every_audio_probability_audio_seed_scalar {
+  static readonly defaultInstance: At_default_bar_scalar_every_audio_probability_audio_seed_scalar = new At_default_bar_scalar_every_audio_probability_audio_seed_scalar()
 
   prevSeed: f32 =-1
   baseSeed: f32 = 0
@@ -302,17 +302,17 @@ export class At_default_bar_scalar_every_audio_prob_audio_seed_scalar {
   lastSeed: f32 = Infinity
 
   reset(): void {
-    this.copyFrom(At_default_bar_scalar_every_audio_prob_audio_seed_scalar.defaultInstance)
+    this.copyFrom(At_default_bar_scalar_every_audio_probability_audio_seed_scalar.defaultInstance)
   }
 
-  copyFrom(src: At_default_bar_scalar_every_audio_prob_audio_seed_scalar): void {
+  copyFrom(src: At_default_bar_scalar_every_audio_probability_audio_seed_scalar): void {
     this.prevSeed = src.prevSeed
     this.baseSeed = src.baseSeed
     this.fired = src.fired
     this.lastSeed = src.lastSeed
   }
 
-  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, bar: f32, seed: f32, every$: usize, prob$: usize): void {
+  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, bar: f32, seed: f32, every$: usize, probability$: usize): void {
     const barClamped: f32 = max(bar, 0)
     const seedChanged: boolean = seed !== this.lastSeed
 
@@ -347,12 +347,12 @@ export class At_default_bar_scalar_every_audio_prob_audio_seed_scalar {
     let startSample: f32
 
     let everyClamped: f32
-    let probClamped: f32
+    let probabilityClamped: f32
     let sc: i32 = sampleCount
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
         everyClamped = max(load<f32>(every$), 0)
-        probClamped = clamp(load<f32>(prob$), 0, 1)
+        probabilityClamped = clamp(load<f32>(probability$), 0, 1)
         startSample = (barClamped * samplesPerBar)
         globalSample = f32(sc)
         prevSample = (globalSample - 1)
@@ -373,7 +373,7 @@ export class At_default_bar_scalar_every_audio_prob_audio_seed_scalar {
         }
         if ((shouldTrigger > 0)) {
           random = sahValue(baseSeed, cycle)
-          out = (random < probClamped) ? 1 : 0
+          out = (random < probabilityClamped) ? 1 : 0
           output = out
           if ((out > 0)) {
             fired = 1
@@ -384,7 +384,7 @@ export class At_default_bar_scalar_every_audio_prob_audio_seed_scalar {
         store<f32>(output$, output)
         output$ += 4
         every$ += 4
-        prob$ += 4
+        probability$ += 4
         sc = sc + 1
       })
     }
@@ -393,8 +393,8 @@ export class At_default_bar_scalar_every_audio_prob_audio_seed_scalar {
   }
 }
 
-export class At_default_bar_audio_every_scalar_prob_scalar_seed_scalar {
-  static readonly defaultInstance: At_default_bar_audio_every_scalar_prob_scalar_seed_scalar = new At_default_bar_audio_every_scalar_prob_scalar_seed_scalar()
+export class At_default_bar_audio_every_scalar_probability_scalar_seed_scalar {
+  static readonly defaultInstance: At_default_bar_audio_every_scalar_probability_scalar_seed_scalar = new At_default_bar_audio_every_scalar_probability_scalar_seed_scalar()
 
   prevSeed: f32 =-1
   baseSeed: f32 = 0
@@ -402,19 +402,19 @@ export class At_default_bar_audio_every_scalar_prob_scalar_seed_scalar {
   lastSeed: f32 = Infinity
 
   reset(): void {
-    this.copyFrom(At_default_bar_audio_every_scalar_prob_scalar_seed_scalar.defaultInstance)
+    this.copyFrom(At_default_bar_audio_every_scalar_probability_scalar_seed_scalar.defaultInstance)
   }
 
-  copyFrom(src: At_default_bar_audio_every_scalar_prob_scalar_seed_scalar): void {
+  copyFrom(src: At_default_bar_audio_every_scalar_probability_scalar_seed_scalar): void {
     this.prevSeed = src.prevSeed
     this.baseSeed = src.baseSeed
     this.fired = src.fired
     this.lastSeed = src.lastSeed
   }
 
-  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, every: f32, prob: f32, seed: f32, bar$: usize): void {
+  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, every: f32, probability: f32, seed: f32, bar$: usize): void {
     const everyClamped: f32 = max(every, 0)
-    const probClamped: f32 = clamp(prob, 0, 1)
+    const probabilityClamped: f32 = clamp(probability, 0, 1)
     const seedChanged: boolean = seed !== this.lastSeed
 
 
@@ -472,7 +472,7 @@ export class At_default_bar_audio_every_scalar_prob_scalar_seed_scalar {
         }
         if ((shouldTrigger > 0)) {
           random = sahValue(baseSeed, cycle)
-          out = (random < probClamped) ? 1 : 0
+          out = (random < probabilityClamped) ? 1 : 0
           output = out
           if ((out > 0)) {
             fired = 1
@@ -491,8 +491,8 @@ export class At_default_bar_audio_every_scalar_prob_scalar_seed_scalar {
   }
 }
 
-export class At_default_bar_audio_every_scalar_prob_audio_seed_scalar {
-  static readonly defaultInstance: At_default_bar_audio_every_scalar_prob_audio_seed_scalar = new At_default_bar_audio_every_scalar_prob_audio_seed_scalar()
+export class At_default_bar_audio_every_scalar_probability_audio_seed_scalar {
+  static readonly defaultInstance: At_default_bar_audio_every_scalar_probability_audio_seed_scalar = new At_default_bar_audio_every_scalar_probability_audio_seed_scalar()
 
   prevSeed: f32 =-1
   baseSeed: f32 = 0
@@ -500,17 +500,17 @@ export class At_default_bar_audio_every_scalar_prob_audio_seed_scalar {
   lastSeed: f32 = Infinity
 
   reset(): void {
-    this.copyFrom(At_default_bar_audio_every_scalar_prob_audio_seed_scalar.defaultInstance)
+    this.copyFrom(At_default_bar_audio_every_scalar_probability_audio_seed_scalar.defaultInstance)
   }
 
-  copyFrom(src: At_default_bar_audio_every_scalar_prob_audio_seed_scalar): void {
+  copyFrom(src: At_default_bar_audio_every_scalar_probability_audio_seed_scalar): void {
     this.prevSeed = src.prevSeed
     this.baseSeed = src.baseSeed
     this.fired = src.fired
     this.lastSeed = src.lastSeed
   }
 
-  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, every: f32, seed: f32, bar$: usize, prob$: usize): void {
+  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, every: f32, seed: f32, bar$: usize, probability$: usize): void {
     const everyClamped: f32 = max(every, 0)
     const seedChanged: boolean = seed !== this.lastSeed
 
@@ -545,12 +545,12 @@ export class At_default_bar_audio_every_scalar_prob_audio_seed_scalar {
     let startSample: f32
 
     let barClamped: f32
-    let probClamped: f32
+    let probabilityClamped: f32
     let sc: i32 = sampleCount
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
         barClamped = max(load<f32>(bar$), 0)
-        probClamped = clamp(load<f32>(prob$), 0, 1)
+        probabilityClamped = clamp(load<f32>(probability$), 0, 1)
         startSample = (barClamped * samplesPerBar)
         globalSample = f32(sc)
         prevSample = (globalSample - 1)
@@ -571,7 +571,7 @@ export class At_default_bar_audio_every_scalar_prob_audio_seed_scalar {
         }
         if ((shouldTrigger > 0)) {
           random = sahValue(baseSeed, cycle)
-          out = (random < probClamped) ? 1 : 0
+          out = (random < probabilityClamped) ? 1 : 0
           output = out
           if ((out > 0)) {
             fired = 1
@@ -582,7 +582,7 @@ export class At_default_bar_audio_every_scalar_prob_audio_seed_scalar {
         store<f32>(output$, output)
         output$ += 4
         bar$ += 4
-        prob$ += 4
+        probability$ += 4
         sc = sc + 1
       })
     }
@@ -591,8 +591,8 @@ export class At_default_bar_audio_every_scalar_prob_audio_seed_scalar {
   }
 }
 
-export class At_default_bar_audio_every_audio_prob_scalar_seed_scalar {
-  static readonly defaultInstance: At_default_bar_audio_every_audio_prob_scalar_seed_scalar = new At_default_bar_audio_every_audio_prob_scalar_seed_scalar()
+export class At_default_bar_audio_every_audio_probability_scalar_seed_scalar {
+  static readonly defaultInstance: At_default_bar_audio_every_audio_probability_scalar_seed_scalar = new At_default_bar_audio_every_audio_probability_scalar_seed_scalar()
 
   prevSeed: f32 =-1
   baseSeed: f32 = 0
@@ -600,18 +600,18 @@ export class At_default_bar_audio_every_audio_prob_scalar_seed_scalar {
   lastSeed: f32 = Infinity
 
   reset(): void {
-    this.copyFrom(At_default_bar_audio_every_audio_prob_scalar_seed_scalar.defaultInstance)
+    this.copyFrom(At_default_bar_audio_every_audio_probability_scalar_seed_scalar.defaultInstance)
   }
 
-  copyFrom(src: At_default_bar_audio_every_audio_prob_scalar_seed_scalar): void {
+  copyFrom(src: At_default_bar_audio_every_audio_probability_scalar_seed_scalar): void {
     this.prevSeed = src.prevSeed
     this.baseSeed = src.baseSeed
     this.fired = src.fired
     this.lastSeed = src.lastSeed
   }
 
-  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, prob: f32, seed: f32, bar$: usize, every$: usize): void {
-    const probClamped: f32 = clamp(prob, 0, 1)
+  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, probability: f32, seed: f32, bar$: usize, every$: usize): void {
+    const probabilityClamped: f32 = clamp(probability, 0, 1)
     const seedChanged: boolean = seed !== this.lastSeed
 
 
@@ -671,7 +671,7 @@ export class At_default_bar_audio_every_audio_prob_scalar_seed_scalar {
         }
         if ((shouldTrigger > 0)) {
           random = sahValue(baseSeed, cycle)
-          out = (random < probClamped) ? 1 : 0
+          out = (random < probabilityClamped) ? 1 : 0
           output = out
           if ((out > 0)) {
             fired = 1
@@ -691,8 +691,8 @@ export class At_default_bar_audio_every_audio_prob_scalar_seed_scalar {
   }
 }
 
-export class At_default_bar_audio_every_audio_prob_audio_seed_scalar {
-  static readonly defaultInstance: At_default_bar_audio_every_audio_prob_audio_seed_scalar = new At_default_bar_audio_every_audio_prob_audio_seed_scalar()
+export class At_default_bar_audio_every_audio_probability_audio_seed_scalar {
+  static readonly defaultInstance: At_default_bar_audio_every_audio_probability_audio_seed_scalar = new At_default_bar_audio_every_audio_probability_audio_seed_scalar()
 
   prevSeed: f32 =-1
   baseSeed: f32 = 0
@@ -700,17 +700,17 @@ export class At_default_bar_audio_every_audio_prob_audio_seed_scalar {
   lastSeed: f32 = Infinity
 
   reset(): void {
-    this.copyFrom(At_default_bar_audio_every_audio_prob_audio_seed_scalar.defaultInstance)
+    this.copyFrom(At_default_bar_audio_every_audio_probability_audio_seed_scalar.defaultInstance)
   }
 
-  copyFrom(src: At_default_bar_audio_every_audio_prob_audio_seed_scalar): void {
+  copyFrom(src: At_default_bar_audio_every_audio_probability_audio_seed_scalar): void {
     this.prevSeed = src.prevSeed
     this.baseSeed = src.baseSeed
     this.fired = src.fired
     this.lastSeed = src.lastSeed
   }
 
-  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, seed: f32, bar$: usize, every$: usize, prob$: usize): void {
+  process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, seed: f32, bar$: usize, every$: usize, probability$: usize): void {
     const seedChanged: boolean = seed !== this.lastSeed
 
 
@@ -745,13 +745,13 @@ export class At_default_bar_audio_every_audio_prob_audio_seed_scalar {
 
     let barClamped: f32
     let everyClamped: f32
-    let probClamped: f32
+    let probabilityClamped: f32
     let sc: i32 = sampleCount
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
         barClamped = max(load<f32>(bar$), 0)
         everyClamped = max(load<f32>(every$), 0)
-        probClamped = clamp(load<f32>(prob$), 0, 1)
+        probabilityClamped = clamp(load<f32>(probability$), 0, 1)
         startSample = (barClamped * samplesPerBar)
         globalSample = f32(sc)
         prevSample = (globalSample - 1)
@@ -772,7 +772,7 @@ export class At_default_bar_audio_every_audio_prob_audio_seed_scalar {
         }
         if ((shouldTrigger > 0)) {
           random = sahValue(baseSeed, cycle)
-          out = (random < probClamped) ? 1 : 0
+          out = (random < probabilityClamped) ? 1 : 0
           output = out
           if ((out > 0)) {
             fired = 1
@@ -784,7 +784,7 @@ export class At_default_bar_audio_every_audio_prob_audio_seed_scalar {
         output$ += 4
         bar$ += 4
         every$ += 4
-        prob$ += 4
+        probability$ += 4
         sc = sc + 1
       })
     }

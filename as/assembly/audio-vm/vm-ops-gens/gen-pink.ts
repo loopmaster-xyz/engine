@@ -13,10 +13,10 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Pink(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Pink_default_seed_scalar_trig_scalar(), 580, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pink_default_seed_scalar_trig_scalar(), 586, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pink_default_seed_scalar_trig_scalar>(dst).copyFrom(changetype<Pink_default_seed_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Pink_default_seed_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Pink_default_seed_scalar_trig_audio(), 581, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Pink_default_seed_scalar_trig_audio(), 587, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Pink_default_seed_scalar_trig_audio>(dst).copyFrom(changetype<Pink_default_seed_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Pink_default_seed_scalar_trig_audio>(dst).reset() }))
 }
@@ -38,7 +38,7 @@ case AudioVmOp.GenPink_default: {
   vm.paramScratch[1] = trigValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[580].get()
+      const slot: GenSlot = vm.genPools[586].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -52,7 +52,7 @@ case AudioVmOp.GenPink_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[581].get()
+      const slot: GenSlot = vm.genPools[587].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

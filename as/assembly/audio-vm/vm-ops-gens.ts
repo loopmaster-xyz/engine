@@ -119,26 +119,26 @@ export function initGenPools(vm: VmState): void {
   initGenPools_Sampler(vm)
   initGenPools_Moog(vm)
   initGenPools_Svf(vm)
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 683, 2, vm.genPoolManager))
-  vm.genPools.push(new GenPool(() => new TramKernel(), 684, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 689, 2, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => new TramKernel(), 690, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TramKernel>(dst).reset()
   }, (dst: Object) => { changetype<TramKernel>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new MiniKernel(), 685, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new MiniKernel(), 691, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<MiniKernel>(dst).reset()
   }, (dst: Object) => { changetype<MiniKernel>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new TimelineKernel(), 686, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new TimelineKernel(), 692, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TimelineKernel>(dst).reset()
   }, (dst: Object) => { changetype<TimelineKernel>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 687, 0, vm.genPoolManager))
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 688, 0, vm.genPoolManager))
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 689, 1, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 693, 0, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 694, 0, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 695, 1, vm.genPoolManager))
   vm.arrayGetGenPoolIndex = vm.genPools.length - 1
-  vm.tableGenPoolIndex = 683
-  vm.tramGenPoolIndex = 684
-  vm.miniGenPoolIndex = 685
-  vm.timelineGenPoolIndex = 686
-  vm.outGenPoolIndex = 687
-  vm.mixGenPoolIndex = 688
+  vm.tableGenPoolIndex = 689
+  vm.tramGenPoolIndex = 690
+  vm.miniGenPoolIndex = 691
+  vm.timelineGenPoolIndex = 692
+  vm.outGenPoolIndex = 693
+  vm.mixGenPoolIndex = 694
 }
 
 export function handleGenOp(vm: VmState, op: AudioVmOp, pc: i32, opsPtr: usize, params: RunParams): i32 {

@@ -13,10 +13,10 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_TestOversample(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new TestOversample_default_(), 67, 0, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new TestOversample_default_(), 73, 0, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TestOversample_default_>(dst).copyFrom(changetype<TestOversample_default_>(src))
   }, (dst: Object) => { changetype<TestOversample_default_>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new TestOversample_default__stereo(), 68, 0, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new TestOversample_default__stereo(), 74, 0, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TestOversample_default__stereo>(dst).copyFrom(changetype<TestOversample_default__stereo>(src))
   }, (dst: Object) => { changetype<TestOversample_default__stereo>(dst).reset() }))
 }
@@ -29,7 +29,7 @@ case AudioVmOp.GenTestOversample_default: {
   let modeMask: i32 = 0
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[67].get()
+      const slot: GenSlot = vm.genPools[73].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

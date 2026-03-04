@@ -13,28 +13,28 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Lfosaw(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_scalar_offset_scalar_trig_scalar(), 280, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_scalar_offset_scalar_trig_scalar(), 286, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Lfosaw_default_bar_scalar_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Lfosaw_default_bar_scalar_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Lfosaw_default_bar_scalar_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_scalar_offset_scalar_trig_audio(), 281, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_scalar_offset_scalar_trig_audio(), 287, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Lfosaw_default_bar_scalar_offset_scalar_trig_audio>(dst).copyFrom(changetype<Lfosaw_default_bar_scalar_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Lfosaw_default_bar_scalar_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_scalar_offset_audio_trig_scalar(), 282, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_scalar_offset_audio_trig_scalar(), 288, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Lfosaw_default_bar_scalar_offset_audio_trig_scalar>(dst).copyFrom(changetype<Lfosaw_default_bar_scalar_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Lfosaw_default_bar_scalar_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_scalar_offset_audio_trig_audio(), 283, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_scalar_offset_audio_trig_audio(), 289, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Lfosaw_default_bar_scalar_offset_audio_trig_audio>(dst).copyFrom(changetype<Lfosaw_default_bar_scalar_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Lfosaw_default_bar_scalar_offset_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_audio_offset_scalar_trig_scalar(), 284, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_audio_offset_scalar_trig_scalar(), 290, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Lfosaw_default_bar_audio_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Lfosaw_default_bar_audio_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Lfosaw_default_bar_audio_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_audio_offset_scalar_trig_audio(), 285, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_audio_offset_scalar_trig_audio(), 291, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Lfosaw_default_bar_audio_offset_scalar_trig_audio>(dst).copyFrom(changetype<Lfosaw_default_bar_audio_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Lfosaw_default_bar_audio_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_audio_offset_audio_trig_scalar(), 286, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_audio_offset_audio_trig_scalar(), 292, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Lfosaw_default_bar_audio_offset_audio_trig_scalar>(dst).copyFrom(changetype<Lfosaw_default_bar_audio_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Lfosaw_default_bar_audio_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_audio_offset_audio_trig_audio(), 287, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Lfosaw_default_bar_audio_offset_audio_trig_audio(), 293, 4, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Lfosaw_default_bar_audio_offset_audio_trig_audio>(dst).copyFrom(changetype<Lfosaw_default_bar_audio_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Lfosaw_default_bar_audio_offset_audio_trig_audio>(dst).reset() }))
 }
@@ -65,7 +65,7 @@ case AudioVmOp.GenLfosaw_default: {
   vm.paramScratch[2] = trigValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[280].get()
+      const slot: GenSlot = vm.genPools[286].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -80,7 +80,7 @@ case AudioVmOp.GenLfosaw_default: {
       break
     }
     case 4: {
-      const slot: GenSlot = vm.genPools[281].get()
+      const slot: GenSlot = vm.genPools[287].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -97,7 +97,7 @@ case AudioVmOp.GenLfosaw_default: {
       break
     }
     case 2: {
-      const slot: GenSlot = vm.genPools[282].get()
+      const slot: GenSlot = vm.genPools[288].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -114,7 +114,7 @@ case AudioVmOp.GenLfosaw_default: {
       break
     }
     case 6: {
-      const slot: GenSlot = vm.genPools[283].get()
+      const slot: GenSlot = vm.genPools[289].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -133,7 +133,7 @@ case AudioVmOp.GenLfosaw_default: {
       break
     }
     case 1: {
-      const slot: GenSlot = vm.genPools[284].get()
+      const slot: GenSlot = vm.genPools[290].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -150,7 +150,7 @@ case AudioVmOp.GenLfosaw_default: {
       break
     }
     case 5: {
-      const slot: GenSlot = vm.genPools[285].get()
+      const slot: GenSlot = vm.genPools[291].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -169,7 +169,7 @@ case AudioVmOp.GenLfosaw_default: {
       break
     }
     case 3: {
-      const slot: GenSlot = vm.genPools[286].get()
+      const slot: GenSlot = vm.genPools[292].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -188,7 +188,7 @@ case AudioVmOp.GenLfosaw_default: {
       break
     }
     case 7: {
-      const slot: GenSlot = vm.genPools[287].get()
+      const slot: GenSlot = vm.genPools[293].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

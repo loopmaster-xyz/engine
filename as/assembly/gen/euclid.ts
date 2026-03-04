@@ -33,7 +33,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar 
     const pulsesClamped: f32 = max(pulses, 0)
     const stepsClamped: f32 = max(steps, 1)
     const offsetClamped: f32 = max(offset, 0)
-    const barClamped: f32 = max(bar, 0)
+    const barClamped: f32 = max(bar, 0.0001)
     const barChanged: boolean = barClamped !== this.lastBar
     const stepsChanged: boolean = stepsClamped !== this.lastSteps
     const samplesPerBarChanged: boolean = samplesPerBar !== this.lastSamplesPerBar
@@ -138,7 +138,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio {
     let sc: i32 = sampleCount
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
-        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0))
+        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0.0001))
         intervalSamples = (barBars * samplesPerBar)
         stepDur = (stepsClamped > 0) ? (intervalSamples / max(stepsClamped, 1)) : intervalSamples
         stepDur = max(1, stepDur)
@@ -197,7 +197,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar {
   process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, pulses: f32, steps: f32, bar: f32, offset$: usize): void {
     const pulsesClamped: f32 = max(pulses, 0)
     const stepsClamped: f32 = max(steps, 1)
-    const barClamped: f32 = max(bar, 0)
+    const barClamped: f32 = max(bar, 0.0001)
     const barChanged: boolean = barClamped !== this.lastBar
     const stepsChanged: boolean = stepsClamped !== this.lastSteps
     const samplesPerBarChanged: boolean = samplesPerBar !== this.lastSamplesPerBar
@@ -308,7 +308,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio {
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
         offsetClamped = max(load<f32>(offset$), 0)
-        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0))
+        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0.0001))
         intervalSamples = (barBars * samplesPerBar)
         stepDur = (stepsClamped > 0) ? (intervalSamples / max(stepsClamped, 1)) : intervalSamples
         stepDur = max(1, stepDur)
@@ -362,7 +362,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar {
   process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, pulses: f32, offset: f32, bar: f32, steps$: usize): void {
     const pulsesClamped: f32 = max(pulses, 0)
     const offsetClamped: f32 = max(offset, 0)
-    const barClamped: f32 = max(bar, 0)
+    const barClamped: f32 = max(bar, 0.0001)
     const barChanged: boolean = barClamped !== this.lastBar
     const samplesPerBarChanged: boolean = samplesPerBar !== this.lastSamplesPerBar
 
@@ -468,7 +468,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio {
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
         stepsClamped = max(load<f32>(steps$), 1)
-        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0))
+        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0.0001))
         intervalSamples = (barBars * samplesPerBar)
         stepDur = (max(load<f32>(steps$), 1) > 0) ? (intervalSamples / max(max(load<f32>(steps$), 1), 1)) : intervalSamples
         stepDur = max(1, stepDur)
@@ -521,7 +521,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar {
 
   process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, pulses: f32, bar: f32, steps$: usize, offset$: usize): void {
     const pulsesClamped: f32 = max(pulses, 0)
-    const barClamped: f32 = max(bar, 0)
+    const barClamped: f32 = max(bar, 0.0001)
     const barChanged: boolean = barClamped !== this.lastBar
     const samplesPerBarChanged: boolean = samplesPerBar !== this.lastSamplesPerBar
 
@@ -631,7 +631,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio {
       unroll(16, () => {
         offsetClamped = max(load<f32>(offset$), 0)
         stepsClamped = max(load<f32>(steps$), 1)
-        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0))
+        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0.0001))
         intervalSamples = (barBars * samplesPerBar)
         stepDur = (max(load<f32>(steps$), 1) > 0) ? (intervalSamples / max(max(load<f32>(steps$), 1), 1)) : intervalSamples
         stepDur = max(1, stepDur)
@@ -692,7 +692,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar {
   process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, steps: f32, offset: f32, bar: f32, pulses$: usize): void {
     const stepsClamped: f32 = max(steps, 1)
     const offsetClamped: f32 = max(offset, 0)
-    const barClamped: f32 = max(bar, 0)
+    const barClamped: f32 = max(bar, 0.0001)
     const barChanged: boolean = barClamped !== this.lastBar
     const stepsChanged: boolean = stepsClamped !== this.lastSteps
     const samplesPerBarChanged: boolean = samplesPerBar !== this.lastSamplesPerBar
@@ -803,7 +803,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio {
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
         pulsesClamped = max(load<f32>(pulses$), 0)
-        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0))
+        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0.0001))
         intervalSamples = (barBars * samplesPerBar)
         stepDur = (stepsClamped > 0) ? (intervalSamples / max(stepsClamped, 1)) : intervalSamples
         stepDur = max(1, stepDur)
@@ -862,7 +862,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar {
 
   process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, steps: f32, bar: f32, pulses$: usize, offset$: usize): void {
     const stepsClamped: f32 = max(steps, 1)
-    const barClamped: f32 = max(bar, 0)
+    const barClamped: f32 = max(bar, 0.0001)
     const barChanged: boolean = barClamped !== this.lastBar
     const stepsChanged: boolean = stepsClamped !== this.lastSteps
     const samplesPerBarChanged: boolean = samplesPerBar !== this.lastSamplesPerBar
@@ -977,7 +977,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio {
       unroll(16, () => {
         offsetClamped = max(load<f32>(offset$), 0)
         pulsesClamped = max(load<f32>(pulses$), 0)
-        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0))
+        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0.0001))
         intervalSamples = (barBars * samplesPerBar)
         stepDur = (stepsClamped > 0) ? (intervalSamples / max(stepsClamped, 1)) : intervalSamples
         stepDur = max(1, stepDur)
@@ -1031,7 +1031,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar {
 
   process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, offset: f32, bar: f32, pulses$: usize, steps$: usize): void {
     const offsetClamped: f32 = max(offset, 0)
-    const barClamped: f32 = max(bar, 0)
+    const barClamped: f32 = max(bar, 0.0001)
     const barChanged: boolean = barClamped !== this.lastBar
     const samplesPerBarChanged: boolean = samplesPerBar !== this.lastSamplesPerBar
 
@@ -1141,7 +1141,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio {
       unroll(16, () => {
         pulsesClamped = max(load<f32>(pulses$), 0)
         stepsClamped = max(load<f32>(steps$), 1)
-        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0))
+        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0.0001))
         intervalSamples = (barBars * samplesPerBar)
         stepDur = (max(load<f32>(steps$), 1) > 0) ? (intervalSamples / max(max(load<f32>(steps$), 1), 1)) : intervalSamples
         stepDur = max(1, stepDur)
@@ -1194,7 +1194,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar {
   }
 
   process(bufferLength: i32, sampleCount: i32, sampleRate: f32, nyquist: f32, piOverNyquist: f32, bpm: f32, co: f32, samplesPerBeat: f32, samplesPerBar: f32, input$: usize, output$: usize, bar: f32, pulses$: usize, steps$: usize, offset$: usize): void {
-    const barClamped: f32 = max(bar, 0)
+    const barClamped: f32 = max(bar, 0.0001)
     const barChanged: boolean = barClamped !== this.lastBar
     const samplesPerBarChanged: boolean = samplesPerBar !== this.lastSamplesPerBar
 
@@ -1317,7 +1317,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio {
         offsetClamped = max(load<f32>(offset$), 0)
         pulsesClamped = max(load<f32>(pulses$), 0)
         stepsClamped = max(load<f32>(steps$), 1)
-        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0))
+        barBars = max((1 / samplesPerBar), max(load<f32>(bar$), 0.0001))
         intervalSamples = (barBars * samplesPerBar)
         stepDur = (max(load<f32>(steps$), 1) > 0) ? (intervalSamples / max(max(load<f32>(steps$), 1), 1)) : intervalSamples
         stepDur = max(1, stepDur)

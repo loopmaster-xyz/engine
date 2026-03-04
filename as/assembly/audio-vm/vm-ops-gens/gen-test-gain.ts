@@ -13,16 +13,16 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_TestGain(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new TestGain_default_amount_scalar(), 47, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new TestGain_default_amount_scalar(), 53, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TestGain_default_amount_scalar>(dst).copyFrom(changetype<TestGain_default_amount_scalar>(src))
   }, (dst: Object) => { changetype<TestGain_default_amount_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new TestGain_default_amount_audio(), 48, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new TestGain_default_amount_audio(), 54, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TestGain_default_amount_audio>(dst).copyFrom(changetype<TestGain_default_amount_audio>(src))
   }, (dst: Object) => { changetype<TestGain_default_amount_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new TestGain_default_amount_scalar_stereo(), 49, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new TestGain_default_amount_scalar_stereo(), 55, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TestGain_default_amount_scalar_stereo>(dst).copyFrom(changetype<TestGain_default_amount_scalar_stereo>(src))
   }, (dst: Object) => { changetype<TestGain_default_amount_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new TestGain_default_amount_audio_stereo(), 50, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new TestGain_default_amount_audio_stereo(), 56, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TestGain_default_amount_audio_stereo>(dst).copyFrom(changetype<TestGain_default_amount_audio_stereo>(src))
   }, (dst: Object) => { changetype<TestGain_default_amount_audio_stereo>(dst).reset() }))
 }
@@ -60,7 +60,7 @@ case AudioVmOp.GenTestGain_default: {
         const inputRightBuf: Float32Array = rightResult.buf
         switch (modeMask) {
           case 0: {
-            const slot: GenSlot = vm.genPools[49].get()
+            const slot: GenSlot = vm.genPools[55].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -104,7 +104,7 @@ case AudioVmOp.GenTestGain_default: {
             break
           }
           case 1: {
-            const slot: GenSlot = vm.genPools[50].get()
+            const slot: GenSlot = vm.genPools[56].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -157,7 +157,7 @@ case AudioVmOp.GenTestGain_default: {
         const monoInputFromArr: f64 = inputArrLen > 0 ? inputArr[0] : encodeScalar(0.0)
         switch (modeMask) {
           case 0: {
-            const slot: GenSlot = vm.genPools[47].get()
+            const slot: GenSlot = vm.genPools[53].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, procLen)
@@ -175,7 +175,7 @@ case AudioVmOp.GenTestGain_default: {
             break
           }
           case 1: {
-            const slot: GenSlot = vm.genPools[48].get()
+            const slot: GenSlot = vm.genPools[54].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, monoInputFromArr, procLen)
@@ -208,7 +208,7 @@ case AudioVmOp.GenTestGain_default: {
   } else {
     switch (modeMask) {
       case 0: {
-        const slot: GenSlot = vm.genPools[47].get()
+        const slot: GenSlot = vm.genPools[53].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputTagged, procLen)
@@ -226,7 +226,7 @@ case AudioVmOp.GenTestGain_default: {
         break
       }
       case 1: {
-        const slot: GenSlot = vm.genPools[48].get()
+        const slot: GenSlot = vm.genPools[54].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         const inputSrcResult = genOpHelpers.taggedToInputBuffer(vm, inputTagged, procLen)

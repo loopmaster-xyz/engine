@@ -9,7 +9,7 @@ parameters {
   pulses { default: 4, min: 0, description: "Number of hits" }
   steps  { default: 8, min: 1, description: "Number of steps" }
   offset { default: 0, min: 0, description: "Rotation offset" }
-  bar    { default: 1, min: 0, unit: "bars",
+  bar    { default: 1, min: 0.0001, unit: "bars",
            description: "Pattern length in bars" }
 }
 
