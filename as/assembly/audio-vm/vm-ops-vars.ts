@@ -186,31 +186,30 @@ export function handleGetClosure(
 ): RunResult {
   const closureIndex: i32 = readOperandI32(opsPtr, pc)
   pc++
-  if (vm.callStack.length > 0) {
-    const frame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
-    if (frame.closureEnvId >= 0 && vm.closureEnvs.has(frame.closureEnvId)) {
-      const env: ClosureEnv = vm.closureEnvs.get(frame.closureEnvId)
-      if (closureIndex < env.cells.length) {
-        const ov: Float64Array | null = frame.closureOverride
-        if (ov != null && closureIndex < ov.length && !isUndefined(ov[closureIndex])) {
-          // Retain when pushing so each consumer (e.g. multiple ad(trig) calls) gets a valid ref; closure override releases on frame pop
-          vmStack.push(vm, ov[closureIndex], false)
-        }
-        else {
-          vmStack.push(vm, resolveCellRef(vm, vm.cells.get(env.cells.get(closureIndex)).value))
-        }
-      }
-      else {
-        vmStack.push(vm, encodeUndefined())
-      }
-    }
-    else {
-      vmStack.push(vm, encodeUndefined())
-    }
-  }
-  else {
+  if (vm.callStack.length == 0) {
     vmStack.push(vm, encodeUndefined())
+    return RunResult.normal(pc, opsPtr, params.opsLength)
   }
+  const frame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
+  if (frame.closureEnvId < 0) {
+    vmStack.push(vm, encodeUndefined())
+    return RunResult.normal(pc, opsPtr, params.opsLength)
+  }
+  const env: ClosureEnv | null = vm.closureEnvs.tryGet(frame.closureEnvId)
+  if (env == null || closureIndex >= env.cells.length) {
+    vmStack.push(vm, encodeUndefined())
+    return RunResult.normal(pc, opsPtr, params.opsLength)
+  }
+  const ov: Float64Array | null = frame.closureOverride
+  if (ov != null && closureIndex < ov.length) {
+    const overrideValue: f64 = ov[closureIndex]
+    if (!isUndefined(overrideValue)) {
+      // Retain when pushing so each consumer (e.g. multiple ad(trig) calls) gets a valid ref; closure override releases on frame pop
+      vmStack.push(vm, overrideValue, false)
+      return RunResult.normal(pc, opsPtr, params.opsLength)
+    }
+  }
+  vmStack.push(vm, resolveCellRef(vm, vm.cells.get(env.cells.get(closureIndex)).value))
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }
 
@@ -224,26 +223,26 @@ export function handleSetClosure(
   const closureIndex: i32 = readOperandI32(opsPtr, pc)
   pc++
   const value: f64 = vmStack.pop(vm)
-  if (vm.callStack.length > 0) {
-    const frame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
-    if (frame.closureEnvId >= 0 && vm.closureEnvs.has(frame.closureEnvId)) {
-      const env: ClosureEnv = vm.closureEnvs.get(frame.closureEnvId)
-      if (closureIndex < env.cells.length) {
-        const ov: Float64Array | null = frame.closureOverride
-        const cellIdx: i32 = env.cells.get(closureIndex)
-        if (ov != null && closureIndex < ov.length) {
-          const old: f64 = ov[closureIndex]
-          ov[closureIndex] = value
-          vmStack.releaseValueTagged(vm, old)
-          if (cellIdx >= 0 && cellIdx < vm.cells.length) {
-            assignCell(vm, vm.cells.get(cellIdx), value)
-          }
-        }
-        else if (cellIdx >= 0 && cellIdx < vm.cells.length) {
-          assignCell(vm, vm.cells.get(cellIdx), value)
-        }
-      }
-    }
+  if (vm.callStack.length == 0) {
+    return RunResult.normal(pc, opsPtr, params.opsLength)
+  }
+  const frame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
+  if (frame.closureEnvId < 0) {
+    return RunResult.normal(pc, opsPtr, params.opsLength)
+  }
+  const env: ClosureEnv | null = vm.closureEnvs.tryGet(frame.closureEnvId)
+  if (env == null || closureIndex >= env.cells.length) {
+    return RunResult.normal(pc, opsPtr, params.opsLength)
+  }
+  const ov: Float64Array | null = frame.closureOverride
+  const cellIdx: i32 = env.cells.get(closureIndex)
+  if (ov != null && closureIndex < ov.length) {
+    const old: f64 = ov[closureIndex]
+    ov[closureIndex] = value
+    vmStack.releaseValueTagged(vm, old)
+  }
+  if (cellIdx >= 0 && cellIdx < vm.cells.length) {
+    assignCell(vm, vm.cells.get(cellIdx), value)
   }
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }
@@ -293,18 +292,22 @@ export function handleGetCellRefClosure(
 ): RunResult {
   const closureIndex: i32 = readOperandI32(opsPtr, pc)
   pc++
-  if (vm.callStack.length > 0) {
-    const frame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
-    if (frame.closureEnvId >= 0 && vm.closureEnvs.has(frame.closureEnvId)) {
-      const env: ClosureEnv = vm.closureEnvs.get(frame.closureEnvId)
-      if (closureIndex >= 0 && closureIndex < env.cells.length) {
-        vmStack.push(vm, encodeCellRef(env.cells.get(closureIndex)))
-      }
-      else vmStack.push(vm, encodeCellRef(-1))
-    }
-    else vmStack.push(vm, encodeCellRef(-1))
+  if (vm.callStack.length == 0) {
+    vmStack.push(vm, encodeCellRef(-1))
+    return RunResult.normal(pc, opsPtr, params.opsLength)
   }
-  else vmStack.push(vm, encodeCellRef(-1))
+  const frame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
+  if (frame.closureEnvId < 0) {
+    vmStack.push(vm, encodeCellRef(-1))
+    return RunResult.normal(pc, opsPtr, params.opsLength)
+  }
+  const env: ClosureEnv | null = vm.closureEnvs.tryGet(frame.closureEnvId)
+  if (env != null && closureIndex >= 0 && closureIndex < env.cells.length) {
+    vmStack.push(vm, encodeCellRef(env.cells.get(closureIndex)))
+  }
+  else {
+    vmStack.push(vm, encodeCellRef(-1))
+  }
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }
 
@@ -328,9 +331,8 @@ export function handleDefineFunction(
   const bytecodeLength: i32 = readOperandI32(opsPtr, pc)
   pc++
   const bytecodeStart: i32 = pc
-  let funcDef: FunctionDef
-  if (vm.functions.has(functionId)) {
-    funcDef = vm.functions.get(functionId)
+  let funcDef: FunctionDef | null = vm.functions.tryGet(functionId)
+  if (funcDef != null) {
     funcDef.functionId = functionId
     funcDef.paramCount = paramCount
     funcDef.firstParamIn = firstParamIn
@@ -354,10 +356,11 @@ export function handleDefineFunction(
     )
     vm.functions.set(functionId, funcDef)
   }
+  const fd: FunctionDef = funcDef
   for (let i: i32 = 0; i < bytecodeLength; i++) {
-    funcDef.bytecode[i] = load<f32>(opsPtr + ((bytecodeStart + i) << 2))
+    fd.bytecode[i] = load<f32>(opsPtr + ((bytecodeStart + i) << 2))
   }
-  funcDef.bytecodeStartPC = bytecodeStart
+  fd.bytecodeStartPC = bytecodeStart
   pc += bytecodeLength
   let instanceId: i32 = functionId
   let closureEnvId: i32 = -1
@@ -408,17 +411,13 @@ export function handleCallFunction(
   const argsStart: i32 = funcIdSlot - argCount
   let closureEnvId: i32 = -1
   let funcDef: FunctionDef | null = null
-  if (vm.functionInstances.has(instanceId)) {
-    const instance: FunctionInstance = vm.functionInstances.get(instanceId)
-    assert(instance != null, 'CallFunction: instance')
-    if (vm.functions.has(instance.defId)) {
-      funcDef = vm.functions.get(instance.defId)
-      assert(funcDef != null, 'CallFunction: funcDef')
-    }
+  const instance: FunctionInstance | null = vm.functionInstances.tryGet(instanceId)
+  if (instance != null) {
+    funcDef = vm.functions.tryGet(instance.defId)
     closureEnvId = instance.closureEnvId
   }
-  else if (vm.functions.has(instanceId)) {
-    funcDef = vm.functions.get(instanceId)
+  else {
+    funcDef = vm.functions.tryGet(instanceId)
   }
   if (funcDef == null) {
     throw new Error(`CallFunction: function instanceId=${instanceId} not in VM (argCount=${argCount})`)
@@ -431,9 +430,8 @@ export function handleCallFunction(
   let callerAbsolutePC: i32 = relativePC
   if (vm.callStack.length > 0) {
     const callerFrame: CallFrame = vm.callStack.get(vm.callStack.length - 1)
-    if (vm.functions.has(callerFrame.functionId)) {
-      const callerDef: FunctionDef = vm.functions.get(callerFrame.functionId)
-      assert(callerDef != null, 'CallFunction: callerDef')
+    const callerDef: FunctionDef | null = vm.functions.tryGet(callerFrame.functionId)
+    if (callerDef != null) {
       callerAbsolutePC = callerDef.bytecodeStartPC + relativePC
     }
   }
@@ -565,13 +563,12 @@ export function handleReturn(
     }
     vmStack.push(vm, encodeFunction(u32(frame.stereoInstanceId)))
     let secondFd: FunctionDef | null = null
-    if (vm.functionInstances.has(frame.stereoInstanceId)) {
-      const inst: FunctionInstance = vm.functionInstances.get(frame.stereoInstanceId)
-      assert(inst != null, 'Return stereo: inst')
-      if (vm.functions.has(inst.defId)) secondFd = vm.functions.get(inst.defId)
+    const inst: FunctionInstance | null = vm.functionInstances.tryGet(frame.stereoInstanceId)
+    if (inst != null) {
+      secondFd = vm.functions.tryGet(inst.defId)
     }
-    else if (vm.functions.has(frame.stereoInstanceId)) {
-      secondFd = vm.functions.get(frame.stereoInstanceId)
+    else {
+      secondFd = vm.functions.tryGet(frame.stereoInstanceId)
     }
     if (secondFd == null) throw new Error('Return stereo: function not found')
     const fd2: FunctionDef = secondFd
@@ -694,8 +691,11 @@ export function handleReturn(
       }
     }
     const closureOv: Float64Array | null = frame.closureOverride
-    if (closureOv != null && factor > 1 && frame.closureEnvId >= 0 && vm.closureEnvs.has(frame.closureEnvId)) {
-      const env: ClosureEnv = vm.closureEnvs.get(frame.closureEnvId)
+    let env: ClosureEnv | null = null
+    if (closureOv != null && factor > 1 && frame.closureEnvId >= 0) {
+      env = vm.closureEnvs.tryGet(frame.closureEnvId)
+    }
+    if (closureOv != null && env != null) {
       const n: i32 = env.cells.length
       // Do not release audio in closureOv: passed to inner via GetClosure (push with move), already released there
       for (let i: i32 = 0; i < n; i++) {
