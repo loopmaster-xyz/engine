@@ -1,8 +1,17 @@
+import {
+  decodeScalar,
+  encodeScalar,
+  isCellRef,
+  isScalar,
+  isUndefined,
+} from './constants'
+import * as heap from './heap'
+import { MathOps } from './math-ops'
 import { RunParams } from './run-params'
 import { RunResult } from './run-params'
 import { binary, unary } from './runner'
-import { ValueScope } from './value-scope'
 import { AudioVmOp } from './vm-op'
+import * as vmOpsVars from './vm-ops-vars'
 import * as vmStack from './vm-stack'
 import { VmState } from './vm-state'
 
@@ -14,11 +23,18 @@ export function handleUnary(
   params: RunParams,
   op: AudioVmOp,
 ): RunResult {
-  const scope: ValueScope = vm.valueScopePool.acquire(vm)
-  const tagged: f64 = vmStack.pop(vm)
-  scope.track(tagged)
-  const result: f64 = unary(vm, op, tagged, params.bufferLength)
-  vm.valueScopePool.release(scope)
+  const taggedRaw: f64 = vmStack.pop(vm)
+  const tagged: f64 = isCellRef(taggedRaw) ? vmOpsVars.resolveCellRef(vm, taggedRaw) : taggedRaw
+
+  let result: f64
+  if (isScalar(tagged)) {
+    result = encodeScalar(MathOps.unaryScalar(op, decodeScalar(tagged)))
+  }
+  else {
+    result = unary(vm, op, tagged, params.bufferLength)
+  }
+
+  if (!heap.isImmediateValue(taggedRaw)) heap.releaseManagedValue(vm, taggedRaw)
   vmStack.push(vm, result, true)
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }
@@ -31,13 +47,25 @@ export function handleBinary(
   params: RunParams,
   op: AudioVmOp,
 ): RunResult {
-  const scope: ValueScope = vm.valueScopePool.acquire(vm)
-  const right: f64 = vmStack.pop(vm)
-  scope.track(right)
-  const left: f64 = vmStack.pop(vm)
-  scope.track(left)
-  const result: f64 = binary(vm, op, left, right, params.bufferLength)
-  vm.valueScopePool.release(scope)
+  const rightRaw: f64 = vmStack.pop(vm)
+  const leftRaw: f64 = vmStack.pop(vm)
+
+  let left: f64 = isCellRef(leftRaw) ? vmOpsVars.resolveCellRef(vm, leftRaw) : leftRaw
+  let right: f64 = isCellRef(rightRaw) ? vmOpsVars.resolveCellRef(vm, rightRaw) : rightRaw
+
+  if (isUndefined(left)) left = encodeScalar(0.0)
+  if (isUndefined(right)) right = encodeScalar(0.0)
+
+  let result: f64
+  if (isScalar(left) && isScalar(right)) {
+    result = encodeScalar(MathOps.binaryScalar(op, decodeScalar(left), decodeScalar(right)))
+  }
+  else {
+    result = binary(vm, op, left, right, params.bufferLength)
+  }
+
+  if (!heap.isImmediateValue(rightRaw)) heap.releaseManagedValue(vm, rightRaw)
+  if (!heap.isImmediateValue(leftRaw)) heap.releaseManagedValue(vm, leftRaw)
   vmStack.push(vm, result, true)
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }

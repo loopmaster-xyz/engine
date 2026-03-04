@@ -5,6 +5,13 @@ export class TramKernel {
   // avoiding two separate traversals of the same bytecode region.
   private _skipIndex: i32 = 0
   private _linearCount: f32 = 0.0
+  private _cachedBytecodePtr: usize = 0
+  private _cachedBytecodeLength: i32 = -1
+  private _cachedBars: f32 = -1.0
+  private _cachedSamplesPerBar: f32 = -1.0
+  private _cachedTotalBeats: f32 = 0.0
+  private _cachedUnit: f32 = 0.0
+  private _hasCachedTiming: bool = false
 
   reset(): void {
     this.fired = -1.0
@@ -33,14 +40,29 @@ export class TramKernel {
     }
 
     const totalSamples = samplesPerBar * bars
-    const totalBeats = this.countBeats(bytecodePtr, bytecodeLength)
+    if (
+      !this._hasCachedTiming
+      || this._cachedBytecodePtr != bytecodePtr
+      || this._cachedBytecodeLength != bytecodeLength
+      || this._cachedBars != bars
+      || this._cachedSamplesPerBar != samplesPerBar
+    ) {
+      this._cachedBytecodePtr = bytecodePtr
+      this._cachedBytecodeLength = bytecodeLength
+      this._cachedBars = bars
+      this._cachedSamplesPerBar = samplesPerBar
+      this._cachedTotalBeats = this.countBeats(bytecodePtr, bytecodeLength)
+      this._cachedUnit = this._cachedTotalBeats > 0.0 && totalSamples > 0.0 ? totalSamples / this._cachedTotalBeats : 0.0
+      this._hasCachedTiming = true
+    }
+    const totalBeats = this._cachedTotalBeats
     if (totalBeats <= 0.0 || totalSamples <= 0.0) {
       for (let i: i32 = 0; i < bufferLength; i++) {
         store<f32>(outputPtr + (i << 2), 0.0)
       }
       return
     }
-    const unit = totalSamples / totalBeats
+    const unit = this._cachedUnit
 
     this.fired = -1.0
 

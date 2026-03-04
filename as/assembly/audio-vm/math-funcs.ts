@@ -45,7 +45,6 @@ import {
 } from '../util'
 import {
   decodeAudio,
-  decodeCellRef,
   decodeScalar,
   encodeAudio,
   encodeScalar,
@@ -54,10 +53,10 @@ import {
   isCellRef,
   isScalar,
 } from './constants'
+import * as heap from './heap'
 import { RunParams } from './run-params'
 import { RunResult } from './run-params'
 import { readOperandI32 } from './util'
-import { ValueScope } from './value-scope'
 import * as vmOpsVars from './vm-ops-vars'
 import * as vmStack from './vm-stack'
 import { VmState } from './vm-state'
@@ -330,11 +329,12 @@ export function handleMathUnary(
   params: RunParams,
 ): RunResult {
   const id: i32 = readOperandI32(opsPtr, pc)
-  const scope: ValueScope = vm.valueScopePool.acquire(vm)
-  const tagged: f64 = vmStack.pop(vm)
-  scope.track(tagged)
-  const result: f64 = mathUnaryById(vm, id, tagged, params.bufferLength)
-  vm.valueScopePool.release(scope)
+  const taggedRaw: f64 = vmStack.pop(vm)
+  const tagged: f64 = isCellRef(taggedRaw) ? vmOpsVars.resolveCellRef(vm, taggedRaw) : taggedRaw
+  const result: f64 = isScalar(tagged)
+    ? encodeScalar(applyUnary(id, decodeScalar(tagged)))
+    : mathUnaryById(vm, id, tagged, params.bufferLength)
+  if (!heap.isImmediateValue(taggedRaw)) heap.releaseManagedValue(vm, taggedRaw)
   vmStack.push(vm, result, true)
   return RunResult.normal(pc + 1, opsPtr, params.opsLength)
 }
@@ -347,13 +347,15 @@ export function handleMathBinary(
   params: RunParams,
 ): RunResult {
   const id: i32 = readOperandI32(opsPtr, pc)
-  const scope: ValueScope = vm.valueScopePool.acquire(vm)
-  const right: f64 = vmStack.pop(vm)
-  scope.track(right)
-  const left: f64 = vmStack.pop(vm)
-  scope.track(left)
-  const result: f64 = mathBinaryById(vm, id, left, right, params.bufferLength)
-  vm.valueScopePool.release(scope)
+  const rightRaw: f64 = vmStack.pop(vm)
+  const leftRaw: f64 = vmStack.pop(vm)
+  const left: f64 = isCellRef(leftRaw) ? vmOpsVars.resolveCellRef(vm, leftRaw) : leftRaw
+  const right: f64 = isCellRef(rightRaw) ? vmOpsVars.resolveCellRef(vm, rightRaw) : rightRaw
+  const result: f64 = isScalar(left) && isScalar(right)
+    ? encodeScalar(applyBinary(id, decodeScalar(left), decodeScalar(right)))
+    : mathBinaryById(vm, id, left, right, params.bufferLength)
+  if (!heap.isImmediateValue(rightRaw)) heap.releaseManagedValue(vm, rightRaw)
+  if (!heap.isImmediateValue(leftRaw)) heap.releaseManagedValue(vm, leftRaw)
   vmStack.push(vm, result, true)
   return RunResult.normal(pc + 1, opsPtr, params.opsLength)
 }
@@ -366,15 +368,18 @@ export function handleMathTernary(
   params: RunParams,
 ): RunResult {
   const id: i32 = readOperandI32(opsPtr, pc)
-  const scope: ValueScope = vm.valueScopePool.acquire(vm)
-  const c: f64 = vmStack.pop(vm)
-  scope.track(c)
-  const b: f64 = vmStack.pop(vm)
-  scope.track(b)
-  const a: f64 = vmStack.pop(vm)
-  scope.track(a)
-  const result: f64 = mathTernaryById(vm, id, a, b, c, params.bufferLength)
-  vm.valueScopePool.release(scope)
+  const cRaw: f64 = vmStack.pop(vm)
+  const bRaw: f64 = vmStack.pop(vm)
+  const aRaw: f64 = vmStack.pop(vm)
+  const a: f64 = isCellRef(aRaw) ? vmOpsVars.resolveCellRef(vm, aRaw) : aRaw
+  const b: f64 = isCellRef(bRaw) ? vmOpsVars.resolveCellRef(vm, bRaw) : bRaw
+  const c: f64 = isCellRef(cRaw) ? vmOpsVars.resolveCellRef(vm, cRaw) : cRaw
+  const result: f64 = isScalar(a) && isScalar(b) && isScalar(c)
+    ? encodeScalar(applyTernary(id, decodeScalar(a), decodeScalar(b), decodeScalar(c)))
+    : mathTernaryById(vm, id, a, b, c, params.bufferLength)
+  if (!heap.isImmediateValue(cRaw)) heap.releaseManagedValue(vm, cRaw)
+  if (!heap.isImmediateValue(bRaw)) heap.releaseManagedValue(vm, bRaw)
+  if (!heap.isImmediateValue(aRaw)) heap.releaseManagedValue(vm, aRaw)
   vmStack.push(vm, result, true)
   return RunResult.normal(pc + 1, opsPtr, params.opsLength)
 }

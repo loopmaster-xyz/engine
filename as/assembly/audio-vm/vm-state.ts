@@ -82,6 +82,8 @@ export class VmState {
   outputLeft!: Float32Array
   outputRight!: Float32Array
   outputBufferLength: i32
+  oversampleScratchA!: Float32Array
+  oversampleScratchB!: Float32Array
   osUpMode: i32
   osDownMode: i32
   tableGenPoolIndex: i32
@@ -304,6 +306,8 @@ export class VmState {
 
     this.outputLeft = VmState.EMPTY_OUTPUT
     this.outputRight = VmState.EMPTY_OUTPUT
+    this.oversampleScratchA = VmState.EMPTY_OUTPUT
+    this.oversampleScratchB = VmState.EMPTY_OUTPUT
 
     this.outputBufferLength = 0
     this.work.clear()
@@ -319,6 +323,28 @@ export class VmState {
       this.stepEntryPool.release(this.stepRegistry.get(stepIds.get(i)))
     }
     this.stepRegistry.clear()
+  }
+
+  // @inline
+  private ensureScratchLength(required: i32, current: Float32Array): Float32Array {
+    if (current.length >= required) return current
+    let cap: i32 = 1
+    while (cap < required) cap <<= 1
+    return new Float32Array(cap)
+  }
+
+  // @inline
+  getOversampleScratchA(required: i32): Float32Array {
+    if (required <= 0) required = 1
+    this.oversampleScratchA = this.ensureScratchLength(required, this.oversampleScratchA)
+    return this.oversampleScratchA
+  }
+
+  // @inline
+  getOversampleScratchB(required: i32): Float32Array {
+    if (required <= 0) required = 1
+    this.oversampleScratchB = this.ensureScratchLength(required, this.oversampleScratchB)
+    return this.oversampleScratchB
   }
 
   resetArenaPoolCounters(): void {

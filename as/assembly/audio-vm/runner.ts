@@ -12,6 +12,7 @@ import {
   HISTORY_META_STRIDE,
   isArray,
   isAudio,
+  isCellRef,
   isScalar,
   isUndefined
 } from './constants'
@@ -134,7 +135,7 @@ export function upsample(vm: VmState, input$: usize, output$: usize, inputSize: 
 // @inline
 /** Apply unary op to tagged (scalar or audio); return result. */
 export function unary(vm: VmState, op: AudioVmOp, tagged: f64, bufferLength: i32): f64 {
-  tagged = vmOpsVars.resolveCellRef(vm, tagged)
+  if (isCellRef(tagged)) tagged = vmOpsVars.resolveCellRef(vm, tagged)
   if (isScalar(tagged)) {
     const value: f32 = decodeScalar(tagged)
     const result: f32 = MathOps.unaryScalar(op, value)
@@ -155,8 +156,8 @@ export function unary(vm: VmState, op: AudioVmOp, tagged: f64, bufferLength: i32
 // @inline
 /** Apply binary op to left, right (scalar/audio mix); return result. */
 export function binary(vm: VmState, op: AudioVmOp, left: f64, right: f64, bufferLength: i32): f64 {
-  left = vmOpsVars.resolveCellRef(vm, left)
-  right = vmOpsVars.resolveCellRef(vm, right)
+  if (isCellRef(left)) left = vmOpsVars.resolveCellRef(vm, left)
+  if (isCellRef(right)) right = vmOpsVars.resolveCellRef(vm, right)
   if (isUndefined(left)) left = encodeScalar(0.0)
   if (isUndefined(right)) right = encodeScalar(0.0)
   const leftIsArray: bool = isArray(left)

@@ -37,6 +37,8 @@ function requireAudio(tagged: f64, slot: i32, opName: string): void {
 function mixOutsToBuffers(vm: VmState, params: RunParams, outputLPtr: usize, outputRPtr: usize): void {
   const outTop: i32 = params.outTop
   if (outTop <= 0) return
+  const bufferLength: i32 = params.bufferLength
+  const simdLength: i32 = bufferLength & ~3
   let slot: i32 = 0
   while (slot < outTop) {
     assert(slot >= 0 && slot + 2 <= vm.outTop, 'handlePost: slot bounds')
@@ -50,15 +52,22 @@ function mixOutsToBuffers(vm: VmState, params: RunParams, outputLPtr: usize, out
     requireAudio(taggedR, slot + 1, '(R) handlePost')
     const ptrL: usize = decodeAudio(taggedL)
     const ptrR: usize = decodeAudio(taggedR)
-    for (let i: i32 = 0; i < params.bufferLength; i++) {
-      store<f32>(
-        outputLPtr + (i << 2),
-        load<f32>(outputLPtr + (i << 2)) + load<f32>(ptrL + (i << 2)),
+    let simdOffset: usize = 0
+    for (let i: i32 = 0; i < simdLength; i += 4) {
+      v128.store(
+        outputLPtr + simdOffset,
+        f32x4.add(v128.load(outputLPtr + simdOffset), v128.load(ptrL + simdOffset)),
       )
-      store<f32>(
-        outputRPtr + (i << 2),
-        load<f32>(outputRPtr + (i << 2)) + load<f32>(ptrR + (i << 2)),
+      v128.store(
+        outputRPtr + simdOffset,
+        f32x4.add(v128.load(outputRPtr + simdOffset), v128.load(ptrR + simdOffset)),
       )
+      simdOffset += 16
+    }
+    for (let i: i32 = simdLength; i < bufferLength; i++) {
+      const sampleOffset: usize = usize(i) << 2
+      store<f32>(outputLPtr + sampleOffset, load<f32>(outputLPtr + sampleOffset) + load<f32>(ptrL + sampleOffset))
+      store<f32>(outputRPtr + sampleOffset, load<f32>(outputRPtr + sampleOffset) + load<f32>(ptrR + sampleOffset))
     }
     slot += 2
   }
@@ -168,20 +177,19 @@ export function handlePost(
   const outTop: i32 = params.outTop
   assert(outTop >= 0 && outTop <= vm.outTop, 'handlePost: outTop bounds')
 
-  const outputL: Float32Array = vm.arena.get(params.bufferLength)
-  const outputR: Float32Array = vm.arena.get(params.bufferLength)
-  const outputLPtr: usize = outputL.dataStart
-  const outputRPtr: usize = outputR.dataStart
+  if (vm.outputLeft.length < params.bufferLength || vm.outputRight.length < params.bufferLength) {
+    if (vm.outputLeft.length > 0) vm.arena.release(vm.outputLeft)
+    if (vm.outputRight.length > 0) vm.arena.release(vm.outputRight)
+    vm.outputLeft = vm.arena.get(params.bufferLength)
+    vm.outputRight = vm.arena.get(params.bufferLength)
+  }
+  const outputLPtr: usize = vm.outputLeft.dataStart
+  const outputRPtr: usize = vm.outputRight.dataStart
 
   memory.fill(outputLPtr, 0, usize(params.bufferLength) << 2)
   memory.fill(outputRPtr, 0, usize(params.bufferLength) << 2)
 
   mixOutsToBuffers(vm, params, outputLPtr, outputRPtr)
-
-  if (vm.outputLeft.length > 0) vm.arena.release(vm.outputLeft)
-  if (vm.outputRight.length > 0) vm.arena.release(vm.outputRight)
-  vm.outputLeft = outputL
-  vm.outputRight = outputR
 
   vm.arena.retain(u32(outputLPtr))
   vm.arena.retain(u32(outputRPtr))
@@ -228,8 +236,8 @@ export function applyMixResultToOutput(vm: VmState, bufferLength: i32): void {
     throw new Error('applyMixResultToOutput: output buffers too small')
   }
 
-  memory.copy(vm.outputLeft.dataStart, ptrL, usize(bufferLength) << 2)
-  memory.copy(vm.outputRight.dataStart, ptrR, usize(bufferLength) << 2)
+  if (vm.outputLeft.dataStart != ptrL) memory.copy(vm.outputLeft.dataStart, ptrL, usize(bufferLength) << 2)
+  if (vm.outputRight.dataStart != ptrR) memory.copy(vm.outputRight.dataStart, ptrR, usize(bufferLength) << 2)
 
   if (vm.mixGenPoolIndex >= 0 && vm.postPcForMixHistory >= 0) {
     const slot: GenSlot = vm.genPools[vm.mixGenPoolIndex].get()

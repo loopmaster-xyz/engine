@@ -1,5 +1,11 @@
 // dprint-ignore-file
-import { decodeAudio, decodeCellRef, encodeAudio, isAudio, isCellRef } from './constants'
+import {
+  decodeAudio,
+  decodeCellRef,
+  encodeAudio,
+  isAudio,
+  isCellRef,
+} from './constants'
 import * as heap from './heap'
 import { stackDump } from './util'
 import * as vmOpsVars from './vm-ops-vars'
@@ -20,7 +26,9 @@ export function push(vm: VmState, value: f64, move: bool = false): void {
     stackDump(vm)
     throw new Error(`push: stack overflow (stackTop=${vm.stackTop}, stackCapacity=${vm.stackCapacity})`)
   }
-  if (!move) heap.retainValue(vm, value)
+  if (!move && !heap.isImmediateValue(value)) {
+    heap.retainManagedValue(vm, value)
+  }
   vm.stack[vm.stackTop] = value
   vm.stackTop++
 }
@@ -117,14 +125,16 @@ export function releaseAudioIfUnreferenced(vm: VmState, tagged: f64): void {
 // @ts-ignore
 // @inline
 export function releaseValueTagged(vm: VmState, tagged: f64): void {
-  heap.releaseValue(vm, vmOpsVars.resolveCellRef(vm, tagged))
+  const value: f64 = isCellRef(tagged) ? vmOpsVars.resolveCellRef(vm, tagged) : tagged
+  heap.releaseValue(vm, value)
 }
 
 /** Retain tagged value (audio, array, cell-ref). */
 // @ts-ignore
 // @inline
 export function retainValueTagged(vm: VmState, tagged: f64): void {
-  heap.retainValue(vm, vmOpsVars.resolveCellRef(vm, tagged))
+  const value: f64 = isCellRef(tagged) ? vmOpsVars.resolveCellRef(vm, tagged) : tagged
+  heap.retainValue(vm, value)
 }
 
 /** Copy audio buffer to new arena buffer and push (caller ensures audioTagged is audio). */
@@ -172,4 +182,3 @@ export function releaseStackRange(vm: VmState, from: i32, to: i32): void {
     heap.releaseValue(vm, vm.stack[i])
   }
 }
-

@@ -92,15 +92,14 @@ export function handleTram(
     const baseSampleCount: f32 = f32(params.sampleCount) / f32(osFactor)
     const baseProcLen: i32 = genOpHelpers.alignedProcLength(baseLen)
 
-    const baseOut: Float32Array = vm.arena.get(baseProcLen)
-    const baseOutPtr: usize = baseOut.dataStart
+    const baseOutPtr: usize = vm.getOversampleScratchA(baseProcLen).dataStart
 
     let baseBarsValue: f32 = barsValue
     let barsBuf: Float32Array | null = null
 
     if (isAudio(barsTagged)) {
       const barsSrc: usize = decodeAudio(barsTagged)
-      barsBuf = vm.arena.get(baseProcLen)
+      barsBuf = vm.getOversampleScratchB(baseProcLen)
       const barsPtr: usize = barsBuf.dataStart
       downsample(changetype<VmState>(vm), barsSrc, barsPtr, baseLen, osFactor)
       genOpHelpers.extendBufferWithLastSample(barsPtr, baseLen, baseProcLen)
@@ -130,9 +129,6 @@ export function handleTram(
     genOpHelpers.extendBufferWithLastSample(outputPtr, params.bufferLength, outputLen)
 
     genOpHelpers.writeOutputToHistoryRing(slot.history, outputPtr, params.bufferLength)
-
-    vm.arena.release(baseOut)
-    if (barsBuf) vm.arena.release(barsBuf)
   }
 
   if (isAudio(barsTagged)) vm.arena.releaseByPtr(u32(decodeAudio(barsTagged)))

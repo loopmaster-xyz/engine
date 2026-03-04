@@ -81,8 +81,13 @@ export function releaseCell(vm: VmState, cellIdx: i32): void {
 
 // @ts-ignore
 // @inline
-export function retainValue(vm: VmState, tagged: f64): void {
-  if (isScalar(tagged) || isUndefined(tagged) || isFunction(tagged)) return
+export function isImmediateValue(tagged: f64): bool {
+  return isScalar(tagged) || isUndefined(tagged) || isFunction(tagged)
+}
+
+// @ts-ignore
+// @inline
+export function retainManagedValue(vm: VmState, tagged: f64): void {
   if (isAudio(tagged)) vm.arena.retain(u32(decodeAudio(tagged)))
   else if (isArray(tagged)) retainArray(vm, decodeArray(tagged))
   else if (isCellRef(tagged)) retainCell(vm, decodeCellRef(tagged))
@@ -90,11 +95,24 @@ export function retainValue(vm: VmState, tagged: f64): void {
 
 // @ts-ignore
 // @inline
-export function releaseValue(vm: VmState, tagged: f64): void {
-  if (isScalar(tagged) || isUndefined(tagged) || isFunction(tagged)) return
+export function releaseManagedValue(vm: VmState, tagged: f64): void {
   if (isAudio(tagged)) vm.arena.releaseByPtr(u32(decodeAudio(tagged)))
   else if (isArray(tagged)) releaseArray(vm, decodeArray(tagged))
   else if (isCellRef(tagged)) releaseCell(vm, decodeCellRef(tagged))
+}
+
+// @ts-ignore
+// @inline
+export function retainValue(vm: VmState, tagged: f64): void {
+  if (isImmediateValue(tagged)) return
+  retainManagedValue(vm, tagged)
+}
+
+// @ts-ignore
+// @inline
+export function releaseValue(vm: VmState, tagged: f64): void {
+  if (isImmediateValue(tagged)) return
+  releaseManagedValue(vm, tagged)
 }
 
 /** Release all values in a Float64Array of tagged values (e.g. stereoArgs, closureOverride). */
