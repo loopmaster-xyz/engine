@@ -185,7 +185,7 @@ export class TramKernel {
     this._linearCount = c
   }
 
-  @inline
+  // @inline
   private countBeats(ptr: usize, len: i32): f32 {
     let i: i32 = 0
     let b: f32 = 0.0

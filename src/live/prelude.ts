@@ -16,7 +16,7 @@ o0=2 o1=4 o2=8 o3=16 o4=32 o5=64 o6=128 o7=256 o8=512 o9=1024 o10=2048 o11=4096
 
 map=(array,fn)->{
   newArray:=[]
-  for (el of array) newArray.push(fn(el))
+  for (el, i of array) newArray.push(fn(el, i))
   newArray
 }
 

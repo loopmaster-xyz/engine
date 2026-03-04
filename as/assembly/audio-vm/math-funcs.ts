@@ -63,7 +63,7 @@ import * as vmStack from './vm-stack'
 import { VmState } from './vm-state'
 
 // @ts-ignore
-// @inline
+
 function applyUnary(id: i32, x: f32): f32 {
   switch (id) {
     case 0:
@@ -122,7 +122,7 @@ function applyUnary(id: i32, x: f32): f32 {
 }
 
 // @ts-ignore
-// @inline
+
 function applyBinary(id: i32, a: f32, b: f32): f32 {
   switch (id) {
     case 0:
@@ -147,7 +147,7 @@ function applyBinary(id: i32, a: f32, b: f32): f32 {
 }
 
 // @ts-ignore
-// @inline
+
 function applyTernary(id: i32, a: f32, b: f32, c: f32): f32 {
   switch (id) {
     case 0:
@@ -172,7 +172,7 @@ function applyTernary(id: i32, a: f32, b: f32, c: f32): f32 {
 }
 
 // @ts-ignore
-// @inline
+
 export function mathUnaryById(vm: VmState, id: i32, tagged: f64, bufferLength: i32): f64 {
   if (isCellRef(tagged)) tagged = vmOpsVars.resolveCellRef(vm, tagged)
   if (isScalar(tagged)) {
@@ -201,7 +201,7 @@ export function mathUnaryById(vm: VmState, id: i32, tagged: f64, bufferLength: i
 }
 
 // @ts-ignore
-// @inline
+
 export function mathBinaryById(
   vm: VmState,
   id: i32,
@@ -270,7 +270,7 @@ export function mathBinaryById(
 }
 
 // @ts-ignore
-// @inline
+
 export function mathTernaryById(
   vm: VmState,
   id: i32,

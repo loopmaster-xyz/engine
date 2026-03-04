@@ -20,8 +20,7 @@
     },
     "release": {
       "outFile": "as/build/index.wasm",
-      "optimizeLevel": 3,
-      "shrinkLevel": 2,
+      "optimizeLevel": 1,
       "converge": false,
       "sourceMap": true,
       "debug": true,

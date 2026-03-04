@@ -2,22 +2,22 @@
 // Alignment guarantees
 
 // @ts-ignore: decorator
-@inline export const AL_BITS: u32 = 4; // 16 bytes to fit up to v128
+// @inline export const AL_BITS: u32 = 4; // 16 bytes to fit up to v128
 // @ts-ignore: decorator
-@inline export const AL_SIZE: usize = 1 << <usize>AL_BITS;
+// @inline export const AL_SIZE: usize = 1 << <usize>AL_BITS;
 // @ts-ignore: decorator
-@inline export const AL_MASK: usize = AL_SIZE - 1;
+// @inline export const AL_MASK: usize = AL_SIZE - 1;
 
 // Extra debugging
 
 // @ts-ignore: decorator
-@inline export const DEBUG = true;
+// @inline export const DEBUG = true;
 // @ts-ignore: decorator
-@inline export const TRACE = false;
+// @inline export const TRACE = false;
 // @ts-ignore: decorator
-@inline export const RTRACE = isDefined(ASC_RTRACE);
+// @inline export const RTRACE = isDefined(ASC_RTRACE);
 // @ts-ignore: decorator
-@inline export const PROFILE = isDefined(ASC_PROFILE);
+// @inline export const PROFILE = isDefined(ASC_PROFILE);
 
 // Memory manager
 
@@ -35,11 +35,11 @@
 
 /** Overhead of a memory manager block. */
 // @ts-ignore: decorator
-@inline export const BLOCK_OVERHEAD: usize = offsetof<BLOCK>();
+// @inline export const BLOCK_OVERHEAD: usize = offsetof<BLOCK>();
 
 /** Maximum size of a memory manager block's payload. */
 // @ts-ignore: decorator
-@inline export const BLOCK_MAXSIZE: usize = (1 << 30) - BLOCK_OVERHEAD;
+// @inline export const BLOCK_MAXSIZE: usize = (1 << 30) - BLOCK_OVERHEAD;
 
 // Garbage collector
 
@@ -71,12 +71,12 @@
 
 /** Overhead of a garbage collector object. Excludes memory manager block overhead. */
 // @ts-ignore: decorator
-@inline export const OBJECT_OVERHEAD: usize = (offsetof<OBJECT>() - BLOCK_OVERHEAD + AL_MASK) & ~AL_MASK;
+// @inline export const OBJECT_OVERHEAD: usize = (offsetof<OBJECT>() - BLOCK_OVERHEAD + AL_MASK) & ~AL_MASK;
 
 /** Maximum size of a garbage collector object's payload. */
 // @ts-ignore: decorator
-@inline export const OBJECT_MAXSIZE: usize = BLOCK_MAXSIZE - OBJECT_OVERHEAD;
+// @inline export const OBJECT_MAXSIZE: usize = BLOCK_MAXSIZE - OBJECT_OVERHEAD;
 
 /** Total of memory manager and garbage collector overhead. */
 // @ts-ignore: decorator
-@inline export const TOTAL_OVERHEAD: usize = BLOCK_OVERHEAD + OBJECT_OVERHEAD;
+// @inline export const TOTAL_OVERHEAD: usize = BLOCK_OVERHEAD + OBJECT_OVERHEAD;

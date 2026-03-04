@@ -21,9 +21,9 @@ declare function warn(x: number): void;
 // @ts-ignore: decorator
 @lazy let white = 0;
 // @ts-ignore: decorator
-@inline const transparent = 3;
+// @inline const transparent = 3;
 // @ts-ignore: decorator
-@inline const COLOR_MASK = 3;
+// @inline const COLOR_MASK = 3;
 
 /** Size in memory of all objects currently managed by the GC. */
 // @ts-ignore: decorator
@@ -44,7 +44,7 @@ function initLazy(space: Object): Object {
 
 /** Visit cookie indicating scanning of an object. */
 // @ts-ignore: decorator
-@inline const VISIT_SCAN = 0;
+// @inline const VISIT_SCAN = 0;
 
 // ╒═══════════════ Managed object layout (32-bit) ════════════════╕
 //    3                   2                   1

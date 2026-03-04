@@ -2299,6 +2299,22 @@ describe('arrays', () => {
     expect(audio('x = [10, 20, 30, 40]; x.take(2).avg() |> out($)')).toMatchAudio([[15, 15, 15], [15, 15, 15]])
   })
 
+  it('array fit method fits values into the requested total bars', () => {
+    expect(audio('[1, 2, 3].fit(1) |> out($)', { sampleCount: 40000 })).toMatchAudio([[2, 2, 2], [2, 2, 2]])
+  })
+
+  it('array fit method maps to walk with bars normalized by array length', () => {
+    const src = 'arr = [10, 20, 30]; arr.fit(1) |> out($)'
+    const expected = 'arr = [10, 20, 30]; arr.walk(1 / arr.length) |> out($)'
+    expect(audio(src, { sampleCount: 40000 })).toMatchAudio(audio(expected, { sampleCount: 40000 }))
+  })
+
+  it('array fit method forwards optional swing and offset params to walk', () => {
+    const src = 'arr = [10, 20, 30]; arr.fit(1, .25, .1) |> out($)'
+    const expected = 'arr = [10, 20, 30]; arr.walk(1 / arr.length, .25, .1) |> out($)'
+    expect(audio(src, { sampleCount: 40000 })).toMatchAudio(audio(expected, { sampleCount: 40000 }))
+  })
+
   it('array markov method maps to Markov with implicit states and default params', () => {
     const src = 'arr = [10, 20, 30]; trig = every(1/8); arr.markov(trig) |> out($)'
     const expected = 'arr = [10, 20, 30]; trig = every(1/8); arr[Markov(arr.length, trig:trig)] |> out($)'

@@ -18,38 +18,38 @@ const FRAC_SCALE: f32 = f32(1 << FRAC_BITS)
 const FRAC_MASK: i32 = (1 << FRAC_BITS) - 1
 
 // @ts-ignore
-// // @inline
+// @inline
 export function log(x: f32): void {
   console.log(`${x}`)
 }
 
 // @ts-ignore
-// // @inline
+// @inline
 export function warn(x: f32): void {
   console.warn(`${x}`)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function clamp(value: f32, min: f32, max: f32): f32 {
   return Mathf.max(min, Mathf.min(value, max))
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function clamp01(value: f32): f32 {
   return Mathf.max(0.0, Mathf.min(value, 1.0))
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function clamp11(value: f32): f32 {
   return Mathf.max(-1.0, Mathf.min(value, 1.0))
 }
 
 // 4-point cubic interpolation (Niemitalo). Samples at [-1,0,1,2], frac in [0..1].
 // @ts-ignore
-@inline
+// @inline
 export function cubic(xm1: f32, x0: f32, x1: f32, x2: f32, frac: f32): f32 {
   const a: f32 = (3.0 * (x0 - x1) - xm1 + x2) * 0.5
   const b: f32 = 2.0 * x1 + xm1 - (5.0 * x0 + x2) * 0.5
@@ -58,13 +58,13 @@ export function cubic(xm1: f32, x0: f32, x1: f32, x2: f32, frac: f32): f32 {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function sin(value: f32): f32 {
   return sincos.lookupSin(value)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function cos(value: f32): f32 {
   return sincos.lookupCos(value)
 }
@@ -76,117 +76,117 @@ export function tan(value: f32): f32 {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function sinNormalized(value: f32): f32 {
   return sincos.lookupSinNormalized(value)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function cosNormalized(value: f32): f32 {
   return sincos.lookupCosNormalized(value)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function fract01(value: f32): f32 {
   const x: i32 = i32(value * FRAC_SCALE)
   return f32(x & FRAC_MASK) / FRAC_SCALE
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function floor(value: f32): f32 {
   return Mathf.floor(value)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function min(a: f32, b: f32): f32 {
   return Mathf.min(a, b)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function max(a: f32, b: f32): f32 {
   return Mathf.max(a, b)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function pow(base: f32, exp: f32): f32 {
   return Mathf.pow(base, exp)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function sqrt(x: f32): f32 {
   return Mathf.sqrt(x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function exp(x: f32): f32 {
   return Mathf.exp(x)
 }
 
 // Hyperbolic tangent approximation for Moog ladder filter
 // @ts-ignore
-@inline
+// @inline
 export function tanha(x: f32): f32 {
   return x / (1.0 + (x * x) / (3.0 + (x * x) / 5.0))
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function tanh(x: f32): f32 {
   return Mathf.tanh(x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function atan(x: f32): f32 {
   return Mathf.atan(x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function asin(x: f32): f32 {
   return Mathf.asin(x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function acos(x: f32): f32 {
   return Mathf.acos(x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function log10(x: f32): f32 {
   return Mathf.log(x) / Mathf.LN10
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function log2(x: f32): f32 {
   return Mathf.log(x) / Mathf.LN2
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function exp2(x: f32): f32 {
   return Mathf.pow(2.0, x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function trunc(x: f32): f32 {
   return Mathf.trunc(x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function sign(x: f32): f32 {
   if (x > 0.0) return 1.0
   if (x < 0.0) return -1.0
@@ -194,19 +194,19 @@ export function sign(x: f32): f32 {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function square(x: f32): f32 {
   return x * x
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function cube(x: f32): f32 {
   return x * x * x
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function fract(x: f32): f32 {
   return x - Mathf.floor(x)
 }
@@ -232,38 +232,38 @@ export function isinf(x: f32): f32 {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function hypot(a: f32, b: f32): f32 {
   return Mathf.sqrt(a * a + b * b)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function abs(x: f32): f32 {
   return Mathf.abs(x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function round(x: f32): f32 {
   return Mathf.round(x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function ceil(x: f32): f32 {
   return Mathf.ceil(x)
 }
 
 // Natural log for math builtins (util.log is console.log)
 // @ts-ignore
-@inline
+// @inline
 export function logMath(x: f32): f32 {
   return Mathf.log(x)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function lerp(a: f32, b: f32, t: f32): f32 {
   return a + (b - a) * t
 }
@@ -350,13 +350,13 @@ export function fold(x: f32, lo: f32, hi: f32): f32 {
 
 // select(a, b, cond): cond != 0 ? b : a
 // @ts-ignore
-@inline
+// @inline
 export function select(cond: f32, a: f32, b: f32): f32 {
   return cond != 0.0 ? b : a
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function euclidHitF32(pulses: f32, steps: f32, step: f32, offset: f32): f32 {
   return euclidHit(
     i32(Mathf.floor(pulses)),
@@ -383,7 +383,7 @@ export function swing(t: f32, amount: f32): f32 {
 
 // PolyBLEP for band-limited oscillators (phase and phaseInc in 0..1)
 // @ts-ignore
-@inline
+// @inline
 export function polyBlep(phase: f32, phaseInc: f32): f32 {
   if (phaseInc <= 0.0) return 0.0
   if (phase < phaseInc) {
@@ -403,7 +403,7 @@ export const TWO_PI: f32 = Mathf.PI * 2.0
 // This avoids calling into libm for common cases like x^2, x^4, etc.
 // exp must be in [0..16].
 // @ts-ignore
-@inline
+// @inline
 export function fastPowAudio(base: f32, exp: i32): f32 {
   let result: f32 = f32(1)
 
@@ -426,7 +426,7 @@ export function fastPowAudio(base: f32, exp: i32): f32 {
 
 // Curve shape for envelopes: positive = power curve, negative = mirrored complement, 0 = linear
 // @ts-ignore
-@inline
+// @inline
 export function applyCurve(t: f32, curve: f32): f32 {
   if (curve > 0.0) return Mathf.pow(t, curve)
   if (curve < 0.0) {
@@ -440,7 +440,7 @@ export function applyCurve(t: f32, curve: f32): f32 {
 
 // Noise PRNG helpers (state passed as f32 bits for DSL compatibility)
 // @ts-ignore
-@inline
+// @inline
 function hashU32(v: u32): u32 {
   v ^= v >> 16
   v *= 0x7feb352d
@@ -451,7 +451,7 @@ function hashU32(v: u32): u32 {
 }
 
 // @ts-ignore
-@inline
+// @inline
 function xorshift32(s: u32): u32 {
   s ^= s << 13
   s ^= s >> 17
@@ -460,39 +460,39 @@ function xorshift32(s: u32): u32 {
 }
 
 // @ts-ignore
-@inline
+// @inline
 function u32To01(v: u32): f32 {
   return (f32(v >>> 8) * (1.0 / 16777216.0)) as f32
 }
 
 // @ts-ignore
-@inline
+// @inline
 function u32To11(v: u32): f32 {
   return (u32To01(v) * 2.0 - 1.0) as f32
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function seedToNoiseState(seed: f32): f32 {
   const v: u32 = hashU32(reinterpret<u32>(seed))
   return reinterpret<f32>((v | 1) as u32)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function whiteNoiseValue(state: f32): f32 {
   return u32To11(reinterpret<u32>(state))
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function whiteNoiseNextState(state: f32): f32 {
   const s: u32 = xorshift32(reinterpret<u32>(state))
   return reinterpret<f32>(s)
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function gaussNoiseValue(state: f32): f32 {
   let s: u32 = reinterpret<u32>(state)
   let sum: f32 = 0.0
@@ -512,7 +512,7 @@ export function gaussNoiseValue(state: f32): f32 {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function gaussNoiseNextState(state: f32): f32 {
   let s: u32 = reinterpret<u32>(state)
   for (let i: i32 = 0; i < 6; i++) {
@@ -522,13 +522,13 @@ export function gaussNoiseNextState(state: f32): f32 {
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function uniform01Value(state: f32): f32 {
   return u32To01(reinterpret<u32>(state))
 }
 
 // @ts-ignore
-@inline
+// @inline
 export function uniform01NextState(state: f32): f32 {
   const s: u32 = xorshift32(reinterpret<u32>(state))
   return reinterpret<f32>(s)

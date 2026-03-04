@@ -18,17 +18,17 @@ import { E_ALLOCATION_TOO_LARGE } from "./error";
 // FL: first level, SL: second level, AL: alignment, SB: small block
 
 // @ts-ignore: decorator
-@inline const SL_BITS: u32 = 4;
+// @inline const SL_BITS: u32 = 4;
 // @ts-ignore: decorator
-@inline const SL_SIZE: u32 = 1 << SL_BITS;
+// @inline const SL_SIZE: u32 = 1 << SL_BITS;
 
 // @ts-ignore: decorator
-@inline const SB_BITS: u32 = SL_BITS + AL_BITS;
+// @inline const SB_BITS: u32 = SL_BITS + AL_BITS;
 // @ts-ignore: decorator
-@inline const SB_SIZE: u32 = 1 << SB_BITS;
+// @inline const SB_SIZE: u32 = 1 << SB_BITS;
 
 // @ts-ignore: decorator
-@inline const FL_BITS: u32 = 31 - SB_BITS;
+// @inline const FL_BITS: u32 = 31 - SB_BITS;
 
 // [00]: < 256B (SB)  [12]: < 1M
 // [01]: < 512B       [13]: < 2M
@@ -47,11 +47,11 @@ import { E_ALLOCATION_TOO_LARGE } from "./error";
 // Tags stored in otherwise unused alignment bits
 
 // @ts-ignore: decorator
-@inline const FREE: usize = 1 << 0;
+// @inline const FREE: usize = 1 << 0;
 // @ts-ignore: decorator
-@inline const LEFTFREE: usize = 1 << 1;
+// @inline const LEFTFREE: usize = 1 << 1;
 // @ts-ignore: decorator
-@inline const TAGS_MASK: usize = FREE | LEFTFREE; // <= AL_MASK
+// @inline const TAGS_MASK: usize = FREE | LEFTFREE; // <= AL_MASK
 
 // ╒════════════════════ Block layout (32-bit) ════════════════════╕
 //    3                   2                   1
@@ -82,19 +82,19 @@ import { E_ALLOCATION_TOO_LARGE } from "./error";
 // `next` and `back` if free.
 
 // @ts-ignore: decorator
-@inline const BLOCK_MINSIZE: usize = ((3 * sizeof<usize>() + BLOCK_OVERHEAD + AL_MASK) & ~AL_MASK) - BLOCK_OVERHEAD; // prev + next + back
+// @inline const BLOCK_MINSIZE: usize = ((3 * sizeof<usize>() + BLOCK_OVERHEAD + AL_MASK) & ~AL_MASK) - BLOCK_OVERHEAD; // prev + next + back
 // @ts-ignore: decorator
 // @inline const BLOCK_MAXSIZE: usize = 1 << (FL_BITS + SB_BITS - 1); // exclusive, lives in common.ts
 
 /** Gets the left block of a block. Only valid if the left block is free. */
 // @ts-ignore: decorator
-@inline function GETFREELEFT(block: Block): Block {
+// @inline function GETFREELEFT(block: Block): Block {
   return load<Block>(changetype<usize>(block) - sizeof<usize>());
 }
 
 /** Gets the right block of a block by advancing to the right by its size. */
 // @ts-ignore: decorator
-@inline function GETRIGHT(block: Block): Block {
+// @inline function GETRIGHT(block: Block): Block {
   return changetype<Block>(changetype<usize>(block) + BLOCK_OVERHEAD + (block.mmInfo & ~TAGS_MASK));
 }
 
@@ -127,22 +127,22 @@ import { E_ALLOCATION_TOO_LARGE } from "./error";
 // Root constants. Where stuff is stored inside of the root structure.
 
 // @ts-ignore: decorator
-@inline const SL_START: usize = sizeof<usize>();
+// @inline const SL_START: usize = sizeof<usize>();
 // @ts-ignore: decorator
-@inline const SL_END: usize = SL_START + (FL_BITS << alignof<u32>());
+// @inline const SL_END: usize = SL_START + (FL_BITS << alignof<u32>());
 // @ts-ignore: decorator
-@inline const HL_START: usize = (SL_END + AL_MASK) & ~AL_MASK;
+// @inline const HL_START: usize = (SL_END + AL_MASK) & ~AL_MASK;
 // @ts-ignore: decorator
-@inline const HL_END: usize = HL_START + FL_BITS * SL_SIZE * sizeof<usize>();
+// @inline const HL_END: usize = HL_START + FL_BITS * SL_SIZE * sizeof<usize>();
 // @ts-ignore: decorator
-@inline const ROOT_SIZE: usize = HL_END + sizeof<usize>();
+// @inline const ROOT_SIZE: usize = HL_END + sizeof<usize>();
 
 // @ts-ignore: decorator
 @lazy export let ROOT: Root = changetype<Root>(0); // unsafe initializion below
 
 /** Gets the second level map of the specified first level. */
 // @ts-ignore: decorator
-@inline function GETSL(root: Root, fl: usize): u32 {
+// @inline function GETSL(root: Root, fl: usize): u32 {
   return load<u32>(
     changetype<usize>(root) + (fl << alignof<u32>()),
     SL_START
@@ -151,7 +151,7 @@ import { E_ALLOCATION_TOO_LARGE } from "./error";
 
 /** Sets the second level map of the specified first level. */
 // @ts-ignore: decorator
-@inline function SETSL(root: Root, fl: usize, slMap: u32): void {
+// @inline function SETSL(root: Root, fl: usize, slMap: u32): void {
   store<u32>(
     changetype<usize>(root) + (fl << alignof<u32>()),
     slMap,
@@ -161,7 +161,7 @@ import { E_ALLOCATION_TOO_LARGE } from "./error";
 
 /** Gets the head of the free list for the specified combination of first and second level. */
 // @ts-ignore: decorator
-@inline function GETHEAD(root: Root, fl: usize, sl: u32): Block | null {
+// @inline function GETHEAD(root: Root, fl: usize, sl: u32): Block | null {
   return load<Block>(
     changetype<usize>(root) + (((fl << SL_BITS) + <usize>sl) << alignof<usize>()),
     HL_START
@@ -170,7 +170,7 @@ import { E_ALLOCATION_TOO_LARGE } from "./error";
 
 /** Sets the head of the free list for the specified combination of first and second level. */
 // @ts-ignore: decorator
-@inline function SETHEAD(root: Root, fl: usize, sl: u32, head: Block | null): void {
+// @inline function SETHEAD(root: Root, fl: usize, sl: u32, head: Block | null): void {
   store<Block | null>(
     changetype<usize>(root) + (((fl << SL_BITS) + <usize>sl) << alignof<usize>()),
     head,
@@ -180,7 +180,7 @@ import { E_ALLOCATION_TOO_LARGE } from "./error";
 
 /** Gets the tail block.. */
 // @ts-ignore: decorator
-@inline function GETTAIL(root: Root): Block {
+// @inline function GETTAIL(root: Root): Block {
   return load<Block>(
     changetype<usize>(root),
     HL_END
@@ -189,7 +189,7 @@ import { E_ALLOCATION_TOO_LARGE } from "./error";
 
 /** Sets the tail block. */
 // @ts-ignore: decorator
-@inline function SETTAIL(root: Root, tail: Block): void {
+// @inline function SETTAIL(root: Root, tail: Block): void {
   store<Block>(
     changetype<usize>(root),
     tail,

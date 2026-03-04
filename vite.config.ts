@@ -35,19 +35,19 @@ export default ({ mode }: ConfigEnv): UserConfig => {
           './vendor/as-transform-unroll.js',
         ],
       }),
-      assemblyScript({
-        configFile: 'asconfig-mobile.json',
-        projectRoot: '.',
-        srcMatch: 'as/assembly',
-        srcEntryFile: 'as/assembly/index.ts',
-        mapFile: './as/build/index-mobile.wasm.map',
-        extra: [
-          '--target',
-          'debug',
-          '--transform',
-          './vendor/as-transform-unroll.js',
-        ],
-      }),
+      // assemblyScript({
+      //   configFile: 'asconfig-mobile.json',
+      //   projectRoot: '.',
+      //   srcMatch: 'as/assembly',
+      //   srcEntryFile: 'as/assembly/index.ts',
+      //   mapFile: './as/build/index-mobile.wasm.map',
+      //   extra: [
+      //     '--target',
+      //     'debug',
+      //     '--transform',
+      //     './vendor/as-transform-unroll.js',
+      //   ],
+      // }),
       watch({
         pattern: ['src/dsl/**/*.ts', 'dsl/**/*.dsl'], // glob or array of globs
         command: 'bun run build', // command or array of commands

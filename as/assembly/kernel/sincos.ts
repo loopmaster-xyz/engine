@@ -40,7 +40,7 @@ export class SincosKernel {
     // No state to reset for wavetables
   }
 
-  @inline
+  // @inline
   private lookupInterpolated(table: Float32Array, phase: f32): f32 {
     let normalizedPhase: f32 = phase % TWO_PI
     if (normalizedPhase < 0.0) {
@@ -49,7 +49,7 @@ export class SincosKernel {
     return this.lookupInterpolatedNormalized(table, normalizedPhase * INV_TWO_PI)
   }
 
-  @inline
+  // @inline
   private lookupInterpolatedNormalized(table: Float32Array, phaseNormalized: f32): f32 {
     const mask: i32 = this.tableSize - 1
     const x: i32 = i32(phaseNormalized * f32(this.tableSize) * FRAC_SCALE)
@@ -61,22 +61,22 @@ export class SincosKernel {
     return v0 + (v1 - v0) * fract
   }
 
-  @inline
+  // @inline
   lookupSin(phase: f32): f32 {
     return this.lookupInterpolated(this.sinTable, phase)
   }
 
-  @inline
+  // @inline
   lookupSinNormalized(phaseNormalized: f32): f32 {
     return this.lookupInterpolatedNormalized(this.sinTable, phaseNormalized)
   }
 
-  @inline
+  // @inline
   lookupCos(phase: f32): f32 {
     return this.lookupInterpolated(this.cosTable, phase)
   }
 
-  @inline
+  // @inline
   lookupCosNormalized(phaseNormalized: f32): f32 {
     return this.lookupInterpolatedNormalized(this.cosTable, phaseNormalized)
   }

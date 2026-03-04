@@ -14,7 +14,7 @@ export class CompressorKernel {
     this.sampleRate = sampleRate
   }
 
-  @inline
+  // @inline
   process(
     inSample: f32,
     keySample: f32,

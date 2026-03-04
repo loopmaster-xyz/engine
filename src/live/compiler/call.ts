@@ -332,6 +332,16 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
       compileCallWithArgs(state, syntheticCall, syntheticCall.args, -1)
       return
     }
+    if (memberExpr.property === 'fit') {
+      const syntheticCall: Extract<Expr, { type: 'call' }> = {
+        type: 'call',
+        callee: { type: 'identifier', name: 'Fit', loc: expr.loc },
+        args: [{ type: 'arg', value: memberExpr.object, loc: memberExpr.object.loc }, ...expr.args],
+        loc: expr.loc,
+      }
+      compileCallWithArgs(state, syntheticCall, syntheticCall.args, -1)
+      return
+    }
     if (memberExpr.property === 'walk') {
       const syntheticCall: Extract<Expr, { type: 'call' }> = {
         type: 'call',
@@ -1045,6 +1055,49 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
       error(state, 'slicer() threshold parameter must be a scalar value', callExpr.loc)
       return
     }
+  }
+
+  if (funcName === 'Fit') {
+    pushCallMeta(state, callExpr, 'Fit', bestEffortArgs(args))
+    if (args.length < 2) {
+      error(state, 'Fit(array, bars, swing?, offset?) requires at least array and bars', callExpr.loc)
+      return
+    }
+    const arrayArg = args[0]?.type === 'arg' ? args[0].value : null
+    const barsArg = args[1]?.type === 'arg' ? args[1].value : null
+    const swingArg = args.length > 2 && args[2]?.type === 'arg' ? args[2].value : null
+    const offsetArg = args.length > 3 && args[3]?.type === 'arg' ? args[3].value : null
+    if (!arrayArg || !barsArg) {
+      error(state, 'Fit requires array and bars arguments', callExpr.loc)
+      return
+    }
+
+    const barPerStepExpr: Expr = {
+      type: 'binary',
+      op: '/',
+      left: barsArg,
+      right: { type: 'member', object: arrayArg, property: 'length', loc: arrayArg.loc },
+      loc: callExpr.loc,
+    }
+    compileExpr(state, arrayArg)
+    compileExpr(state, barPerStepExpr)
+    if (swingArg) compileExpr(state, swingArg)
+    else {
+      state.ops.push(AudioVmOp.PushScalar)
+      state.ops.push(0)
+      state.stack.push({ expr: callExpr })
+    }
+    if (offsetArg) compileExpr(state, offsetArg)
+    else {
+      state.ops.push(AudioVmOp.PushScalar)
+      state.ops.push(0)
+      state.stack.push({ expr: callExpr })
+    }
+    pushArrayGetHistoryForArrayExpr(state, arrayArg, arrayArg.loc)
+    state.ops.push(AudioVmOp.Walk)
+    state.stack.length -= 4
+    state.stack.push({ expr: callExpr })
+    return
   }
 
   if (funcName === 'Walk') {
