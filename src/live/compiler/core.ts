@@ -144,6 +144,7 @@ export function compile(state: State, program: Program, preludeLines: number = 0
   state.historySourceMap = []
   state.labels = []
   state.varToArrayLiteral = new Map()
+  state.variableFunctionIds = new Map()
   state.mixDefinitionLoc = null
   state.scale = 'major'
   state.scaleIndex = 0

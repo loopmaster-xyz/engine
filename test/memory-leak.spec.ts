@@ -791,7 +791,7 @@ out(synth(440))`
   })
 
   // Fine-grained isolation for the two failing tests: tb303 (cells) and drums+tri+rhodes (inFlight).
-  // Findings: tb303 minimal cases all pass (cells). inFlight leaks isolated to drums()|>out and rhodes70(...,trig:every(1/16)).
+  // Findings: tb303 minimal cases all pass (cells). inFlight leaks isolated to drums()|>out and rhodes(...,trig:every(1/16)).
   describe('tb303 / drums+rhodes isolation (fine-grained)', () => {
     const vmId = 0
     const warmupTicks = 100
@@ -970,10 +970,10 @@ tri(100*ad(.001,.5,trig))|>out($)`
       expect(growth).toBe(0)
     })
 
-    it('isolate drums+rhodes: rhodes70 with every(1/16) (inFlight)', () => {
-      const code = `;[47,50][t*4]|>ntof($)|>rhodes70($,trig:every(1/16))*.1|>out($)`
+    it('isolate drums+rhodes: rhodes with every(1/16) (inFlight)', () => {
+      const code = `;[47,50][t*4]|>ntof($)|>rhodes($,trig:every(1/16))*.1|>out($)`
       const growth = runAndGetInFlightGrowth(code)
-      console.log(`drums isolate rhodes70+every: inFlightGrowth=${growth}`)
+      console.log(`drums isolate rhodes+every: inFlightGrowth=${growth}`)
       expect(growth).toBe(0)
     })
 
@@ -1061,9 +1061,9 @@ trig=tram('x-x-x-[xxx]-',1/2)
 tri(95+[158,100][t*8]*ad(.001,.77,trig)**2)*ad(.00001,.24,trig)**3*.4
 |> $+freeverb($,.55,.6)*1 |> out($)
 
-;[47,50,51][t*4]|>ntof($)*1 |> rhodes70($,trig:every(1/16))*.08 |> out($)
+;[47,50,51][t*4]|>ntof($)*1 |> rhodes($,trig:every(1/16))*.08 |> out($)
 
-;[51,54,55][t*4]|>ntof($)*2 |> rhodes70($,trig:every(1/16))*.03 |> out($)`
+;[51,54,55][t*4]|>ntof($)*2 |> rhodes($,trig:every(1/16))*.03 |> out($)`
       const growth = runAndGetInFlightGrowth(code)
       console.log(`drums+rhodes full: inFlightGrowth=${growth}`)
       expect(growth).toBe(0)
@@ -1300,9 +1300,9 @@ trig=tram('x-x-x-[xxx]-',1/2)
 tri(95+[158,100][t*8]*ad(.001,.77,trig)**2)*ad(.00001,.24,trig)**3*.4
 |> $+freeverb($,.55,.6)*1 |> out($)
 
-;[47,50,51][t*4]|>ntof($)*1 |> rhodes70($,trig:every(1/16))*.08 |> out($)
+;[47,50,51][t*4]|>ntof($)*1 |> rhodes($,trig:every(1/16))*.08 |> out($)
 
-;[51,54,55][t*4]|>ntof($)*2 |> rhodes70($,trig:every(1/16))*.03 |> out($)`
+;[51,54,55][t*4]|>ntof($)*2 |> rhodes($,trig:every(1/16))*.03 |> out($)`
 
     const result = controlPipeline.compileSource(code)
     expect(result.compile.bytecode).toBeDefined()

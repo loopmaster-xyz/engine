@@ -75,6 +75,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   const savedInFunction = state.inFunction
   const savedClosureVars = state.closureVars
   const savedParamMap = state.paramNameToLocalIndex
+  const savedVariableFunctionIds = state.variableFunctionIds
 
   if (savedFunctionDepth > 0) {
     state.functionsByNameStack.push(new Map())
@@ -107,6 +108,8 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   state.nextLocalIndex = 0
   state.inFunction = true
   state.closureVars = []
+  // Keep outer function-binding map stable while compiling nested function bodies.
+  state.variableFunctionIds = new Map(savedVariableFunctionIds)
 
   // Set up closure variables - they will reference the outer scope's locals.
   for (let i = 0; i < closureVarNames.length; i++) {
@@ -313,6 +316,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   state.inFunction = savedInFunction
   state.closureVars = savedClosureVars
   state.paramNameToLocalIndex = savedParamMap
+  state.variableFunctionIds = savedVariableFunctionIds
   state.functionDepth = savedFunctionDepth
   if (savedFunctionDepth > 0) {
     state.functionsByNameStack.pop()

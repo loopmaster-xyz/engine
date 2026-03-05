@@ -237,6 +237,83 @@ sampler(sample,trig:1) |> out($)`
     expect(hasNonZero).toBe(true)
   })
 
+  it('captures outer function callback inside nested record callback function', () => {
+    const code = `cowbell=(
+  osc=hz->pwm(hz,.04),
+  tone=#2*o5*1.002,
+  trig=euclid(3,8,1,bar:1/2),
+)->{
+  cowbellsample=record(.4,()->{
+    kt=step(1-phasor(1),.96)
+    env=adsr(.001,.06,.9,.25,2,trig:kt)
+    freq1=tone
+    freq2=freq1*1.44
+    oversample(16,()->{
+      osc1=osc(freq1)
+      osc2=osc(freq2)
+      ;(osc1+osc2)*env/2.5
+    })
+  })
+  sampler(cowbellsample,trig)*.055
+}`
+
+    const parseResult = parse(code)
+    const compileResult = compile(parseResult.program!, parseResult.preludeLines)
+    expect(compileResult.errors).toHaveLength(0)
+  })
+
+  it('records when nested callback calls local function capturing outer param', async () => {
+    const code = `cowbell=(
+  width=.415,
+  tone=#2*o5*1.002,
+  trig=euclid(3,8,1,bar:1/2),
+)->{
+  osc=hz->pwm(hz,width)
+  cowbellsample=record(.4,()->{
+    kt=step(.96,dec())
+    env=adsr(.001,.06,.9,.25,2,trig:kt)
+    freq1=tone
+    freq2=freq1*1.44
+    oversample(16,()->{
+      osc1=osc(freq1)
+      osc2=osc(freq2)
+      ;(osc1+osc2)*env/2.5
+    })
+  })
+  sampler(cowbellsample,trig)*.055
+}
+
+cowbell() |> out($)`
+
+    const [left, right] = await audioAsync(code, { ticks: 2 })
+    expect(left.length).toBeGreaterThan(0)
+    expect(right.length).toBeGreaterThan(0)
+    expect(Number.isFinite(left[0] ?? 0)).toBe(true)
+    expect(Number.isFinite(right[0] ?? 0)).toBe(true)
+  })
+
+  it('captures local function closure values used by nested record callbacks', () => {
+    const code = `cowbell=(width=.415)->{
+  osc=hz->pwm(hz,width)
+  cowbellsample=record(.08,()->{
+    oversample(8,()->osc(220))
+  })
+  sampler(cowbellsample,trig:1)
+}
+
+cowbell() |> out($)`
+
+    const parsed = parse(code)
+    const compiled = compile(parsed.program!, parsed.preludeLines)
+    expect(compiled.errors).toHaveLength(0)
+
+    const callbacks = compiled.recordCallbacks ? [...compiled.recordCallbacks.values()] : []
+    const callback = callbacks.find(cb => cb.dependencies.some(dep => dep.name === 'width'))
+    expect(callback).toBeDefined()
+    expect(callback?.capturedRecordGlobalsByName?.width).toBeDefined()
+    expect(callback?.dependencies.some(dep => dep.name === 'width' && dep.scope === 'local')).toBe(true)
+  })
+
   it('captures correct value when y changes', async () => {
     const code = `
       y=880

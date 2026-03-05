@@ -1,7 +1,7 @@
 import { AudioVmOp } from '../../dsp/audio-vm-bindings.ts'
 import { findScaleIndex } from '../../mini/scales.ts'
 import type { Expr, Loc, Stmt } from '../ast.ts'
-import { collectCapturedVarNames, collectClosureVarNames } from '../deps.ts'
+import { collectClosureVarNames } from '../deps.ts'
 import { compileExpr, error, getCurrentScope } from './core.ts'
 import { compileFunction } from './functions.ts'
 import type { State } from './state.ts'
@@ -23,6 +23,34 @@ const COMPOUND_ASSIGN_OP_TO_OPCODE: Record<string, AudioVmOp> = {
   '^=': AudioVmOp.BitXor,
   '<<=': AudioVmOp.ShiftLeft,
   '>>=': AudioVmOp.ShiftRight,
+}
+
+function variableBindingKey(scope: VariableInfo['scope'], index: number): string {
+  return `${scope}:${index}`
+}
+
+function clearVariableFunctionBinding(state: State, varInfo: VariableInfo): void {
+  state.variableFunctionIds.delete(variableBindingKey(varInfo.scope, varInfo.index))
+  if (varInfo.scope === 'closure') {
+    state.variableFunctionIds.delete(variableBindingKey('local', varInfo.index))
+    state.variableFunctionIds.delete(variableBindingKey('global', varInfo.index))
+  }
+}
+
+function setVariableFunctionBinding(state: State, varInfo: VariableInfo, functionId: number): void {
+  state.variableFunctionIds.set(variableBindingKey(varInfo.scope, varInfo.index), functionId)
+}
+
+export function getFunctionIdForVarInfo(state: State, varInfo: VariableInfo): number | undefined {
+  const direct = state.variableFunctionIds.get(variableBindingKey(varInfo.scope, varInfo.index))
+  if (direct !== undefined) return direct
+  if (varInfo.scope === 'closure') {
+    const local = state.variableFunctionIds.get(variableBindingKey('local', varInfo.index))
+    if (local !== undefined) return local
+    const global = state.variableFunctionIds.get(variableBindingKey('global', varInfo.index))
+    if (global !== undefined) return global
+  }
+  return undefined
 }
 
 export function getFunctionByName(state: State, name: string): FunctionInfo | undefined {
@@ -250,6 +278,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
 
       // Declare and assign the variable
       const varInfo = declareVariable(state, name, left.loc, shadow)
+      clearVariableFunctionBinding(state, varInfo)
       compileSetVariable(state, varInfo, left)
       stack.pop() // value
     }
@@ -291,11 +320,12 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       d => d.name === leftName && d.loc.start === expr.loc.start && d.loc.end === expr.loc.end,
     )) return
 
-    compileFunction(state, fnExpr, leftName)
+    const functionId = compileFunction(state, fnExpr, leftName)
 
     if (stack.length === 0) return
 
     const varInfo = declareVariable(state, leftName, expr.loc)
+    setVariableFunctionBinding(state, varInfo, functionId)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
     compileSetVariable(state, varInfo, left)
@@ -453,8 +483,9 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     )) return
     const shadow = op === ':='
     const varInfo = declareVariable(state, leftName, expr.loc, shadow)
-    compileFunction(state, right, leftName)
+    const functionId = compileFunction(state, right, leftName)
     if (stack.length === 0) return
+    setVariableFunctionBinding(state, varInfo, functionId)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
     compileSetVariable(state, varInfo, left)
@@ -464,6 +495,11 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
   }
 
   if (op === '=' || op === ':=') {
+    const aliasFunctionId = (left.type === 'identifier'
+      && right.type === 'identifier'
+      && hasFunctionByName(state, right.name))
+      ? getFunctionByName(state, right.name)?.id
+      : undefined
     if (left.type === 'identifier' && right.type === 'array') {
       state.varToArrayLiteral.set(left.name, right)
     }
@@ -481,6 +517,8 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
 
     const shadow = op === ':='
     const varInfo = declareVariable(state, left.name, expr.loc, shadow)
+    clearVariableFunctionBinding(state, varInfo)
+    if (aliasFunctionId !== undefined) setVariableFunctionBinding(state, varInfo, aliasFunctionId)
     // Duplicate the value on stack so we can both store it and return it
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
@@ -517,6 +555,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
 
     ops.push(AudioVmOp.Dup)
     stack.push(stackExpr)
+    clearVariableFunctionBinding(state, varInfo)
     compileSetVariable(state, varInfo, left)
     stack.pop()
     stack.push(stackExpr)
@@ -543,7 +582,36 @@ export function detectClosureVars(state: State, expr: Extract<Expr, { type: 'fn'
 // Detect all variables accessed in an expression/statement that need to be captured for record callbacks
 // Returns array of {name, info} for all non-system variables (globals, locals, closures)
 export function detectCapturedVarsInBody(state: State, body: Expr | Stmt): Array<{ name: string; info: VariableInfo }> {
-  const names = collectCapturedVarNames(body, { systemVars: SYSTEM_VARS })
+  const outerScopes: Array<Map<string, unknown>> = []
+
+  // Include lexical locals in scope order.
+  for (const scope of state.locals) {
+    outerScopes.push(scope as unknown as Map<string, unknown>)
+  }
+
+  // Include explicit function parameter-name map (covers param-named-destructure aliases).
+  if (state.paramNameToLocalIndex && state.paramNameToLocalIndex.size > 0) {
+    const paramScope = new Map<string, unknown>()
+    for (const name of state.paramNameToLocalIndex.keys()) paramScope.set(name, true)
+    outerScopes.push(paramScope)
+  }
+
+  // Include closure and global scopes so nested callback bodies can capture them as dependencies.
+  for (const scope of state.closureVars) {
+    outerScopes.push(scope as unknown as Map<string, unknown>)
+  }
+  outerScopes.push(state.globals as unknown as Map<string, unknown>)
+
+  const bodyLoc = body.loc
+  const syntheticFn: Extract<Expr, { type: 'fn' }> = {
+    type: 'fn',
+    params: [],
+    defaults: [],
+    body: body.type === 'block' ? body : body as Expr,
+    loc: bodyLoc,
+  }
+
+  const names = collectClosureVarNames(syntheticFn, outerScopes, { systemVars: SYSTEM_VARS })
   const captured: Array<{ name: string; info: VariableInfo }> = []
   for (const name of names) {
     const info = lookupVariable(state, name)

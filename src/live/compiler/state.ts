@@ -82,6 +82,7 @@ export class State {
   stringExpressions: Map<string, { value: string; delimiter: 'single' | 'double' | 'backtick'; loc: Loc }> = new Map() // Store string expressions by location key for compile-time access
   bpm: number = 120 // Last bpm from SetBpm in source (literal bpm = N)
   varToArrayLiteral: Map<string, ArrayLiteralExpr> = new Map()
+  variableFunctionIds: Map<string, number> = new Map() // binding key -> functionId for identifiers currently known as fn values
   scale: string = 'major'
   scaleIndex: number = 0 // from SCALE_KEY_TO_INDEX.major
   rootMidi: number = 0 // octave -1 (C-1); # vars and dtof are relative, use transpose for pitch

@@ -6,9 +6,10 @@ import { encodeCallbackBytecode } from '../encode.ts'
 import { compileFunctionBlock } from '../functions.ts'
 import { getOpcodeInfo, isOpcode } from '../opcode.ts'
 import type { State } from '../state.ts'
-import type { FunctionInfo, RecordCallback, RecordDependency, VariableScope } from '../types.ts'
+import type { FunctionInfo, RecordCallback, RecordDependency, VariableInfo, VariableScope } from '../types.ts'
 import {
   detectCapturedVarsInBody,
+  getFunctionIdForVarInfo,
   getFunctionByName,
   hasGlobalFunctionByName,
 } from '../vars.ts'
@@ -442,7 +443,46 @@ export function processRecordCall(
   const dependencies: RecordDependency[] = []
   const recordGlobalIndices: number[] = []
   const capturedVarMapping = new Map<string, number>()
+  const capturedInfoByName = new Map<string, VariableInfo>()
+  const requiredLocalFunctionIds = new Set<number>()
+  const localFunctionTargetGlobals = new Map<number, number[]>()
   const scalarCaptureSources: Array<{ scope: VariableScope; sourceIndex: number }> = []
+  const functionInfoById = new Map<number, FunctionInfo>()
+  for (const fn of state.functions) functionInfoById.set(fn.id, fn)
+
+  const toCaptureSourceIndex = (scope: VariableScope, sourceIndex: number, closureIndex?: number): number =>
+    scope === 'closure' ? (closureIndex ?? sourceIndex) : sourceIndex
+
+  for (const { name, info } of capturedVars) capturedInfoByName.set(name, info)
+
+  const resolveCapturedInfo = (name: string): VariableInfo | null => {
+    const cached = capturedInfoByName.get(name)
+    if (cached) return cached
+
+    for (let i = savedLocals.length - 1; i >= 0; i--) {
+      const local = savedLocals[i]!.get(name)
+      if (local) {
+        capturedInfoByName.set(name, local)
+        return local
+      }
+    }
+
+    for (let i = savedClosureVars.length - 1; i >= 0; i--) {
+      const closure = savedClosureVars[i]!.get(name)
+      if (closure) {
+        capturedInfoByName.set(name, closure)
+        return closure
+      }
+    }
+
+    const global = savedGlobals.get(name)
+    if (global) {
+      capturedInfoByName.set(name, global)
+      return global
+    }
+
+    return null
+  }
 
   // Process captured vars
   for (const { name, info } of capturedVars) {
@@ -453,48 +493,75 @@ export function processRecordCall(
     // Preserve dedicated default-param function slots for enclosing-scope params.
     if (info.scope === 'local' && enclosingDefaultParamNameToSlot.has(name)) {
       const recordGlobalIdx = enclosingDefaultParamNameToSlot.get(name)!
-      dependencies.push({ name, scope: info.scope, sourceIndex: info.index })
+      const sourceIndex = toCaptureSourceIndex(info.scope, info.index, info.closureIndex)
+      dependencies.push({ name, scope: info.scope, sourceIndex })
       recordGlobalIndices.push(recordGlobalIdx)
       capturedVarMapping.set(name, recordGlobalIdx)
-      scalarCaptureSources.push({ scope: info.scope, sourceIndex: info.index })
+      scalarCaptureSources.push({ scope: info.scope, sourceIndex })
       continue
     }
 
     const recordGlobalIdx = state.nextRecordGlobalIdx++
-    if (calleeNames.has(name) && (info.scope === 'local' || info.scope === 'closure')) {
-      dependencies.push({ name, scope: info.scope, sourceIndex: info.index })
-      recordGlobalIndices.push(recordGlobalIdx)
-      capturedVarMapping.set(name, recordGlobalIdx)
-      continue
-    }
-
-    dependencies.push({ name, scope: info.scope, sourceIndex: info.index })
+    const sourceIndex = toCaptureSourceIndex(info.scope, info.index, info.closureIndex)
+    dependencies.push({ name, scope: info.scope, sourceIndex })
     recordGlobalIndices.push(recordGlobalIdx)
     capturedVarMapping.set(name, recordGlobalIdx)
-    scalarCaptureSources.push({ scope: info.scope, sourceIndex: info.index })
+    const capturedFunctionId = calleeNames.has(name) ? getFunctionIdForVarInfo(state, info) : undefined
+    if (capturedFunctionId !== undefined) {
+      requiredLocalFunctionIds.add(capturedFunctionId)
+      const existing = localFunctionTargetGlobals.get(capturedFunctionId)
+      if (existing) existing.push(recordGlobalIdx)
+      else localFunctionTargetGlobals.set(capturedFunctionId, [recordGlobalIdx])
+      continue
+    }
+    scalarCaptureSources.push({ scope: info.scope, sourceIndex })
   }
 
-  // Process closure vars from required functions
+  // Process closure vars from required functions (global + local), including transitive local-function captures.
+  const closureFnQueue: number[] = []
+  const closureFnSeen = new Set<number>()
   for (const funcInfo of state.functions) {
     const fnName = funcIdToGlobalName.get(funcInfo.id)
     const isRequired = (fnName !== undefined && requiredNames.has(fnName))
       || defaultParamFnToRecordGlobal.has(funcInfo.id)
-    if (!isRequired || !(funcInfo.closureVars?.length ?? 0)) continue
+      || requiredLocalFunctionIds.has(funcInfo.id)
+    if (isRequired) closureFnQueue.push(funcInfo.id)
+  }
+
+  while (closureFnQueue.length > 0) {
+    const fnId = closureFnQueue.pop()!
+    if (closureFnSeen.has(fnId)) continue
+    closureFnSeen.add(fnId)
+
+    const funcInfo = functionInfoById.get(fnId)
+    if (!funcInfo || !(funcInfo.closureVars?.length ?? 0)) continue
 
     for (const name of funcInfo.closureVars!) {
-      // Skip if already mapped (including default params)
       if (capturedVarMapping.has(name)) continue
 
-      const info = savedGlobals.get(name)
-      if (info?.scope !== 'global') continue
+      const info = resolveCapturedInfo(name)
+      if (!info) continue
 
+      const sourceIndex = toCaptureSourceIndex(info.scope, info.index, info.closureIndex)
       const recordGlobalIdx = state.nextRecordGlobalIdx++
       const canonical = resolveToCanonical(name)
-      dependencies.push({ name, scope: 'global', sourceIndex: info.index })
+
+      dependencies.push({ name, scope: info.scope, sourceIndex })
       recordGlobalIndices.push(recordGlobalIdx)
       capturedVarMapping.set(name, recordGlobalIdx)
+
+      const capturedFunctionId = getFunctionIdForVarInfo(state, info)
+      if (capturedFunctionId !== undefined) {
+        requiredLocalFunctionIds.add(capturedFunctionId)
+        const existing = localFunctionTargetGlobals.get(capturedFunctionId)
+        if (existing) existing.push(recordGlobalIdx)
+        else localFunctionTargetGlobals.set(capturedFunctionId, [recordGlobalIdx])
+        if (!closureFnSeen.has(capturedFunctionId)) closureFnQueue.push(capturedFunctionId)
+        continue
+      }
+
       if (hasGlobalFn(name) || hasGlobalFn(canonical)) continue
-      scalarCaptureSources.push({ scope: 'global', sourceIndex: info.index })
+      scalarCaptureSources.push({ scope: info.scope, sourceIndex })
     }
   }
 
@@ -558,7 +625,9 @@ export function processRecordCall(
 
   for (const funcInfo of state.functions) {
     const fnName = funcIdToGlobalName.get(funcInfo.id)
-    const required = fnName !== undefined && requiredNames.has(fnName) || defaultParamFnToRecordGlobal.has(funcInfo.id)
+    const required = (fnName !== undefined && requiredNames.has(fnName))
+      || defaultParamFnToRecordGlobal.has(funcInfo.id)
+      || requiredLocalFunctionIds.has(funcInfo.id)
     if (!required && !isPreludeFunction(funcInfo)) continue
 
     const funcBytecode = state.functionBytecodes.get(funcInfo.id)
@@ -600,13 +669,20 @@ export function processRecordCall(
 
     const recordGlobalForDefaultParam = defaultParamFnToRecordGlobal.get(funcInfo.id)
     if (!fnName) {
-      if (recordGlobalForDefaultParam !== undefined) {
-        if (recordGlobalForDefaultParam > maxSetupGlobalIndex) maxSetupGlobalIndex = recordGlobalForDefaultParam
-        setupOps.push(AudioVmOp.SetGlobal)
-        setupOps.push(recordGlobalForDefaultParam)
+      const indicesToSet = [...(localFunctionTargetGlobals.get(funcInfo.id) ?? [])]
+      if (recordGlobalForDefaultParam !== undefined && !indicesToSet.includes(recordGlobalForDefaultParam)) {
+        indicesToSet.push(recordGlobalForDefaultParam)
       }
-      else {
+      if (indicesToSet.length === 0) {
         setupOps.push(AudioVmOp.Pop)
+        continue
+      }
+      for (let i = 0; i < indicesToSet.length; i++) {
+        if (i < indicesToSet.length - 1) setupOps.push(AudioVmOp.Dup)
+        const idx = indicesToSet[i]!
+        if (idx > maxSetupGlobalIndex) maxSetupGlobalIndex = idx
+        setupOps.push(AudioVmOp.SetGlobal)
+        setupOps.push(idx)
       }
       continue
     }
