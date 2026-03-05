@@ -257,6 +257,52 @@ describe('oversample function', () => {
     `))
   })
 
+  it('oversample capture of outer scalar/audio binary remains stable', () => {
+    const cases = [
+      {
+        oversampled: `
+          x=sine(220)+0.5
+          oversample(4,()->x+0.1) |> out($)
+        `,
+        baseline: `
+          (sine(220)+0.5)+0.1 |> out($)
+        `,
+      },
+      {
+        oversampled: `
+          x=0.5+sine(220)
+          oversample(4,()->x*0.25) |> out($)
+        `,
+        baseline: `
+          (0.5+sine(220))*0.25 |> out($)
+        `,
+      },
+    ]
+
+    for (const c of cases) {
+      const actual = audio(c.oversampled, { ticks: 128 })
+      const [left, right] = actual
+      for (let i = 0; i < left.length; i += 64) {
+        expect(Number.isFinite(left[i])).toBe(true)
+        expect(Number.isFinite(right[i])).toBe(true)
+      }
+      expect(actual).toMatchAudio(audio(c.baseline, { ticks: 128 }), 4096)
+    }
+  })
+
+  it('oversample nested closure captures overridden audio cells', () => {
+    const [left, right] = audio(`
+      hz=sine(1)*40+220
+      dt=safediv(1,hz)
+      dc=hz*((1-.5)*30)
+      oversample(8,()->delay(1,dt,1,x->tanh(lp1(x,dc)))) |> out($)
+    `, { ticks: 256 })
+    for (let i = 0; i < left.length; i += 64) {
+      expect(Number.isFinite(left[i])).toBe(true)
+      expect(Number.isFinite(right[i])).toBe(true)
+    }
+  })
+
   it('updates oversample callback literals when editing bytecode in-place', () => {
     const core = getCore()
     const vmId = 0

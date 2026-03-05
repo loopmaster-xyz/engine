@@ -399,10 +399,40 @@ export function handleDefineFunction(
     cells.clear()
     cells.reserve(closureCount)
     for (let i: i32 = 0; i < closureCount; i++) cells.push(-1)
+
+    let currentFrame: CallFrame | null = null
+    let currentFrameEnv: ClosureEnv | null = null
+    let currentFrameOv: Float64Array | null = null
+    if (vm.callStack.length > 0) {
+      currentFrame = vm.callStack.get(vm.callStack.length - 1)
+      currentFrameOv = currentFrame.closureOverride
+      if (currentFrameOv != null && currentFrame.closureEnvId >= 0) {
+        currentFrameEnv = vm.closureEnvs.tryGet(currentFrame.closureEnvId)
+      }
+    }
+
     for (let i: i32 = closureCount - 1; i >= 0; i--) {
       const tagged: f64 = vmStack.pop(vm)
       const cellIdx: i32 = isCellRef(tagged) ? decodeCellRef(tagged) : -1
-      const idx: i32 = cellIdx >= 0 && cellIdx < vm.cells.length ? cellIdx : -1
+      let idx: i32 = cellIdx >= 0 && cellIdx < vm.cells.length ? cellIdx : -1
+
+      // Oversample frames keep captured upsampled values in closureOverride.
+      // Nested closures capture by cell ref, so snapshot overridden captures
+      // into frame-owned shadow cells to preserve oversampled semantics.
+      if (idx >= 0 && currentFrameOv != null && currentFrameEnv != null) {
+        const env: ClosureEnv = currentFrameEnv
+        for (let j: i32 = 0; j < env.cells.length; j++) {
+          if (env.cells.get(j) != idx || j >= currentFrameOv.length) continue
+          const over: f64 = currentFrameOv[j]
+          if (!isUndefined(over)) {
+            const shadowIdx: i32 = vmCells.allocateCell(vm, over)
+            vmCells.registerFrameCell(vm, shadowIdx)
+            idx = shadowIdx
+          }
+          break
+        }
+      }
+
       cells.set(i, idx)
       if (idx >= 0) heap.retainCell(vm, idx)
       heap.releaseValue(vm, tagged)

@@ -1,8 +1,8 @@
 import {
-  isArray,
   decodeAudio,
   decodeScalar,
   encodeScalar,
+  isArray,
   isAudio,
   isCellRef,
   isScalar,
@@ -10,8 +10,7 @@ import {
 } from './constants'
 import * as heap from './heap'
 import { MathOps } from './math-ops'
-import { RunParams } from './run-params'
-import { RunResult } from './run-params'
+import { RunParams, RunResult } from './run-params'
 import { binary, unary } from './runner'
 import { AudioVmOp } from './vm-op'
 import * as vmOpsVars from './vm-ops-vars'
