@@ -83,10 +83,18 @@ take=(array,n=array.length)->slice(array,0,n)
  * effects
  */
 
-delay=(in,seconds=0.5,feedback=0,cb=x->x,size=1)->{
-  buf=alloc(size)
-  sample=read(buf,seconds)
-  write(cb(in+sample*feedback),buf)
+delay=(in,seconds=0.5,feedback=0,cb=x->x,size=1,mode=write)->{
+  buf:=alloc(size)
+  sample:=read(buf,seconds)
+  mode(cb(in+sample*feedback),buf)
+  if (mode==write) {
+    sample=read(buf,seconds)
+    if (feedback) {
+      mode(cb(in+sample*feedback),buf)
+      sample=read(buf,seconds)
+    }
+    advance(buf)
+  }
   sample
 }
 
@@ -95,10 +103,10 @@ tube=(in,drive=3,bias=.2)->{
 }
 
 // Modulated delay effect with LFO-controlled delay time
-moddelay=(in,base,depth,rate,feedback,offset=0)->{
+moddelay=(in,base,depth,rate,feedback,offset=0,mode=write)->{
   lfo = lfotri(rate, offset)
   seconds = base + depth * lfo
-  delay(in, seconds, feedback)
+  delay(in, seconds, feedback, mode)
 }
 
 // Classic flanger effect (modulated comb filter)
@@ -107,7 +115,7 @@ flanger=(in,rate=1,depth=0.00125,base=0.00125,feedback=0.7)->{
 }
 
 // Multi-voice chorus effect with spread and modulation
-chorus=(in,voices=3,base=0.02,depth=0.006,rate=0.25,spread=.5)->{
+chorus=(in,voices=3,base=0.02,depth=0.006,rate=0.25,spread=.5,mode=write)->{
   sum = 0
   voices = max(voices,1)
 
@@ -119,7 +127,8 @@ chorus=(in,voices=3,base=0.02,depth=0.006,rate=0.25,spread=.5)->{
       depth,
       rate,
       feedback:0,
-      phase
+      phase,
+      mode
     )
   }
 
@@ -261,7 +270,7 @@ karplus=(hz,pluck=pink,seed=123,attack=.01,decay=.1,exponent=50,damping=.5,feedb
     exc := pluck(seed, trig) * ad(attack,decay,exponent,trig)
     seconds := safediv(1, hz)
     cutoff := hz*((1-damping)*100)
-    tanh(delay(exc,seconds,feedback,x -> tanh(lp1(x, cutoff)))*1.55)
+    delay(exc,seconds,feedback,x -> tanh(lp1(x, cutoff)))
   })
 }
 
@@ -424,7 +433,7 @@ marimba=(hz,trig=every(1/8))->{
   s += pink()*ad(.001,.3,e:3,trig)*.15 |> bp($,100,3)
 
   s = s |> lp($,1000+6k*ad(.0003,.8,e:1.5,trig))
-  s = s |> $+chorus($,voices:2,base:.0003,depth:.00009,rate:.25,spread:.6)
+  s = s |> $+chorus($,voices:2,base:.0003,depth:.00009,rate:.25,spread:.6,mode:append)
 
   s *= adsr(.003,.2,.3,.6,e:1.5,trig)
 }
@@ -432,10 +441,10 @@ marimba=(hz,trig=every(1/8))->{
 piano=(hz,trig)->{
   s=oversample(4,()->sine(hz+sine(hz*7,trig)*hz*1.007,trig)+sine(hz+sine(hz*3,trig)*hz*1.004,trig)*.25)*.5
   s+=gauss()*.3*ad(.00001,.01,e:3,trig)
-  s*=adsr(.0007,1.85,.2,.3,e:9,trig)
-  s=s*.6+delay(s,1.1/(hz**.79),.74,x->tanh(lp1(x,hz*6)))*.2
-          +delay(s,1.4/(hz**.79),.84,x->tanh(lp1(x,hz*5)))*.2
-  s=atan(s)
+  s*=adsr(.0003,.18,.9,.8,e:9,trig)
+  hzco=hz**.79
+  s=s*.15+delay(s,1.2/hzco,.84,mode:append,x->tanh(lp1(x,hz*8)))*.015
+         +delay(s,1.8/hzco,.94,mode:append,x->tanh(lp1(x,hz*3)))*.015
 }
 
 ;
