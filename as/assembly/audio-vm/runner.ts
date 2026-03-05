@@ -541,8 +541,14 @@ export function run(
       case AudioVmOp.Alloc:
         result = vmOpsBuffer.handleAlloc(vm, pc, currentOpsPtr, params)
         break
+      case AudioVmOp.Append:
+        result = vmOpsBuffer.handleAppend(vm, pc, currentOpsPtr, params)
+        break
       case AudioVmOp.Write:
         result = vmOpsBuffer.handleWrite(vm, pc, currentOpsPtr, params)
+        break
+      case AudioVmOp.Advance:
+        result = vmOpsBuffer.handleAdvance(vm, pc, currentOpsPtr, params)
         break
       case AudioVmOp.Read:
         result = vmOpsBuffer.handleRead(vm, pc, currentOpsPtr, params)

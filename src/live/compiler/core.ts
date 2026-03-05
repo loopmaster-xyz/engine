@@ -455,9 +455,16 @@ export function compileStmt(state: State, stmt: Stmt): void {
 }
 
 const OUT_SOLO_BUILTINS = new Set(['out', 'solo'])
+const BUFFER_BUILTIN_PARAMS: Record<string, string[]> = {
+  alloc: ['seconds'],
+  append: ['input', 'buf'],
+  write: ['input', 'buf'],
+  advance: ['buf'],
+  read: ['buf', 'offset'],
+}
 
 function isKnownBuiltinName(name: string): boolean {
-  return getBuiltinSpec(name) !== null || OUT_SOLO_BUILTINS.has(name)
+  return getBuiltinSpec(name) !== null || OUT_SOLO_BUILTINS.has(name) || name in BUFFER_BUILTIN_PARAMS
 }
 
 function getBuiltinSpec(name: string): GenSpec | null {
@@ -488,6 +495,30 @@ function compileBuiltinAsValue(state: State, builtinName: string, loc: Loc): voi
       type: 'fn',
       params,
       defaults,
+      body: wrapperBody,
+      loc,
+    }
+    compileFunction(state, wrapperFn, null)
+    return
+  }
+  const builtinParams = BUFFER_BUILTIN_PARAMS[builtinName]
+  if (builtinParams) {
+    const params: Extract<Param, { type: 'param' }>[] = builtinParams.map(name => ({ type: 'param', name, loc }))
+    const callArgs: Arg[] = builtinParams.map(name => ({
+      type: 'arg' as const,
+      value: { type: 'identifier' as const, name, loc },
+      shorthand: true,
+      loc,
+    }))
+    const wrapperBody: Extract<Expr, { type: 'call' }> = {
+      type: 'call',
+      callee: { type: 'identifier', name: builtinName, loc },
+      args: callArgs,
+      loc,
+    }
+    const wrapperFn: Extract<Expr, { type: 'fn' }> = {
+      type: 'fn',
+      params,
       body: wrapperBody,
       loc,
     }

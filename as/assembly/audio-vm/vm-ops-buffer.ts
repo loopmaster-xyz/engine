@@ -18,7 +18,7 @@ import { OS_DOWN_BOXCAR, OS_UP_LINEAR } from './vm-constants'
 import * as vmStack from './vm-stack'
 import { BufferEntry, VmState } from './vm-state'
 import * as vmOpsVars from './vm-ops-vars'
-import { nextPow2, readOperandI32, writeChunkToRingBuffer } from './util'
+import { nextPow2, readOperandI32, wrapIndex, writeChunkToRingBuffer } from './util'
 
 const OVERSAMPLED_BUFFER_HANDLE_OFFSET: i32 = 0x100000
 const ALLOC_HANDLE_SITE_STRIDE: i32 = 1024
@@ -169,12 +169,24 @@ export function handleAlloc(
   return RunResult.normal(pc, opsPtr, params.opsLength)
 }
 
-/** Pop buffer handle and input; append input to buffer ring (wrap write index); push handle. */
-export function handleWrite(
+function writeBufferChunk(entry: BufferEntry, inputPtr: usize, chunkLen: i32, append: bool): void {
+  const startIndex: i32 = append ? entry.writeIndex : entry.writeIndex - chunkLen
+  const nextWriteIndex: i32 = writeChunkToRingBuffer(
+    entry.buffer.dataStart,
+    entry.lengthSamples,
+    startIndex,
+    inputPtr,
+    chunkLen,
+  )
+  if (append) entry.writeIndex = nextWriteIndex
+}
+
+function handleBufferStore(
   vm: VmState,
   pc: i32,
-  _opsPtr: usize,
+  opsPtr: usize,
   params: RunParams,
+  append: bool,
 ): RunResult {
   const bufTagged: f64 = vmStack.pop(vm)
   const inputTagged: f64 = vmStack.pop(vm)
@@ -192,7 +204,7 @@ export function handleWrite(
     vm.endTempAudioScope(tempMark)
     vmStack.push(vm, encodeScalar(f32(handleValue)))
     vmStack.releaseValueTagged(vm, inputResolved)
-    return RunResult.normal(pc, _opsPtr, params.opsLength)
+    return RunResult.normal(pc, opsPtr, params.opsLength)
   }
 
   const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)
@@ -205,27 +217,55 @@ export function handleWrite(
     } else {
       resample.downsampleDecimate(inputPtr, downPtr, baseLen, osFactor)
     }
-    entry.writeIndex = writeChunkToRingBuffer(
-      entry.buffer.dataStart,
-      entry.lengthSamples,
-      entry.writeIndex,
-      downPtr,
-      baseLen,
-    )
+    writeBufferChunk(entry, downPtr, baseLen, append)
   } else {
-    entry.writeIndex = writeChunkToRingBuffer(
-      entry.buffer.dataStart,
-      entry.lengthSamples,
-      entry.writeIndex,
-      inputPtr,
-      params.bufferLength,
-    )
+    writeBufferChunk(entry, inputPtr, params.bufferLength, append)
   }
   vm.endTempAudioScope(tempMark)
   vmStack.releaseValueTagged(vm, inputResolved)
 
   vmStack.push(vm, encodeScalar(f32(handleValue)))
-  return RunResult.normal(pc, _opsPtr, params.opsLength)
+  return RunResult.normal(pc, opsPtr, params.opsLength)
+}
+
+/** Pop buffer handle and input; append input to buffer ring (wrap write index); push handle. */
+export function handleAppend(
+  vm: VmState,
+  pc: i32,
+  opsPtr: usize,
+  params: RunParams,
+): RunResult {
+  return handleBufferStore(vm, pc, opsPtr, params, true)
+}
+
+/** Pop buffer handle and input; overwrite latest written chunk in ring (no write-head advance); push handle. */
+export function handleWrite(
+  vm: VmState,
+  pc: i32,
+  opsPtr: usize,
+  params: RunParams,
+): RunResult {
+  return handleBufferStore(vm, pc, opsPtr, params, false)
+}
+
+/** Pop buffer handle; advance write head by one chunk (base-rate chunk when oversampled); push handle. */
+export function handleAdvance(
+  vm: VmState,
+  pc: i32,
+  opsPtr: usize,
+  params: RunParams,
+): RunResult {
+  const bufTagged: f64 = vmStack.pop(vm)
+  const bufResolved: f64 = vmOpsVars.resolveCellRef(vm, bufTagged)
+  const handleValue: i32 = i32(Mathf.floor(genOpHelpers.scalarOrFirstSample(vm, bufResolved)))
+  const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
+  const chunkLen: i32 = osFactor > 1 ? params.bufferLength / osFactor : params.bufferLength
+  const entry: BufferEntry | null = vm.bufferRegistry.tryGet(handleValue)
+  if (entry != null) {
+    entry.writeIndex = wrapIndex(entry.writeIndex + chunkLen, entry.lengthSamples)
+  }
+  vmStack.push(vm, encodeScalar(f32(handleValue)))
+  return RunResult.normal(pc, opsPtr, params.opsLength)
 }
 
 /** Pop offset and handle; read from buffer at (writeIndex - block + i - offset), bicubic interpolated; push audio. */

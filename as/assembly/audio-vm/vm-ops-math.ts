@@ -1,10 +1,12 @@
 import {
   decodeAudio,
+  decodeFunction,
   decodeScalar,
   encodeScalar,
   isArray,
   isAudio,
   isCellRef,
+  isFunction,
   isScalar,
   isUndefined,
 } from './constants'
@@ -16,6 +18,19 @@ import { AudioVmOp } from './vm-op'
 import * as vmOpsVars from './vm-ops-vars'
 import * as vmStack from './vm-stack'
 import { VmState } from './vm-state'
+import { FunctionDef } from './vm-types'
+
+function functionDefsEquivalent(left: FunctionDef, right: FunctionDef): bool {
+  if (left.paramCount != right.paramCount) return false
+  if (left.firstParamIn != right.firstParamIn) return false
+  if (left.closureCount != right.closureCount) return false
+  if (left.localCount != right.localCount) return false
+  if (left.bytecodeLength != right.bytecodeLength) return false
+  for (let i: i32 = 0; i < left.bytecodeLength; i++) {
+    if (reinterpret<u32>(left.bytecode[i]) != reinterpret<u32>(right.bytecode[i])) return false
+  }
+  return true
+}
 
 /** Pop operand; apply op (audio or scalar); release popped; push result. */
 export function handleUnary(
@@ -65,6 +80,32 @@ export function handleBinary(
 
   let left: f64 = leftFromCellRef ? vmOpsVars.resolveCellRef(vm, leftRaw) : leftRaw
   let right: f64 = rightFromCellRef ? vmOpsVars.resolveCellRef(vm, rightRaw) : rightRaw
+
+  if (op == AudioVmOp.Equal || op == AudioVmOp.NotEqual) {
+    if (isFunction(left) && isFunction(right)) {
+      const leftId: i32 = i32(decodeFunction(left))
+      const rightId: i32 = i32(decodeFunction(right))
+      const leftInst = vm.functionInstances.tryGet(leftId)
+      const rightInst = vm.functionInstances.tryGet(rightId)
+      const leftDefId: i32 = leftInst != null ? leftInst.defId : leftId
+      const rightDefId: i32 = rightInst != null ? rightInst.defId : rightId
+      const leftClosureEnvId: i32 = leftInst != null ? leftInst.closureEnvId : -1
+      const rightClosureEnvId: i32 = rightInst != null ? rightInst.closureEnvId : -1
+      let sameFn: bool = leftDefId == rightDefId
+      if (!sameFn && leftClosureEnvId < 0 && rightClosureEnvId < 0) {
+        const leftDef = vm.functions.tryGet(leftDefId)
+        const rightDef = vm.functions.tryGet(rightDefId)
+        if (leftDef != null && rightDef != null) {
+          sameFn = functionDefsEquivalent(leftDef, rightDef)
+        }
+      }
+      const value: f32 = (op == AudioVmOp.Equal)
+        ? (sameFn ? f32(1) : f32(0))
+        : (sameFn ? f32(0) : f32(1))
+      vmStack.push(vm, encodeScalar(value), true)
+      return RunResult.normal(pc, opsPtr, params.opsLength)
+    }
+  }
 
   if (isUndefined(left)) left = encodeScalar(0.0)
   if (isUndefined(right)) right = encodeScalar(0.0)

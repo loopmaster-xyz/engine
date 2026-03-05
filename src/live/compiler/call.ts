@@ -271,10 +271,10 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
       compileCallWithArgs(state, syntheticCall, syntheticCall.args, -1)
       return
     }
-    if (memberExpr.property === 'avg') {
+    if (memberExpr.property === 'avg' || memberExpr.property === 'sum') {
       const syntheticCall: Extract<Expr, { type: 'call' }> = {
         type: 'call',
-        callee: { type: 'identifier', name: 'avg', loc: expr.loc },
+        callee: { type: 'identifier', name: memberExpr.property, loc: expr.loc },
         args: [{ type: 'arg', value: memberExpr.object, loc: memberExpr.object.loc }],
         loc: expr.loc,
       }
@@ -404,7 +404,9 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
           continue
         }
         if (arg.shorthand && arg.value.type === 'identifier') {
-          const matchedName = methodParamNames.find(name => name === arg.value.name)
+          const matchedName = methodParamNames.find(name =>
+            name === (arg.value as Extract<Expr, { type: 'identifier' }>).name
+          )
           if (matchedName) {
             if (methodArgs[matchedName]) {
               error(state, `Parameter '${matchedName}' already provided in markov()`, expr.loc)
@@ -897,6 +899,27 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
     return
   }
 
+  if (funcName === 'append') {
+    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    if (args.length !== 2) {
+      error(state, 'append() requires 2 arguments: input and buf', callExpr.loc)
+      return
+    }
+    const inputArg = args[0]?.type === 'arg' ? args[0].value : null
+    const bufArg = args[1]?.type === 'arg' ? args[1].value : null
+    if (!inputArg || !bufArg) {
+      error(state, 'append() requires input and buf arguments', callExpr.loc)
+      return
+    }
+    const stackBefore = state.stack.length
+    compileExpr(state, inputArg)
+    compileExpr(state, bufArg)
+    state.ops.push(AudioVmOp.Append)
+    state.stack.length = stackBefore
+    state.stack.push({ expr: callExpr })
+    return
+  }
+
   if (funcName === 'write') {
     pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
     if (args.length !== 2) {
@@ -913,6 +936,25 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
     compileExpr(state, inputArg)
     compileExpr(state, bufArg)
     state.ops.push(AudioVmOp.Write)
+    state.stack.length = stackBefore
+    state.stack.push({ expr: callExpr })
+    return
+  }
+
+  if (funcName === 'advance') {
+    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    if (args.length !== 1) {
+      error(state, 'advance() requires 1 argument: buf', callExpr.loc)
+      return
+    }
+    const bufArg = args[0]?.type === 'arg' ? args[0].value : null
+    if (!bufArg) {
+      error(state, 'advance() requires buf argument', callExpr.loc)
+      return
+    }
+    const stackBefore = state.stack.length
+    compileExpr(state, bufArg)
+    state.ops.push(AudioVmOp.Advance)
     state.stack.length = stackBefore
     state.stack.push({ expr: callExpr })
     return
