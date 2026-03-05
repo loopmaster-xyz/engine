@@ -164,9 +164,10 @@ export class HashTable<T> {
   private insertNoGrow(key: i32, value: T): void {
     let idx = this.hash(key) & this.mask
     let probe = 1
+    let cap = this.mask + 1
 
     // Quadratic probing for better cache locality
-    while (true) {
+    for (let tries = 0; tries < cap; tries++) {
       let state = unchecked(this.states_[idx])
 
       if (state != STATE_OCCUPIED) {
@@ -187,6 +188,8 @@ export class HashTable<T> {
       idx = (idx + probe) & this.mask
       probe++
     }
+
+    throw new Error('Hash table is full')
   }
 
   // @inline
@@ -196,9 +199,10 @@ export class HashTable<T> {
     let idx = this.hash(key) & this.mask
     let tombIdx: i32 = -1
     let probe = 1
+    let cap = this.mask + 1
 
     // Quadratic probing
-    while (true) {
+    for (let tries = 0; tries < cap; tries++) {
       let state = unchecked(this.states_[idx])
 
       if (state == STATE_EMPTY) {
@@ -223,15 +227,19 @@ export class HashTable<T> {
       idx = (idx + probe) & this.mask
       probe++
     }
+
+    this.rehash(cap << 1)
+    this.set(key, value)
   }
 
   // @inline
   get(key: i32): T {
     let idx = this.hash(key) & this.mask
     let probe = 1
+    let cap = this.mask + 1
 
     // Quadratic probing
-    while (true) {
+    for (let tries = 0; tries < cap; tries++) {
       let state = unchecked(this.states_[idx])
 
       if (state == STATE_EMPTY) {
@@ -245,14 +253,17 @@ export class HashTable<T> {
       idx = (idx + probe) & this.mask
       probe++
     }
+
+    throw new Error('Key not found')
   }
 
   // @inline
   has(key: i32): bool {
     let idx = this.hash(key) & this.mask
     let probe = 1
+    let cap = this.mask + 1
 
-    while (true) {
+    for (let tries = 0; tries < cap; tries++) {
       let state = unchecked(this.states_[idx])
 
       if (state == STATE_EMPTY) {
@@ -266,14 +277,17 @@ export class HashTable<T> {
       idx = (idx + probe) & this.mask
       probe++
     }
+
+    return false
   }
 
   // @inline
   delete(key: i32): bool {
     let idx = this.hash(key) & this.mask
     let probe = 1
+    let cap = this.mask + 1
 
-    while (true) {
+    for (let tries = 0; tries < cap; tries++) {
       let state = unchecked(this.states_[idx])
 
       if (state == STATE_EMPTY) {
@@ -290,6 +304,8 @@ export class HashTable<T> {
       idx = (idx + probe) & this.mask
       probe++
     }
+
+    return false
   }
 
   // Try to get value, return null if not found (for nullable types)
@@ -297,8 +313,9 @@ export class HashTable<T> {
   tryGet(key: i32): T | null {
     let idx = this.hash(key) & this.mask
     let probe = 1
+    let cap = this.mask + 1
 
-    while (true) {
+    for (let tries = 0; tries < cap; tries++) {
       let state = unchecked(this.states_[idx])
 
       if (state == STATE_EMPTY) {
@@ -312,6 +329,8 @@ export class HashTable<T> {
       idx = (idx + probe) & this.mask
       probe++
     }
+
+    return null
   }
 
   resetCounters(): void {
