@@ -20,8 +20,14 @@ map=(array,fn)->{
   newArray
 }
 
+sum=array->{
+  sum:=0
+  for (el of array) sum += el
+  sum
+}
+
 avg=array->{
-  sum=0
+  sum:=0
   for (el of array) sum += el
   sum/array.length
 }
@@ -250,11 +256,13 @@ sout = solo
  */
 
 // Karplus-Strong plucked string synthesis
-karplus=(hz,pluck=pink,seed=1854,attack=.0001,decay=.1,exponent=50,damping=.5,trig)->{
-  exc := pluck(seed, trig) * ad(attack,decay,exponent,trig)
-  delayTime := safediv(1, hz)
-  dampingCutoff := hz*((1-damping)*30)
-  oversample(8, () -> delay(exc,delayTime,1,x -> tanh(lp1(x, dampingCutoff))))
+karplus=(hz,pluck=pink,seed=123,attack=.01,decay=.1,exponent=50,damping=.5,feedback=.985,trig)->{
+  oversample(4, () -> {
+    exc := pluck(seed, trig) * ad(attack,decay,exponent,trig)
+    seconds := safediv(1, hz)
+    cutoff := hz*((1-damping)*100)
+    tanh(delay(exc,seconds,feedback,x -> tanh(lp1(x, cutoff)))*1.55)
+  })
 }
 
 rhodes=(hz,vel=1,trig)->{
@@ -290,7 +298,7 @@ rhodes=(hz,vel=1,trig)->{
     + hs(s, 3200, 3*v)
 
   // Classic Rhodes chorus
-  s = chorus(s, voices:5, rate:.13, depth:.008, spread:.2)
+  s = chorus(s, voices:3, rate:.22, depth:.005, spread:.6)
 
   s*.5
 }

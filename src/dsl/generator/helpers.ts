@@ -827,7 +827,9 @@ export function groupStatementsByParams(
       const supersetTerms = parseCondTerms(supersetCond)
       if (subsetTerms.size >= supersetTerms.size) return
       if (![...subsetTerms].every(t => supersetTerms.has(t))) return
-      const subsetSets = new Set(subsetStmts.filter((s): s is Stmt & { type: 'assign' } => s.type === 'assign').map(s => s.name))
+      const subsetSets = new Set(
+        subsetStmts.filter((s): s is Stmt & { type: 'assign' } => s.type === 'assign').map(s => s.name),
+      )
       const subsetUses = (stmts: Stmt[]) => {
         const uses = new Set<string>()
         stmts.forEach(s => {

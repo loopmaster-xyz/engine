@@ -1,7 +1,7 @@
-import { AudioVmOp, genSpecs, type GenSpec } from '../../dsp/audio-vm-bindings.ts'
+import SamJs from 'sam-js'
+import { AudioVmOp, type GenSpec, genSpecs } from '../../dsp/audio-vm-bindings.ts'
 import { gens } from '../../dsp/audio-vm-gens.ts'
 import { sampleManager } from '../../lib/sample-manager.ts'
-import SamJs from 'sam-js'
 import type { Arg, Expr, Loc } from '../ast.ts'
 import { compileExpr, error } from './core.ts'
 import { compileDtofCall } from './hash-vars.ts'
@@ -391,7 +391,7 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
         if (arg.type !== 'arg' || !arg.value) continue
 
         if (arg.name) {
-          const matchedName = methodParamNames.find(name => name.startsWith(arg.name))
+          const matchedName = methodParamNames.find(name => name.startsWith(arg.name!))
           if (!matchedName) {
             error(state, `No parameter matches '${arg.name}' in markov()`, expr.loc)
             return
@@ -440,10 +440,18 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
       }
 
       const markovArgs: Arg[] = [{ type: 'arg', name: 'states', value: statesExpr, loc: statesExpr.loc }]
-      if (methodArgs.stay) markovArgs.push({ type: 'arg', name: 'stay', value: methodArgs.stay, loc: methodArgs.stay.loc })
-      if (methodArgs.step) markovArgs.push({ type: 'arg', name: 'step', value: methodArgs.step, loc: methodArgs.step.loc })
-      if (methodArgs.bias) markovArgs.push({ type: 'arg', name: 'bias', value: methodArgs.bias, loc: methodArgs.bias.loc })
-      if (methodArgs.seed) markovArgs.push({ type: 'arg', name: 'seed', value: methodArgs.seed, loc: methodArgs.seed.loc })
+      if (methodArgs.stay) {
+        markovArgs.push({ type: 'arg', name: 'stay', value: methodArgs.stay, loc: methodArgs.stay.loc })
+      }
+      if (methodArgs.step) {
+        markovArgs.push({ type: 'arg', name: 'step', value: methodArgs.step, loc: methodArgs.step.loc })
+      }
+      if (methodArgs.bias) {
+        markovArgs.push({ type: 'arg', name: 'bias', value: methodArgs.bias, loc: methodArgs.bias.loc })
+      }
+      if (methodArgs.seed) {
+        markovArgs.push({ type: 'arg', name: 'seed', value: methodArgs.seed, loc: methodArgs.seed.loc })
+      }
       markovArgs.push({ type: 'arg', name: 'trig', value: methodArgs.trig, loc: methodArgs.trig.loc })
 
       const markovCall: Extract<Expr, { type: 'call' }> = {
@@ -754,8 +762,12 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
     const mouth = mouthNorm === undefined ? DEFAULT_MOUTH : Math.round((1 - mouthNorm) * 255)
     const throat = throatNorm === undefined ? DEFAULT_THROAT : Math.round((1 - throatNorm) * 255)
 
-    const singmode = singmodeArg ? Number((singmodeArg as Extract<typeof singmodeArg, { type: 'number' }>).value) !== 0 : false
-    const phonetic = phoneticArg ? Number((phoneticArg as Extract<typeof phoneticArg, { type: 'number' }>).value) !== 0 : false
+    const singmode = singmodeArg
+      ? Number((singmodeArg as Extract<typeof singmodeArg, { type: 'number' }>).value) !== 0
+      : false
+    const phonetic = phoneticArg
+      ? Number((phoneticArg as Extract<typeof phoneticArg, { type: 'number' }>).value) !== 0
+      : false
 
     try {
       const sam = new SamJs({
@@ -931,7 +943,7 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
     || funcName === 'isfunction')
   {
     pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
-    let argCount = (dollarIndex >= 0 ? 1 : 0)
+    let argCount = dollarIndex >= 0 ? 1 : 0
     for (const a of args) {
       if (a.type === 'arg' && a.value) argCount++
     }
@@ -1269,7 +1281,7 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
     positionalArgs.push(a.value)
   }
 
-  argCount += (dollarIndex >= 0 ? 1 : 0)
+  argCount += dollarIndex >= 0 ? 1 : 0
   if (argCount > totalArgs) {
     error(state, `Too many arguments for function '${funcName}'`, callExpr.loc)
     return
