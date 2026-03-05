@@ -421,6 +421,15 @@ marimba=(hz,trig=every(1/8))->{
   s *= adsr(.003,.2,.3,.6,e:1.5,trig)
 }
 
+piano=(hz,trig)->{
+  s=oversample(4,()->sine(hz+sine(hz*7,trig)*hz*1.007,trig)+sine(hz+sine(hz*3,trig)*hz*1.004,trig)*.25)*.5
+  s+=gauss()*.3*ad(.00001,.01,e:3,trig)
+  s*=adsr(.0007,1.85,.2,.3,e:9,trig)
+  s=s*.6+delay(s,1.1/(hz**.79),.74,x->tanh(lp1(x,hz*6)))*.2
+          +delay(s,1.4/(hz**.79),.84,x->tanh(lp1(x,hz*5)))*.2
+  s=atan(s)
+}
+
 ;
 `
 

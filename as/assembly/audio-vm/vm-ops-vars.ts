@@ -28,6 +28,20 @@ import { CallFrame, Cell, ClosureEnv, FunctionDef, FunctionInstance, TryBlock } 
 
 const STEREO_SECOND_PASS_RELATIVE_PC: i32 = -2147483647
 
+function functionBytecodeMatchesSource(
+  fd: FunctionDef,
+  opsPtr: usize,
+  bytecodeStart: i32,
+  bytecodeLength: i32,
+): bool {
+  for (let i: i32 = 0; i < bytecodeLength; i++) {
+    const sourceBits: u32 = load<u32>(opsPtr + ((bytecodeStart + i) << 2))
+    const cachedBits: u32 = reinterpret<u32>(fd.bytecode[i])
+    if (sourceBits != cachedBits) return false
+  }
+  return true
+}
+
 /** Assign value to cell (release old; caller owns value e.g. from pop). */
 export function assignCell(vm: VmState, cell: Cell, value: f64): void {
   const old: f64 = cell.value
@@ -352,7 +366,9 @@ export function handleDefineFunction(
       }
     }
     else if (funcDef.sourceOpsPtr == opsPtr && funcDef.bytecodeStartPC == bytecodeStart) {
-      needsBytecodeCopy = false
+      // opsPtr can be reused for live edits; verify cached function body still
+      // matches source before taking the no-copy fast path.
+      needsBytecodeCopy = !functionBytecodeMatchesSource(funcDef, opsPtr, bytecodeStart, bytecodeLength)
     }
   }
   else {

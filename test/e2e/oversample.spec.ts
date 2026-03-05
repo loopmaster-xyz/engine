@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'bun:test'
 import '../../as/build/index.wasm'
-import { audio, audioAsync, runTicks, setOversampleModes, setup } from '../test-utils.ts'
+import { controlPipeline } from '../../src/live/pipeline.ts'
+import { audio, audioAsync, getCore, runTicks, setOversampleModes, setup } from '../test-utils.ts'
 
 beforeAll(async () => {
   await setup()
@@ -254,6 +255,68 @@ describe('oversample function', () => {
     `)).toMatchAudio(audio(`
       sine(1)/2 |> out($)
     `))
+  })
+
+  it('updates oversample callback literals when editing bytecode in-place', () => {
+    const core = getCore()
+    const vmId = 0
+    core.wasm.resetAudioVmAt(vmId)
+
+    const compiledA = controlPipeline.compileSource('out(oversample(4,()->0.1))')
+    const compiledB = controlPipeline.compileSource('out(oversample(4,()->0.9))')
+    if (compiledA.errors.length > 0 || compiledB.errors.length > 0) {
+      throw new Error(`Compilation failed:\n${[...compiledA.errors, ...compiledB.errors].join('\n')}`)
+    }
+    if (!compiledA.compile.bytecode || !compiledB.compile.bytecode) {
+      throw new Error('Missing bytecode for oversample literal update test')
+    }
+    const bytecodeA = compiledA.compile.bytecode
+    const bytecodeB = compiledB.compile.bytecode
+    expect(bytecodeA.length).toBe(bytecodeB.length)
+
+    const bytecodeLength = bytecodeA.length
+    const bufferLength = 128
+    const sampleRate = 48000
+    const nyquist = sampleRate * 0.5
+    const piOverNyquist = Math.PI / nyquist
+
+    const opsPtr = core.wasm.createFloat32Buffer(bytecodeLength)
+    const ops = new Float32Array(core.memory.buffer, opsPtr, bytecodeLength)
+
+    const runTick = (sampleCount: number): number => {
+      core.wasm.runAudioVmAt(
+        vmId,
+        opsPtr,
+        bytecodeLength,
+        bufferLength,
+        sampleCount,
+        sampleRate,
+        nyquist,
+        piOverNyquist,
+        120,
+      )
+      const infoPtr = core.wasm.getAudioVmInfoAt(vmId)
+      const info = new Uint32Array(core.memory.buffer, infoPtr, 10)
+      const outputLeftPtr = info[8] ?? 0
+      if (!outputLeftPtr) throw new Error('Missing output buffer pointer')
+      const left = new Float32Array(core.memory.buffer, outputLeftPtr, bufferLength)
+      return left[0] ?? 0
+    }
+
+    try {
+      ops.set(bytecodeA)
+      const first = runTick(0)
+
+      ops.set(bytecodeB)
+      const second = runTick(bufferLength)
+
+      expect(first).toBeCloseTo(0.1, 4)
+      expect(second).toBeCloseTo(0.9, 4)
+    }
+    finally {
+      core.wasm.freeFloat32Buffer(opsPtr)
+      core.wasm.resetAudioVmAt(vmId)
+    }
   })
 
   it('mini + oversample', () => {
