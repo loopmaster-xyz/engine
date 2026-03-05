@@ -274,87 +274,17 @@ karplus=(hz,pluck=pink,seed=123,attack=.01,decay=.1,exponent=50,damping=.5,feedb
   })
 }
 
-rhodes=(hz,vel=1,trig)->{
-  v = clamp(vel,0,1)
-
-  // Tine FM (velocity controls metallic bite)
-  fmIndex = hz * (.2 + 2.8*v)
-  fm = sine(hz*2.01) * fmIndex
-  tine = sine(hz + fm, 0, trig)
-
-  // Dual tone-bar resonances (slightly inharmonic)
-  resonances = [
-    bp(tine, hz*3.8, 7),
-    bp(tine, hz*7.1, 9)
-  ].avg()
-
-  // Pickup / hammer click
-  click = hp(tine, 2500, 0.7)
-        * ad(.0004,.025,14,trig)
-        * (.3 + .7*v)
-
-  // Raw mix
-  s = tine*.55 + resonances*.9 + click*.35
-
-  // Envelope + velocity scaling
-  s *= (.15 + .85*v)
-
-  // Gentle saturation + DC cleanup
-  s = tube(s, drive:2.0 + v, bias:.04)
-
-  // Pickup EQ tilt (brighter with velocity)
-  s = ls(s, 250, -2*(1-v))
-    + hs(s, 3200, 3*v)
-
-  // Classic Rhodes chorus
-  s = chorus(s, voices:3, rate:.22, depth:.005, spread:.6)
-
-  s*.5
-}
-
-rhodes70=(hz,vel=1,trig)->{
-  v = clamp(vel,0,1)
-
-  // Fundamental (very pure)
-  core = sine(hz, trig)
-
-  // Hammer / tine attack (noise, not FM)
-  hammer =
-    bp(pink(1234,trig), hz*2.5, 6)
-    * ad(.0006,.04,10,trig)
-    * (.25 + .6*v)
-
-  // Tone-bar resonances (dominant character)
-  resonances = [
-    bp(core, hz*3.2, 8),
-    bp(core, hz*6.4, 10)
-  ].avg()
-
-  // Slight beating via slow detune (control-rate, not audio-rate)
-  det = 1 + (.002 + .004*v) * lfosine(.6)
-  body = sine(hz*det) * .3
-
-  // Mix (bars > fundamental)
-  s =
-    core*.35 +
-    resonances*1.0 +
-    body +
-    hammer
-
-  // Apply envelope + velocity
-  s *= (.2 + .8*v)
-
-  // Very gentle saturation (mostly for compression feel)
-  s = tanh(s * (1.2 + .8*v))
-
-  // Pickup EQ: dark, rounded top
-  s = ls(s, 220, -1.5)
-    |> hs($, 2800, 1.2*v)
-
-  // Subtle chorus (slow + shallow)
-  s = chorus(s, voices:2, rate:.15, depth:.003, spread:.4)
-
-  s
+rhodes=(hz,trig)->{
+  env=adsr(.00001,1.4,.92,8,e:6,trig)
+  oversample(4,()->{
+    sine(hz+sine(hz*1.013,trig)*hz*7.25,trig)*ad(.00001,1.2,e:6,trig)*.12
+    +sine(hz+sine(hz*2.752,trig)*hz*2.15,trig)*env*.4
+    +tri(hz)*env
+    |> $+chorus($,3,.0082,.0015,2.22,12.8)*.25
+    |> lpm($,400+3200*ad(.03,3.85,trig),.4)
+    |> atan($*.15)
+  })
+  |> dc($)
 }
 
 // Supersaw oscillator with detuned voices
