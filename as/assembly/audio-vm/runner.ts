@@ -40,6 +40,7 @@ import * as vmOpsKernels from './vm-ops-kernels'
 import * as vmOpsMath from './vm-ops-math'
 import * as vmOpsOutput from './vm-ops-output'
 import * as vmOpsRandom from './vm-ops-random'
+import * as vmOpsStore from './vm-ops-store'
 import * as vmOpsStack from './vm-ops-stack'
 import * as vmOpsStep from './vm-ops-step'
 import * as vmOpsTable from './vm-ops-table'
@@ -279,6 +280,7 @@ export function copyAudioVmStateFrom(dst: VmState, src: VmState): void {
   for (let i: i32 = 0; i < dst.genPools.length; i++) {
     dst.genPools[i].copyFrom(src.genPools[i])
   }
+  vmOpsStore.copyStoreRegistry(dst, src)
 }
 
 /** Teardown call stack, upsample cache, function instances; release frame resources. */
@@ -346,6 +348,7 @@ function releaseGlobalsAndCells(vm: VmState): void {
 function prepareForRun(vm: VmState, bufferLength: i32, opsLength: i32, sampleRate: f32, bpm: f32): void {
   vmOpsVars.flushPendingReleaseAudio(vm)
   vmOpsBuffer.resetAllocCounters(vm)
+  vmOpsStore.resetStoreCounters(vm)
   releaseOutputs(vm)
   if (!vm.preserveFunctionState) {
     if (vm.arrays.length > 0) {
@@ -658,6 +661,15 @@ export function run(
       case AudioVmOp.Random:
         result = vmOpsRandom.handleRandom(vm, pc, currentOpsPtr, params)
         break
+      case AudioVmOp.StoreInit:
+        result = vmOpsStore.handleStoreInit(vm, pc, currentOpsPtr, params)
+        break
+      case AudioVmOp.StoreGet:
+        result = vmOpsStore.handleStoreGet(vm, pc, currentOpsPtr, params)
+        break
+      case AudioVmOp.StoreSet:
+        result = vmOpsStore.handleStoreSet(vm, pc, currentOpsPtr, params)
+        break
       case AudioVmOp.ArraySet:
         result = vmOpsArray.handleArraySet(vm, pc, currentOpsPtr, params)
         break
@@ -925,6 +937,7 @@ export function releaseOutputs(vm: VmState): void {
 }
 
 export function softResetState(vm: VmState): void {
+  vmOpsStore.clearStoreRegistry(vm)
   for (let i: i32 = 0; i < vm.genPools.length; i++) {
     vm.genPools[i].resetAll()
   }
@@ -933,6 +946,7 @@ export function softResetState(vm: VmState): void {
 /** Release outs and reset VM for next run (buffers, call stack, etc.). */
 export function resetState(vm: VmState): void {
   releaseOutputs(vm)
+  vmOpsStore.clearStoreRegistry(vm)
 
   const bufferIds: FastArray<i32> = vm.bufferRegistry.keys()
   for (let i: i32 = 0; i < bufferIds.length; i++) {

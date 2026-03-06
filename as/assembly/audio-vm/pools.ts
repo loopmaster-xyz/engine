@@ -4,7 +4,7 @@ import { FastArray } from './lib/fast-array'
 import { ValueScope } from './value-scope'
 import { VmState } from './vm-state'
 import { ArraySlotResult, BufferEntry, CallFrame, Cell, ClosureEnv, FunctionDef, FunctionInstance, StepEntry,
-  TryBlock } from './vm-types'
+  StoreEntry, TryBlock } from './vm-types'
 
 export { ArrayBufferPool } from './array-buffer-pool'
 
@@ -339,6 +339,41 @@ export class BufferEntryPool {
   }
 
   release(entry: BufferEntry): void {
+    this.returned++
+    this.pool.push(entry)
+  }
+}
+
+export class StoreEntryPool {
+  private pool: FastArray<StoreEntry>
+  created: i32 = 0
+  returned: i32 = 0
+
+  constructor() {
+    this.pool = new FastArray<StoreEntry>()
+  }
+
+  resetCounters(): void {
+    this.created = 0
+    this.returned = 0
+    this.pool.resetCounters()
+  }
+
+  getPoolGrowCountRaw(): i32 {
+    return this.pool.growCountRaw
+  }
+
+  acquire(values: Float64Array, length: i32): StoreEntry {
+    if (this.pool.length > 0) {
+      const entry: StoreEntry = this.pool.pop()
+      entry.init(values, length)
+      return entry
+    }
+    this.created++
+    return new StoreEntry(values, length)
+  }
+
+  release(entry: StoreEntry): void {
     this.returned++
     this.pool.push(entry)
   }

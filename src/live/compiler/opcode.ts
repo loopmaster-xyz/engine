@@ -43,6 +43,9 @@ const OPCODE_INFO: Partial<Record<AudioVmOp, OpcodeInfo>> = {
   [AudioVmOp.MathUnary]: { kind: 'param' },
   [AudioVmOp.MathBinary]: { kind: 'param' },
   [AudioVmOp.MathTernary]: { kind: 'param' },
+  [AudioVmOp.StoreInit]: { kind: 'param' },
+  [AudioVmOp.StoreGet]: { kind: 'none' },
+  [AudioVmOp.StoreSet]: { kind: 'none' },
 
   /* -------- PC param -------- */
   [AudioVmOp.Jump]: { kind: 'pc-param' },

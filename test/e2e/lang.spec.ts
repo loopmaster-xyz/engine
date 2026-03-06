@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'bun:test'
 import { compile } from '../../src/live/compiler/index.ts'
 import { parse, parseTokens } from '../../src/live/parser.ts'
 import { tokenize } from '../../src/live/token.ts'
-import { audio, audioAsync, setup, sine } from '../test-utils.ts'
+import { audio, audioAsync, getCore, setup, sine } from '../test-utils.ts'
 import '../../as/build/index.wasm'
 
 beforeAll(async () => {
@@ -3963,6 +3963,113 @@ describe('objects', () => {
     const compiled = compile(parsed.program!, parsed.preludeLines)
     expect(compiled.errors.length).toBeGreaterThan(0)
     expect(compiled.errors[0]?.message).toContain('known object shape')
+  })
+})
+
+describe('store', () => {
+  it('persists array state across ticks', () => {
+    const out = audio('state = store([0]); state[0] += 1; out(state[0])', { ticks: 4, bufferLength: 1 })
+    expect(out).toMatchAudio([[1, 2, 3, 4], [1, 2, 3, 4]], 4)
+  })
+
+  it('persists object state across ticks', () => {
+    const out = audio('state = store({ foo: 0, bar: 0 }); state.foo += 1; out(state.foo)', { ticks: 4, bufferLength: 1 })
+    expect(out).toMatchAudio([[1, 2, 3, 4], [1, 2, 3, 4]], 4)
+  })
+
+  it('persists state across runs without reset', () => {
+    const vmId = 123
+    const first = audio('state = store([0]); state[0] += 1; out(state[0])', {
+      vmId,
+      ticks: 1,
+      bufferLength: 1,
+    })
+    const second = audio('state = store([0]); state[0] += 1; out(state[0])', {
+      vmId,
+      ticks: 1,
+      bufferLength: 1,
+      noReset: true,
+    })
+    expect(first).toMatchAudio([[1], [1]], 1)
+    expect(second).toMatchAudio([[2], [2]], 1)
+  })
+
+  it('reinitializes state after soft reset', () => {
+    const vmId = 124
+    const code = 'state = store([0]); state[0] += 1; out(state[0])'
+    const first = audio(code, { vmId, ticks: 2, bufferLength: 1 })
+    getCore().wasm.softResetAudioVmAt(vmId)
+    const second = audio(code, { vmId, ticks: 2, bufferLength: 1, noReset: true })
+    expect(first).toMatchAudio([[1, 2], [1, 2]], 2)
+    expect(second).toMatchAudio([[1, 2], [1, 2]], 2)
+  })
+
+  it('propagates array store shape across aliases', () => {
+    const out = audio('a = store([0]); b = a; b[0] += 1; out(a[0])', { ticks: 3, bufferLength: 1 })
+    expect(out).toMatchAudio([[1, 2, 3], [1, 2, 3]], 3)
+  })
+
+  it('propagates object store shape across aliases', () => {
+    const out = audio('a = store({ foo: 0 }); b = a; b.foo += 1; out(a.foo)', { ticks: 3, bufferLength: 1 })
+    expect(out).toMatchAudio([[1, 2, 3], [1, 2, 3]], 3)
+  })
+
+  it('supports function-valued store object field calls', () => {
+    expect(audio('f = () -> 1; state = store({ foo: f }); state.foo() |> out($)')).toMatchAudio([[1, 1, 1], [1, 1, 1]])
+  })
+
+  it('supports store array length reads', () => {
+    expect(audio('state = store([10, 20, 30]); out(state.length)')).toMatchAudio([[3, 3, 3], [3, 3, 3]])
+  })
+
+  it('errors on invalid non-literal store initializer', () => {
+    const parsed = parse('x = [0]; s = store(x); out(0)')
+    expect(parsed.errors).toEqual([])
+    const compiled = compile(parsed.program!, parsed.preludeLines)
+    expect(compiled.errors.length).toBeGreaterThan(0)
+    expect(compiled.errors[0]?.message).toContain('top-level array or object literal')
+  })
+
+  it('errors on nested array/object store initializer values', () => {
+    const parsed = parse('s = store({ foo: [0] }); out(0)')
+    expect(parsed.errors).toEqual([])
+    const compiled = compile(parsed.program!, parsed.preludeLines)
+    expect(compiled.errors.length).toBeGreaterThan(0)
+    expect(compiled.errors[0]?.message).toContain('nested array/object literals')
+  })
+
+  it('errors on unknown store object property read', () => {
+    const parsed = parse('s = store({ foo: 1 }); s.bar |> out($)')
+    expect(parsed.errors).toEqual([])
+    const compiled = compile(parsed.program!, parsed.preludeLines)
+    expect(compiled.errors.length).toBeGreaterThan(0)
+    expect(compiled.errors[0]?.message).toContain('Unknown store object property')
+  })
+
+  it('errors on unknown store object property write', () => {
+    const parsed = parse('s = store({ foo: 1 }); s.bar = 1; out(0)')
+    expect(parsed.errors).toEqual([])
+    const compiled = compile(parsed.program!, parsed.preludeLines)
+    expect(compiled.errors.length).toBeGreaterThan(0)
+    expect(compiled.errors[0]?.message).toContain('Unknown store object property')
+  })
+
+  it('errors on unsupported store array methods', () => {
+    const parsed = parse('s = store([0]); s.push(1); out(0)')
+    expect(parsed.errors).toEqual([])
+    const compiled = compile(parsed.program!, parsed.preludeLines)
+    expect(compiled.errors.length).toBeGreaterThan(0)
+    expect(compiled.errors[0]?.message).toContain('Store array methods are not supported')
+  })
+
+  it('rejects audio-valued store initialization at runtime', () => {
+    expect(() => audio('s = store([sine(440)]); out(0)', { ticks: 1 })).toThrow('store does not support audio values')
+  })
+
+  it('rejects audio-valued store writes at runtime', () => {
+    expect(() => audio('s = store([0]); s[0] = sine(440); out(0)', { ticks: 1 })).toThrow(
+      'store does not support audio values',
+    )
   })
 })
 

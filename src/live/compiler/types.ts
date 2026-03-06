@@ -93,6 +93,14 @@ export type StackValue = {
   expr: Expr
 }
 
+export type StoreShape = {
+  kind: 'array'
+  length: number
+} | {
+  kind: 'object'
+  keys: string[]
+}
+
 export type VariableScope = 'system' | 'global' | 'local' | 'closure'
 
 export type VariableInfo = {

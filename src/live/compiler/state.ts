@@ -11,6 +11,7 @@ import type {
   RecordCallback,
   SampleRegistration,
   StackValue,
+  StoreShape,
   VariableInfo,
 } from './types.ts'
 
@@ -61,6 +62,7 @@ export class State {
   nextRecordGlobalIdx = 1000 // Separate counter for recordGlobalIdx in recording VM (start high to avoid conflicts with function globals)
   nextAllocCallSiteId = 0
   nextStepCallSiteId = 0
+  nextStoreCallSiteId = 0
   nextTempId = 0
   ops: number[] = []
   oversampleCallbackFunctionIds: Set<number> = new Set() // Track which functions are oversample callbacks
@@ -85,6 +87,7 @@ export class State {
   varToArrayLiteral: Map<string, ArrayLiteralExpr> = new Map()
   varToObjectLiteral: Map<string, ObjectLiteralExpr> = new Map()
   objectKeysByBinding: Map<string, string[]> = new Map() // binding key -> object keys in declaration order
+  storeShapesByBinding: Map<string, StoreShape> = new Map() // binding key -> store-backed container shape
   variableFunctionIds: Map<string, number> = new Map() // binding key -> functionId for identifiers currently known as fn values
   scale: string = 'major'
   scaleIndex: number = 0 // from SCALE_KEY_TO_INDEX.major

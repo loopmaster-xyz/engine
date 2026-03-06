@@ -3,6 +3,7 @@ import { ArrayBufferPool } from './array-buffer-pool'
 import { AudioBufferArena } from './audio-buffer-arena'
 import { AUDIO_VM_INFO_STRIDE, EMPTY_FLOAT64_ARRAY as SENTINEL_EMPTY_F64 } from './constants'
 import { GenPool, GenPoolManager } from './gen-pool'
+import * as heap from './heap'
 import { FastArray } from './lib/fast-array'
 import { FastMapU32U32 } from './lib/fast-map-u32-u32'
 import { FastSetU32 } from './lib/fast-set-u32'
@@ -16,6 +17,7 @@ import {
   FastArrayPool,
   FunctionDefPool,
   FunctionInstancePool,
+  StoreEntryPool,
   StepEntryPool,
   TryBlockPool,
   ValueScopePool,
@@ -24,7 +26,7 @@ import { ValueScope } from './value-scope'
 import { OS_DOWN_BOXCAR, OS_DOWN_DECIMATE, OS_UP_HOLD, OS_UP_LINEAR } from './vm-constants'
 import { MAX_PARAM_COUNT } from './vm-params'
 import { ArraySlotResult, BufferEntry, CallFrame, Cell, ClosureEnv, FunctionDef, FunctionInstance, StepEntry,
-  TryBlock } from './vm-types'
+  StoreEntry, TryBlock } from './vm-types'
 
 export { BufferEntry, StepEntry } from './vm-types'
 
@@ -66,6 +68,7 @@ export class VmState {
   arraySlotResultPool!: ArraySlotResultPool
   stepEntryPool!: StepEntryPool
   bufferEntryPool!: BufferEntryPool
+  storeEntryPool!: StoreEntryPool
   valueScopePool!: ValueScopePool
   callStack!: FastArray<CallFrame>
   absolutePCCallStack!: Int32Array
@@ -104,6 +107,7 @@ export class VmState {
   tempAudioPtrs!: FastArray<u32>
   nextBufferHandle: i32
   bufferRegistry!: HashTable<BufferEntry>
+  storeRegistry!: HashTable<StoreEntry>
   stepRegistry!: HashTable<StepEntry>
   arrayGetGenPoolIndex: i32 = -1
   preserveFunctionState: bool = false
@@ -125,11 +129,13 @@ export class VmState {
   private arrayBufferPoolHashValsClosureEnv: ArrayBufferPool<ClosureEnv | null>
   private arrayBufferPoolHashValsBufferEntry: ArrayBufferPool<BufferEntry | null>
   private arrayBufferPoolHashValsStepEntry: ArrayBufferPool<StepEntry | null>
+  private arrayBufferPoolHashValsStoreEntry: ArrayBufferPool<StoreEntry | null>
   private arrayBufferPoolFunctionDef: ArrayBufferPool<FunctionDef>
   private arrayBufferPoolFunctionInstance: ArrayBufferPool<FunctionInstance>
   private arrayBufferPoolClosureEnv: ArrayBufferPool<ClosureEnv>
   private arrayBufferPoolBufferEntry: ArrayBufferPool<BufferEntry>
   private arrayBufferPoolStepEntry: ArrayBufferPool<StepEntry>
+  private arrayBufferPoolStoreEntry: ArrayBufferPool<StoreEntry>
   private audioBufferPtrUint8Arena: Uint8Arena
   private audioBufferPtrUint32Arena: Uint32Arena
   private arrayBufferPoolFloat32ArrayOrNull: ArrayBufferPool<Float32Array | null>
@@ -165,11 +171,13 @@ export class VmState {
     this.arrayBufferPoolHashValsClosureEnv = new ArrayBufferPool<ClosureEnv | null>()
     this.arrayBufferPoolHashValsBufferEntry = new ArrayBufferPool<BufferEntry | null>()
     this.arrayBufferPoolHashValsStepEntry = new ArrayBufferPool<StepEntry | null>()
+    this.arrayBufferPoolHashValsStoreEntry = new ArrayBufferPool<StoreEntry | null>()
     this.arrayBufferPoolFunctionDef = new ArrayBufferPool<FunctionDef>()
     this.arrayBufferPoolFunctionInstance = new ArrayBufferPool<FunctionInstance>()
     this.arrayBufferPoolClosureEnv = new ArrayBufferPool<ClosureEnv>()
     this.arrayBufferPoolBufferEntry = new ArrayBufferPool<BufferEntry>()
     this.arrayBufferPoolStepEntry = new ArrayBufferPool<StepEntry>()
+    this.arrayBufferPoolStoreEntry = new ArrayBufferPool<StoreEntry>()
     this.audioBufferPtrUint8Arena = new Uint8Arena()
     this.audioBufferPtrUint32Arena = new Uint32Arena()
     this.arrayBufferPoolFloat32ArrayOrNull = new ArrayBufferPool<Float32Array | null>()
@@ -213,6 +221,14 @@ export class VmState {
       this.arrayBufferPoolI32,
       this.arrayBufferPoolBufferEntry,
     )
+    this.storeRegistry = new HashTable<StoreEntry>(
+      4,
+      this.hashTableInt32ArenaRuntime,
+      this.arrayBufferPoolHashValsStoreEntry,
+      this.hashTableUint8ArenaRuntime,
+      this.arrayBufferPoolI32Runtime,
+      this.arrayBufferPoolStoreEntry,
+    )
     this.stepRegistry = new HashTable<StepEntry>(
       4,
       this.hashTableInt32Arena,
@@ -241,6 +257,7 @@ export class VmState {
     this.arraySlotResultPool = new ArraySlotResultPool(this.arrayBufferPoolArraySlotResult)
     this.stepEntryPool = new StepEntryPool()
     this.bufferEntryPool = new BufferEntryPool()
+    this.storeEntryPool = new StoreEntryPool()
     this.valueScopePool = new ValueScopePool(this.arrayBufferPoolF64, this.arrayBufferPoolValueScope)
     this.callStack = new FastArray<CallFrame>(16, this.arrayBufferPoolCallFrame)
     this.tryStack = new FastArray<TryBlock>(16, this.arrayBufferPoolTryBlock)
@@ -334,6 +351,17 @@ export class VmState {
       this.bufferEntryPool.release(this.bufferRegistry.get(bufferIds.get(i)))
     }
     this.bufferRegistry.clear()
+    const storeIds: FastArray<i32> = this.storeRegistry.keys()
+    for (let i: i32 = 0; i < storeIds.length; i++) {
+      const entry: StoreEntry = this.storeRegistry.get(storeIds.get(i))
+      const len: i32 = min(entry.length, entry.values.length)
+      for (let j: i32 = 0; j < len; j++) {
+        heap.releaseValue(this, entry.values[j])
+      }
+      if (entry.values.length > 0) this.float64Arena.release(entry.values)
+      this.storeEntryPool.release(entry)
+    }
+    this.storeRegistry.clear()
     const stepIds: FastArray<i32> = this.stepRegistry.keys()
     for (let i: i32 = 0; i < stepIds.length; i++) {
       this.stepEntryPool.release(this.stepRegistry.get(stepIds.get(i)))
@@ -414,6 +442,7 @@ export class VmState {
     this.functionInstances.resetCounters()
     this.closureEnvs.resetCounters()
     this.bufferRegistry.resetCounters()
+    this.storeRegistry.resetCounters()
     this.stepRegistry.resetCounters()
     this.work.resetCounters()
     this.arrays.resetCounters()
@@ -440,11 +469,13 @@ export class VmState {
     this.arrayBufferPoolHashValsClosureEnv.resetCounters()
     this.arrayBufferPoolHashValsBufferEntry.resetCounters()
     this.arrayBufferPoolHashValsStepEntry.resetCounters()
+    this.arrayBufferPoolHashValsStoreEntry.resetCounters()
     this.arrayBufferPoolFunctionDef.resetCounters()
     this.arrayBufferPoolFunctionInstance.resetCounters()
     this.arrayBufferPoolClosureEnv.resetCounters()
     this.arrayBufferPoolBufferEntry.resetCounters()
     this.arrayBufferPoolStepEntry.resetCounters()
+    this.arrayBufferPoolStoreEntry.resetCounters()
     this.arrayBufferPoolFloat32ArrayOrNull.resetCounters()
     this.arrayBufferPoolArraySlotResult.resetCounters()
     this.arrayBufferPoolValueScope.resetCounters()
@@ -459,6 +490,7 @@ export class VmState {
     this.arraySlotResultPool.resetCounters()
     this.stepEntryPool.resetCounters()
     this.bufferEntryPool.resetCounters()
+    this.storeEntryPool.resetCounters()
     this.valueScopePool.resetCounters()
     for (let i: i32 = 0; i < this.genPools.length; i++) {
       this.genPools[i].resetCounters()
@@ -501,6 +533,8 @@ export class VmState {
       this.arrayBufferPoolHashValsBufferEntry.returned)
     check('arrayBufferPoolHashValsStepEntry', this.arrayBufferPoolHashValsStepEntry.created,
       this.arrayBufferPoolHashValsStepEntry.returned)
+    check('arrayBufferPoolHashValsStoreEntry', this.arrayBufferPoolHashValsStoreEntry.created,
+      this.arrayBufferPoolHashValsStoreEntry.returned)
     check('arrayBufferPoolFunctionDef', this.arrayBufferPoolFunctionDef.created,
       this.arrayBufferPoolFunctionDef.returned)
     check('arrayBufferPoolFunctionInstance', this.arrayBufferPoolFunctionInstance.created,
@@ -509,6 +543,7 @@ export class VmState {
     check('arrayBufferPoolBufferEntry', this.arrayBufferPoolBufferEntry.created,
       this.arrayBufferPoolBufferEntry.returned)
     check('arrayBufferPoolStepEntry', this.arrayBufferPoolStepEntry.created, this.arrayBufferPoolStepEntry.returned)
+    check('arrayBufferPoolStoreEntry', this.arrayBufferPoolStoreEntry.created, this.arrayBufferPoolStoreEntry.returned)
     check('arrayBufferPoolFloat32ArrayOrNull', this.arrayBufferPoolFloat32ArrayOrNull.created,
       this.arrayBufferPoolFloat32ArrayOrNull.returned)
     check('arrayBufferPoolArraySlotResult', this.arrayBufferPoolArraySlotResult.created,
@@ -525,6 +560,7 @@ export class VmState {
     check('arraySlotResultPool', this.arraySlotResultPool.created, this.arraySlotResultPool.returned)
     check('stepEntryPool', this.stepEntryPool.created, this.stepEntryPool.returned)
     check('bufferEntryPool', this.bufferEntryPool.created, this.bufferEntryPool.returned)
+    check('storeEntryPool', this.storeEntryPool.created, this.storeEntryPool.returned)
     check('valueScopePool', this.valueScopePool.created, this.valueScopePool.returned)
     for (let i: i32 = 0; i < this.genPools.length; i++) {
       const gp: GenPool = this.genPools[i]
@@ -536,6 +572,7 @@ export class VmState {
       + this.functionInstances.rehashCount
       + this.closureEnvs.rehashCount
       + this.bufferRegistry.rehashCount
+      + this.storeRegistry.rehashCount
       + this.stepRegistry.rehashCount
     const arenaBucketGrow: i32 = this.arena.ensureBucketGrowCount
       + this.float64Arena.ensureBucketGrowCount
@@ -561,6 +598,7 @@ export class VmState {
       + this.fastArrayU32Pool.getPoolGrowCountRaw()
       + this.stepEntryPool.getPoolGrowCountRaw()
       + this.bufferEntryPool.getPoolGrowCountRaw()
+      + this.storeEntryPool.getPoolGrowCountRaw()
     if (hotRehash > 0 || this.arena.rehashPtrCount > 0 || poolGrowRaw > 0 || arenaBucketGrow > 0
       || poolBucketGrow > 0)
     {

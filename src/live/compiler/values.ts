@@ -2,7 +2,7 @@ import { AudioVmOp } from '../../dsp/audio-vm-bindings.ts'
 import type { Expr } from '../ast.ts'
 import { compileExpr, error } from './core.ts'
 import type { State } from './state.ts'
-import { getObjectKeysForExpr } from './vars.ts'
+import { getObjectKeysForExpr, getStoreShapeForExpr } from './vars.ts'
 
 const ARRAY_METHOD_PROPERTIES = new Set(['avg', 'sum', 'push', 'shuffle', 'map', 'reduce', 'slice', 'take'])
 
@@ -44,6 +44,43 @@ export function compileObject(state: State, expr: Extract<Expr, { type: 'object'
 }
 
 export function compileMember(state: State, expr: Extract<Expr, { type: 'member' }>): void {
+  const storeShape = getStoreShapeForExpr(state, expr.object)
+  if (storeShape) {
+    if (storeShape.kind === 'array') {
+      if (expr.property === 'length') {
+        const stackBefore = state.stack.length
+        compileExpr(state, expr.object)
+        if (state.stack.length > stackBefore) {
+          state.ops.push(AudioVmOp.Pop)
+          state.stack.length = stackBefore
+        }
+        state.ops.push(AudioVmOp.PushScalar)
+        state.ops.push(storeShape.length)
+        state.stack.push({ expr })
+        return
+      }
+      if (ARRAY_METHOD_PROPERTIES.has(expr.property)) {
+        return
+      }
+      error(state, `Store arrays only support index access and length: ${expr.property}`, expr.loc)
+      return
+    }
+
+    const propertyIndex = storeShape.keys.indexOf(expr.property)
+    if (propertyIndex < 0) {
+      error(state, `Unknown store object property: ${expr.property}`, expr.loc)
+      return
+    }
+
+    const stackBefore = state.stack.length
+    compileExpr(state, expr.object)
+    compileExpr(state, { type: 'number', value: propertyIndex, loc: expr.loc })
+    state.ops.push(AudioVmOp.StoreGet)
+    state.stack.length = stackBefore
+    state.stack.push({ expr })
+    return
+  }
+
   const objectKeys = getObjectKeysForExpr(state, expr.object)
   if (objectKeys) {
     const propertyIndex = objectKeys.indexOf(expr.property)

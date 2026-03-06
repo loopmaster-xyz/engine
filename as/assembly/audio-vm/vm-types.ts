@@ -25,6 +25,21 @@ export class BufferEntry {
   }
 }
 
+export class StoreEntry {
+  values: Float64Array
+  length: i32
+
+  constructor(values: Float64Array, length: i32) {
+    this.values = values
+    this.length = length
+  }
+
+  init(values: Float64Array, length: i32): void {
+    this.values = values
+    this.length = length
+  }
+}
+
 export class StepEntry {
   currentIndex: i32 = 0
   lastTrig: f32 = 0.0

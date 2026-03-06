@@ -12,7 +12,8 @@ import { compileTram } from './kernel/tram.ts'
 import { getMathBinaryId, getMathTernaryId, getMathUnaryId } from './math-registry.ts'
 import type { State } from './state.ts'
 import type { FunctionInfo, HistorySourceMap, VariableInfo } from './types.ts'
-import { compileGetVariable, compilePushCellRef, getFunctionByName, getObjectKeysForExpr, lookupVariable } from './vars.ts'
+import { compileGetVariable, compilePushCellRef, getFunctionByName, getObjectKeysForExpr,
+  getStoreShapeForExpr, lookupVariable } from './vars.ts'
 
 const GEN_KEY_SEP = '\0'
 
@@ -74,6 +75,71 @@ function bestEffortArgs(args: Arg[]): Record<string, Expr[]> {
     out[key].push(a.value)
   }
   return out
+}
+
+function exprContainsArrayOrObjectLiteral(expr: Expr): boolean {
+  switch (expr.type) {
+    case 'array':
+    case 'object':
+      return true
+    case 'binary':
+      return exprContainsArrayOrObjectLiteral(expr.left) || exprContainsArrayOrObjectLiteral(expr.right)
+    case 'unary':
+      return exprContainsArrayOrObjectLiteral(expr.expr)
+    case 'ternary':
+      return exprContainsArrayOrObjectLiteral(expr.condition)
+        || exprContainsArrayOrObjectLiteral(expr.trueExpr)
+        || exprContainsArrayOrObjectLiteral(expr.falseExpr)
+    case 'call':
+      if (exprContainsArrayOrObjectLiteral(expr.callee)) return true
+      for (const arg of expr.args) {
+        if (arg.type === 'arg' && arg.value && exprContainsArrayOrObjectLiteral(arg.value)) return true
+      }
+      return false
+    case 'index':
+      return exprContainsArrayOrObjectLiteral(expr.object) || exprContainsArrayOrObjectLiteral(expr.index)
+    case 'member':
+      return exprContainsArrayOrObjectLiteral(expr.object)
+    default:
+      return false
+  }
+}
+
+function getValidatedStoreInitExpr(
+  state: State,
+  callExpr: Extract<Expr, { type: 'call' }>,
+  args: Arg[],
+): Extract<Expr, { type: 'array' }> | Extract<Expr, { type: 'object' }> | null {
+  if (args.length !== 1) {
+    error(state, 'store(init) requires exactly 1 argument', callExpr.loc)
+    return null
+  }
+  const initArg = args[0]?.type === 'arg' ? args[0].value : null
+  if (!initArg) {
+    error(state, 'store(init) requires an initializer argument', callExpr.loc)
+    return null
+  }
+  if (initArg.type !== 'array' && initArg.type !== 'object') {
+    error(state, 'store(init) requires a top-level array or object literal', callExpr.loc)
+    return null
+  }
+  if (initArg.type === 'array') {
+    for (const item of initArg.items) {
+      if (exprContainsArrayOrObjectLiteral(item)) {
+        error(state, 'store(array) does not support nested array/object literals', item.loc)
+        return null
+      }
+    }
+  }
+  else {
+    for (const entry of initArg.entries) {
+      if (exprContainsArrayOrObjectLiteral(entry.value)) {
+        error(state, 'store(object) does not support nested array/object literals', entry.loc)
+        return null
+      }
+    }
+  }
+  return initArg
 }
 
 function matchFixedArgs(
@@ -248,8 +314,16 @@ export function compileGetCall(
   resultExpr: Expr,
 ): void {
   const stackBefore = state.stack.length
+  const storeShape = getStoreShapeForExpr(state, arrayExpr)
   compileExpr(state, arrayExpr)
   compileExpr(state, indexExpr)
+
+  if (storeShape) {
+    state.ops.push(AudioVmOp.StoreGet)
+    state.stack.length = stackBefore
+    state.stack.push({ expr: resultExpr })
+    return
+  }
 
   pushArrayGetHistoryForArrayExpr(state, arrayExpr, loc)
 
@@ -261,6 +335,39 @@ export function compileGetCall(
 export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>): void {
   if (expr.callee.type === 'member') {
     const memberExpr = expr.callee as Extract<Expr, { type: 'member' }>
+    const storeShape = getStoreShapeForExpr(state, memberExpr.object)
+    if (storeShape) {
+      if (storeShape.kind === 'array') {
+        error(state, `Store array methods are not supported: ${memberExpr.property}`, expr.loc)
+        return
+      }
+      const propertyIndex = storeShape.keys.indexOf(memberExpr.property)
+      if (propertyIndex < 0) {
+        error(state, `Unknown store object method: ${memberExpr.property}`, expr.loc)
+        return
+      }
+      pushCallMeta(state, expr, memberExpr.property, bestEffortArgs(expr.args))
+      for (const arg of expr.args) {
+        if (arg.type === 'arg' && arg.value) compileExpr(state, arg.value)
+      }
+      const indexExpr: Extract<Expr, { type: 'number' }> = {
+        type: 'number',
+        value: propertyIndex,
+        loc: memberExpr.loc,
+      }
+      const indexedCallee: Extract<Expr, { type: 'index' }> = {
+        type: 'index',
+        object: memberExpr.object,
+        index: indexExpr,
+        loc: memberExpr.loc,
+      }
+      compileGetCall(state, indexedCallee.object, indexedCallee.index, indexedCallee.loc, indexedCallee)
+      state.ops.push(AudioVmOp.CallFunction)
+      state.ops.push(expr.args.length)
+      state.stack.push({ expr })
+      return
+    }
+
     const objectKeys = getObjectKeysForExpr(state, memberExpr.object)
     if (objectKeys) {
       const propertyIndex = objectKeys.indexOf(memberExpr.property)
@@ -904,6 +1011,23 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   if (funcName === 'timeline') {
     pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
     compileTimeline(state, callExpr, args)
+    return
+  }
+
+  if (funcName === 'store') {
+    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    const initExpr = getValidatedStoreInitExpr(state, callExpr, args)
+    if (!initExpr) return
+    const stackBefore = state.stack.length
+    compileExpr(state, initExpr)
+    if (state.stack.length === stackBefore) {
+      error(state, 'store(init) initializer did not produce a value', callExpr.loc)
+      return
+    }
+    state.ops.push(AudioVmOp.StoreInit)
+    state.ops.push(state.nextStoreCallSiteId++)
+    state.stack.length = stackBefore
+    state.stack.push({ expr: callExpr })
     return
   }
 

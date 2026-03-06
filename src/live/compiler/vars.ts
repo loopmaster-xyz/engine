@@ -5,7 +5,7 @@ import { collectClosureVarNames } from '../deps.ts'
 import { compileExpr, error, getCurrentScope } from './core.ts'
 import { compileFunction } from './functions.ts'
 import type { State } from './state.ts'
-import type { FunctionInfo } from './types.ts'
+import type { FunctionInfo, StoreShape } from './types.ts'
 import { SYSTEM_VARS, type VariableInfo } from './types.ts'
 
 const PIPE_SCOPE: Map<string, unknown> = new Map([['$', true]])
@@ -53,6 +53,25 @@ function clearVariableObjectShape(state: State, varInfo: VariableInfo): void {
   }
 }
 
+function setVariableStoreShape(state: State, varInfo: VariableInfo, shape: StoreShape): void {
+  if (shape.kind === 'array') {
+    state.storeShapesByBinding.set(variableBindingKey(varInfo.scope, varInfo.index), { kind: 'array', length: shape.length })
+    return
+  }
+  state.storeShapesByBinding.set(variableBindingKey(varInfo.scope, varInfo.index), {
+    kind: 'object',
+    keys: [...shape.keys],
+  })
+}
+
+function clearVariableStoreShape(state: State, varInfo: VariableInfo): void {
+  state.storeShapesByBinding.delete(variableBindingKey(varInfo.scope, varInfo.index))
+  if (varInfo.scope === 'closure') {
+    state.storeShapesByBinding.delete(variableBindingKey('local', varInfo.index))
+    state.storeShapesByBinding.delete(variableBindingKey('global', varInfo.index))
+  }
+}
+
 function getFunctionInfoById(state: State, functionId: number): FunctionInfo | undefined {
   for (const info of state.functions) {
     if (info.id === functionId) return info
@@ -84,6 +103,34 @@ export function getObjectKeysForVarInfo(state: State, varInfo: VariableInfo): st
   return null
 }
 
+export function getStoreShapeForVarInfo(state: State, varInfo: VariableInfo): StoreShape | null {
+  const direct = state.storeShapesByBinding.get(variableBindingKey(varInfo.scope, varInfo.index))
+  if (direct) {
+    return direct.kind === 'array'
+      ? { kind: 'array', length: direct.length }
+      : { kind: 'object', keys: [...direct.keys] }
+  }
+  if (varInfo.scope === 'closure') {
+    const local = state.storeShapesByBinding.get(variableBindingKey('local', varInfo.index))
+    if (local) {
+      return local.kind === 'array'
+        ? { kind: 'array', length: local.length }
+        : { kind: 'object', keys: [...local.keys] }
+    }
+    const global = state.storeShapesByBinding.get(variableBindingKey('global', varInfo.index))
+    if (global) {
+      return global.kind === 'array'
+        ? { kind: 'array', length: global.length }
+        : { kind: 'object', keys: [...global.keys] }
+    }
+  }
+  return null
+}
+
+function isStoreInitializerCall(expr: Expr): expr is Extract<Expr, { type: 'call' }> {
+  return expr.type === 'call' && expr.callee.type === 'identifier' && expr.callee.name === 'store'
+}
+
 export function getFunctionReturnObjectKeysForCall(
   state: State,
   callExpr: Extract<Expr, { type: 'call' }>,
@@ -112,6 +159,21 @@ export function getObjectKeysForExpr(state: State, expr: Expr): string[] | null 
   }
   if (expr.type === 'call') {
     return getFunctionReturnObjectKeysForCall(state, expr)
+  }
+  return null
+}
+
+export function getStoreShapeForExpr(state: State, expr: Expr): StoreShape | null {
+  if (expr.type === 'identifier') {
+    const varInfo = lookupVariable(state, expr.name)
+    if (!varInfo) return null
+    return getStoreShapeForVarInfo(state, varInfo)
+  }
+  if (isStoreInitializerCall(expr)) {
+    const initArg = expr.args.find(arg => arg.type === 'arg' && !!arg.value)?.value ?? null
+    if (!initArg) return null
+    if (initArg.type === 'array') return { kind: 'array', length: initArg.items.length }
+    if (initArg.type === 'object') return { kind: 'object', keys: initArg.entries.map(entry => entry.key) }
   }
   return null
 }
@@ -355,6 +417,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       const varInfo = declareVariable(state, name, left.loc, shadow)
       clearVariableFunctionBinding(state, varInfo)
       clearVariableObjectShape(state, varInfo)
+      clearVariableStoreShape(state, varInfo)
       compileSetVariable(state, varInfo, left)
       stack.pop() // value
     }
@@ -404,6 +467,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const varInfo = declareVariable(state, leftName, expr.loc)
     setVariableFunctionBinding(state, varInfo, functionId)
     clearVariableObjectShape(state, varInfo)
+    clearVariableStoreShape(state, varInfo)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
     compileSetVariable(state, varInfo, left)
@@ -458,6 +522,27 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       error(state, 'Object property assignment does not support :=', expr.loc)
       return
     }
+    const storeShape = getStoreShapeForExpr(state, left.object)
+    if (storeShape?.kind === 'array') {
+      error(state, `Store arrays do not support property writes: ${left.property}`, left.loc)
+      return
+    }
+    if (storeShape?.kind === 'object') {
+      const propertyIndex = storeShape.keys.indexOf(left.property)
+      if (propertyIndex < 0) {
+        error(state, `Unknown store object property: ${left.property}`, left.loc)
+        return
+      }
+      const indexExpr: Extract<Expr, { type: 'index' }> = {
+        type: 'index',
+        object: left.object,
+        index: { type: 'number', value: propertyIndex, loc: left.loc },
+        loc: left.loc,
+      }
+      const rewritten: Extract<Expr, { type: 'assign' }> = { ...expr, left: indexExpr }
+      compileAssign(state, rewritten)
+      return
+    }
     const objectKeys = getObjectKeysForExpr(state, left.object)
     if (!objectKeys) {
       error(state, `Property write requires known object shape: ${left.property}`, left.loc)
@@ -485,9 +570,15 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const opCode = COMPOUND_ASSIGN_OP_TO_OPCODE[op]
     const stackRight = { expr: right }
     const stackLeft = { expr: left }
+    const storeShape = getStoreShapeForExpr(state, left.object)
+    const useStoreOps = !!storeShape
 
     if (isCompound && opCode === undefined) {
       error(state, 'Compound assignment not supported for array elements', expr.loc)
+      return
+    }
+    if (useStoreOps && op === ':=') {
+      error(state, 'Store element assignment does not support :=', expr.loc)
       return
     }
 
@@ -514,7 +605,13 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       stack.pop()
       ops.push(saveOp, b)  // b = array
       stack.pop()
-      ops.push(loadOp, b, loadOp, a, AudioVmOp.ArrayGet, 0)
+      ops.push(loadOp, b, loadOp, a)
+      if (useStoreOps) {
+        ops.push(AudioVmOp.StoreGet)
+      }
+      else {
+        ops.push(AudioVmOp.ArrayGet, 0)
+      }
       stack.pop()
       stack.pop()
       stack.push(stackLeft)
@@ -533,7 +630,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       stack.pop()
       ops.push(loadOp, b, loadOp, a, loadOp, v)
       stack.push(stackRight)
-      ops.push(AudioVmOp.ArraySet)
+      ops.push(useStoreOps ? AudioVmOp.StoreSet : AudioVmOp.ArraySet)
       stack.pop()
       stack.pop()
       stack.pop()
@@ -554,7 +651,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
         stack.pop()
         ops.push(AudioVmOp.GetGlobal, tempGlobalIdx)
         stack.push(stackRight)
-        ops.push(AudioVmOp.ArraySet)
+        ops.push(useStoreOps ? AudioVmOp.StoreSet : AudioVmOp.ArraySet)
         stack.pop()
         stack.pop()
         stack.pop()
@@ -568,7 +665,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
         stack.pop()
         ops.push(AudioVmOp.GetLocal, tempIndex)
         stack.push(stackRight)
-        ops.push(AudioVmOp.ArraySet)
+        ops.push(useStoreOps ? AudioVmOp.StoreSet : AudioVmOp.ArraySet)
         stack.pop()
         stack.pop()
         stack.pop()
@@ -592,6 +689,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     if (stack.length === 0) return
     setVariableFunctionBinding(state, varInfo, functionId)
     clearVariableObjectShape(state, varInfo)
+    clearVariableStoreShape(state, varInfo)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
     compileSetVariable(state, varInfo, left)
@@ -607,6 +705,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       ? getFunctionByName(state, right.name)?.id
       : undefined
     const inferredObjectKeys = left.type === 'identifier' ? getObjectKeysForExpr(state, right) : null
+    const inferredStoreShape = left.type === 'identifier' ? getStoreShapeForExpr(state, right) : null
     if (left.type === 'identifier' && right.type === 'array') {
       state.varToArrayLiteral.set(left.name, right)
     }
@@ -629,8 +728,10 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const varInfo = declareVariable(state, left.name, expr.loc, shadow)
     clearVariableFunctionBinding(state, varInfo)
     clearVariableObjectShape(state, varInfo)
+    clearVariableStoreShape(state, varInfo)
     if (aliasFunctionId !== undefined) setVariableFunctionBinding(state, varInfo, aliasFunctionId)
     if (inferredObjectKeys) setVariableObjectShape(state, varInfo, inferredObjectKeys)
+    if (inferredStoreShape) setVariableStoreShape(state, varInfo, inferredStoreShape)
     // Duplicate the value on stack so we can both store it and return it
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
@@ -669,6 +770,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     stack.push(stackExpr)
     clearVariableFunctionBinding(state, varInfo)
     clearVariableObjectShape(state, varInfo)
+    clearVariableStoreShape(state, varInfo)
     compileSetVariable(state, varInfo, left)
     stack.pop()
     stack.push(stackExpr)
