@@ -12,7 +12,7 @@ import { compileTram } from './kernel/tram.ts'
 import { getMathBinaryId, getMathTernaryId, getMathUnaryId } from './math-registry.ts'
 import type { State } from './state.ts'
 import type { FunctionInfo, HistorySourceMap, VariableInfo } from './types.ts'
-import { compileGetVariable, compilePushCellRef, getFunctionByName, lookupVariable } from './vars.ts'
+import { compileGetVariable, compilePushCellRef, getFunctionByName, getObjectKeysForExpr, lookupVariable } from './vars.ts'
 
 const GEN_KEY_SEP = '\0'
 
@@ -261,6 +261,34 @@ export function compileGetCall(
 export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>): void {
   if (expr.callee.type === 'member') {
     const memberExpr = expr.callee as Extract<Expr, { type: 'member' }>
+    const objectKeys = getObjectKeysForExpr(state, memberExpr.object)
+    if (objectKeys) {
+      const propertyIndex = objectKeys.indexOf(memberExpr.property)
+      if (propertyIndex < 0) {
+        error(state, `Unknown object method: ${memberExpr.property}`, expr.loc)
+        return
+      }
+      pushCallMeta(state, expr, memberExpr.property, bestEffortArgs(expr.args))
+      for (const arg of expr.args) {
+        if (arg.type === 'arg' && arg.value) compileExpr(state, arg.value)
+      }
+      const indexExpr: Extract<Expr, { type: 'number' }> = {
+        type: 'number',
+        value: propertyIndex,
+        loc: memberExpr.loc,
+      }
+      const indexedCallee: Extract<Expr, { type: 'index' }> = {
+        type: 'index',
+        object: memberExpr.object,
+        index: indexExpr,
+        loc: memberExpr.loc,
+      }
+      compileGetCall(state, indexedCallee.object, indexedCallee.index, indexedCallee.loc, indexedCallee)
+      state.ops.push(AudioVmOp.CallFunction)
+      state.ops.push(expr.args.length)
+      state.stack.push({ expr })
+      return
+    }
     if (memberExpr.property === 'map') {
       const syntheticCall: Extract<Expr, { type: 'call' }> = {
         type: 'call',

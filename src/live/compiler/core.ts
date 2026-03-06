@@ -23,7 +23,7 @@ import { compileBinaryOp, compileTernary, compileUnaryOp } from './math.ts'
 import { compilePipe } from './pipe.ts'
 import type { State } from './state.ts'
 import type { CompileResult, VariableInfo } from './types.ts'
-import { compileArray, compileMember } from './values.ts'
+import { compileArray, compileMember, compileObject } from './values.ts'
 import {
   compileAssign,
   compileGetVariable,
@@ -144,6 +144,8 @@ export function compile(state: State, program: Program, preludeLines: number = 0
   state.historySourceMap = []
   state.labels = []
   state.varToArrayLiteral = new Map()
+  state.varToObjectLiteral = new Map()
+  state.objectKeysByBinding = new Map()
   state.variableFunctionIds = new Map()
   state.mixDefinitionLoc = null
   state.scale = 'major'
@@ -623,6 +625,10 @@ export function compileExpr(state: State, expr: Expr): void {
 
     case 'array':
       compileArray(state, expr)
+      break
+
+    case 'object':
+      compileObject(state, expr)
       break
 
     case 'index': {

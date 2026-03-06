@@ -48,6 +48,9 @@ export function collectClosureVarNames(
       case 'array':
         for (const it of e.items) walkExpr(it)
         return
+      case 'object':
+        for (const entry of e.entries) walkExpr(entry.value)
+        return
       case 'index':
         walkExpr(e.object)
         walkExpr(e.index)
@@ -205,6 +208,9 @@ export function collectCapturedVarNames(body: Expr | Stmt, opts: CollectOpts): s
       case 'array':
         for (const it of e.items) walkExpr(it)
         return
+      case 'object':
+        for (const entry of e.entries) walkExpr(entry.value)
+        return
       case 'index':
         walkExpr(e.object)
         walkExpr(e.index)
@@ -310,7 +316,22 @@ export function collectCapturedVarNames(body: Expr | Stmt, opts: CollectOpts): s
     }
   }
 
-  const exprTypes: Expr['type'][] = ['number', 'string', 'identifier', 'fn', 'array', 'index', 'unary', 'binary', 'ternary', 'call', 'member', 'assign', 'destructure']
+  const exprTypes: Expr['type'][] = [
+    'number',
+    'string',
+    'identifier',
+    'fn',
+    'array',
+    'object',
+    'index',
+    'unary',
+    'binary',
+    'ternary',
+    'call',
+    'member',
+    'assign',
+    'destructure',
+  ]
   if (exprTypes.includes((body as Expr).type)) {
     walkExpr(body as Expr)
     return Array.from(out)
@@ -348,6 +369,9 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         return false
       case 'array':
         for (const it of expr.items) { if (checkForRecord(it)) return true }
+        return false
+      case 'object':
+        for (const entry of expr.entries) { if (checkForRecord(entry.value)) return true }
         return false
       case 'index':
         return checkForRecord(expr.object) || checkForRecord(expr.index)
@@ -427,6 +451,12 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
       case 'array':
         for (const it of expr.items) {
           const loc = findRecordCallLoc(it)
+          if (loc) return loc
+        }
+        return null
+      case 'object':
+        for (const entry of expr.entries) {
+          const loc = findRecordCallLoc(entry.value)
           if (loc) return loc
         }
         return null
@@ -547,6 +577,9 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         case 'array':
           for (const it of e.items) walkExpr(it)
           return
+        case 'object':
+          for (const entry of e.entries) walkExpr(entry.value)
+          return
         case 'index':
           walkExpr(e.object)
           walkExpr(e.index)
@@ -658,6 +691,9 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
         return
       case 'array':
         for (const it of e.items) walkExpr(it)
+        return
+      case 'object':
+        for (const entry of e.entries) walkExpr(entry.value)
         return
       case 'index':
         walkExpr(e.object)

@@ -1,6 +1,7 @@
 import type { Expr, FunctionCallInfo, Loc } from '../ast.ts'
 
 type ArrayLiteralExpr = Extract<Expr, { type: 'array' }>
+type ObjectLiteralExpr = Extract<Expr, { type: 'object' }>
 import type {
   CompileError,
   FunctionInfo,
@@ -82,6 +83,8 @@ export class State {
   stringExpressions: Map<string, { value: string; delimiter: 'single' | 'double' | 'backtick'; loc: Loc }> = new Map() // Store string expressions by location key for compile-time access
   bpm: number = 120 // Last bpm from SetBpm in source (literal bpm = N)
   varToArrayLiteral: Map<string, ArrayLiteralExpr> = new Map()
+  varToObjectLiteral: Map<string, ObjectLiteralExpr> = new Map()
+  objectKeysByBinding: Map<string, string[]> = new Map() // binding key -> object keys in declaration order
   variableFunctionIds: Map<string, number> = new Map() // binding key -> functionId for identifiers currently known as fn values
   scale: string = 'major'
   scaleIndex: number = 0 // from SCALE_KEY_TO_INDEX.major

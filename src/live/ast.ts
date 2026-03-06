@@ -34,12 +34,20 @@ export type Param =
   | { type: 'param-destructure'; names: string[]; loc: Loc }
   | { type: 'param-named-destructure'; paramName: string; names: string[]; loc: Loc }
 
+export type ObjectEntry = {
+  key: string
+  value: Expr
+  shorthand: boolean
+  loc: Loc
+}
+
 export type Expr =
   | { type: 'number'; value: number; loc: Loc }
   | { type: 'string'; value: string; delimiter: 'single' | 'double' | 'backtick'; loc: Loc }
   | { type: 'identifier'; name: string; loc: Loc }
   | { type: 'fn'; params: Param[]; defaults?: Array<Expr | null>; body: Expr | Extract<Stmt, { type: 'block' }>; loc: Loc }
   | { type: 'array'; items: Expr[]; loc: Loc }
+  | { type: 'object'; entries: ObjectEntry[]; loc: Loc }
   | { type: 'index'; object: Expr; index: Expr; loc: Loc }
   | { type: 'unary'; op: string; expr: Expr; loc: Loc }
   | { type: 'binary'; op: string; left: Expr; right: Expr; loc: Loc }
@@ -58,4 +66,3 @@ export type FunctionCallInfo = {
   astNode: Extract<Expr, { type: 'call' }>
   args: Record<string, Expr[]>
 }
-

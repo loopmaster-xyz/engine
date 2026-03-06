@@ -58,6 +58,90 @@ export function compileFunctionBlock(state: State, block: Extract<Stmt, { type: 
   }
 }
 
+function objectKeysFromExpr(expr: Expr): string[] | null {
+  if (expr.type !== 'object') return null
+  return expr.entries.map(entry => entry.key)
+}
+
+function sameObjectKeySequence(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
+function inferImplicitReturnObjectKeys(block: Extract<Stmt, { type: 'block' }>): string[] | null {
+  if (block.body.length === 0) return null
+  const last = block.body[block.body.length - 1]
+  if (!last) return null
+  if (last.type === 'expr') return objectKeysFromExpr(last.expr)
+  if (last.type === 'block') return inferImplicitReturnObjectKeys(last)
+  return null
+}
+
+function collectExplicitReturnObjectKeys(stmt: Stmt, out: Array<string[] | null>): void {
+  switch (stmt.type) {
+    case 'return':
+      out.push(stmt.value ? objectKeysFromExpr(stmt.value) : null)
+      return
+    case 'block':
+      for (const it of stmt.body) collectExplicitReturnObjectKeys(it, out)
+      return
+    case 'if':
+      collectExplicitReturnObjectKeys(stmt.then, out)
+      if (stmt.else) collectExplicitReturnObjectKeys(stmt.else, out)
+      return
+    case 'while':
+    case 'do':
+    case 'for':
+    case 'for-of':
+      collectExplicitReturnObjectKeys(stmt.body, out)
+      return
+    case 'label':
+      collectExplicitReturnObjectKeys(stmt.stmt, out)
+      return
+    case 'switch':
+      for (const c of stmt.cases) {
+        for (const st of c.body) collectExplicitReturnObjectKeys(st, out)
+      }
+      return
+    case 'try':
+      collectExplicitReturnObjectKeys(stmt.body, out)
+      if (stmt.catch) collectExplicitReturnObjectKeys(stmt.catch.body, out)
+      if (stmt.finally) collectExplicitReturnObjectKeys(stmt.finally, out)
+      return
+    case 'expr':
+    case 'break':
+    case 'continue':
+    case 'throw':
+      return
+  }
+}
+
+function inferFunctionReturnObjectKeys(expr: Extract<Expr, { type: 'fn' }>): string[] | undefined {
+  if (expr.body.type !== 'block') {
+    const direct = objectKeysFromExpr(expr.body)
+    return direct ? [...direct] : undefined
+  }
+
+  const explicit: Array<string[] | null> = []
+  collectExplicitReturnObjectKeys(expr.body, explicit)
+  if (explicit.length > 0) {
+    if (explicit.some(keys => keys === null)) return undefined
+    const first = explicit[0]
+    if (!first) return undefined
+    for (let i = 1; i < explicit.length; i++) {
+      const keys = explicit[i]
+      if (!keys || !sameObjectKeySequence(first, keys)) return undefined
+    }
+    return [...first]
+  }
+
+  const implicit = inferImplicitReturnObjectKeys(expr.body)
+  return implicit ? [...implicit] : undefined
+}
+
 export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }>, name: string | null): number {
   const savedFunctionDepth = state.functionDepth
   state.functionDepth = savedFunctionDepth + 1
@@ -300,6 +384,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
     definitionLine: expr.loc.line,
     defaultParamFunctionIds: defaultParamFunctionIds.size > 0 ? defaultParamFunctionIds : undefined,
     defaultParamExprs: hasDefaultCalls ? defaults : undefined,
+    returnObjectKeys: inferFunctionReturnObjectKeys(expr),
   }
   state.functions.push(funcInfo)
   if (name) {

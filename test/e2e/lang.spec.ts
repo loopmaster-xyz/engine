@@ -3869,6 +3869,103 @@ describe('function polymorphism', () => {
   })
 })
 
+describe('objects', () => {
+  it('parses object literal with explicit keys', () => {
+    const result = parse('x = { bar: 1, baz: 2 };')
+    expect(result.errors).toEqual([])
+    expect(result.program).not.toBeNull()
+    const stmt = result.program!.body[result.program!.body.length - 1]
+    if (stmt.type === 'expr' && stmt.expr.type === 'assign' && stmt.expr.right.type === 'object') {
+      expect(stmt.expr.right.entries.map(e => e.key)).toEqual(['bar', 'baz'])
+    }
+    else {
+      throw new Error('Expected object literal assignment')
+    }
+  })
+
+  it('parses object literal shorthand', () => {
+    const result = parse('bar = 1; x = { bar };')
+    expect(result.errors).toEqual([])
+    expect(result.program).not.toBeNull()
+    const stmt = result.program!.body[result.program!.body.length - 1]
+    if (stmt.type === 'expr' && stmt.expr.type === 'assign' && stmt.expr.right.type === 'object') {
+      expect(stmt.expr.right.entries).toHaveLength(1)
+      expect(stmt.expr.right.entries[0]?.key).toBe('bar')
+      expect(stmt.expr.right.entries[0]?.shorthand).toBe(true)
+    }
+    else {
+      throw new Error('Expected shorthand object literal')
+    }
+  })
+
+  it('parses return object inside function block', () => {
+    const result = parse('foo = () -> { bar = () -> 1; return { bar } };')
+    expect(result.errors).toEqual([])
+    expect(result.program).not.toBeNull()
+    const stmt = result.program!.body[result.program!.body.length - 1]
+    if (stmt.type !== 'expr' || stmt.expr.type !== 'assign' || stmt.expr.right.type !== 'fn') {
+      throw new Error('Expected function assignment')
+    }
+    const body = stmt.expr.right.body
+    if (body.type !== 'block') throw new Error('Expected block body')
+    const ret = body.body.find(s => s.type === 'return')
+    if (!ret || ret.type !== 'return' || !ret.value || ret.value.type !== 'object') {
+      throw new Error('Expected return object literal')
+    }
+    expect(ret.value.entries.map(e => e.key)).toEqual(['bar'])
+  })
+
+  it('rejects duplicate object keys at parse time', () => {
+    const result = parse('x = { bar: 1, bar: 2 };')
+    expect(result.errors.length).toBeGreaterThan(0)
+    expect(result.errors[0]?.message).toContain('Duplicate object key')
+  })
+
+  it('calls function-valued object property', () => {
+    expect(audio('foo=()->{ bar=()->1; return { bar } }; x=foo(); x.bar() |> out($)')).toMatchAudio([[1, 1, 1], [1, 1, 1]])
+  })
+
+  it('reads scalar object property', () => {
+    expect(audio('foo=()->{ v=2; return { v } }; x=foo(); x.v |> out($)')).toMatchAudio([[2, 2, 2], [2, 2, 2]])
+  })
+
+  it('propagates object shape across aliases', () => {
+    expect(audio('foo=()->{ bar=()->1; return { bar } }; x=foo(); y=x; y.bar() |> out($)')).toMatchAudio([[1, 1, 1], [1, 1, 1]])
+  })
+
+  it('supports known-key object property write with function value', () => {
+    expect(audio('foo=()->{ bar=()->1; return { bar } }; x=foo(); x.bar = () -> 3; x.bar() |> out($)')).toMatchAudio([[3, 3, 3], [3, 3, 3]])
+  })
+
+  it('supports compound assignment on scalar object property', () => {
+    expect(audio('x = { v: 1 }; x.v += 2; x.v |> out($)')).toMatchAudio([[3, 3, 3], [3, 3, 3]])
+  })
+
+  it('errors on unknown object read', () => {
+    const parsed = parse('x = { v: 1 }; x.missing |> out($)')
+    expect(parsed.errors).toEqual([])
+    const compiled = compile(parsed.program!, parsed.preludeLines)
+    expect(compiled.errors.length).toBeGreaterThan(0)
+    expect(compiled.errors[0]?.message).toContain('Unknown object property')
+  })
+
+  it('errors on unknown object write', () => {
+    const parsed = parse('x = { v: 1 }; x.missing = 1; x.v |> out($)')
+    expect(parsed.errors).toEqual([])
+    const compiled = compile(parsed.program!, parsed.preludeLines)
+    expect(compiled.errors.length).toBeGreaterThan(0)
+    expect(compiled.errors[0]?.message).toContain('Unknown object property')
+  })
+
+  it('errors on property access with unresolved object shape', () => {
+    const parsed = parse('x = sine(440); x.foo |> out($)')
+    expect(parsed.errors).toEqual([])
+    const compiled = compile(parsed.program!, parsed.preludeLines)
+    expect(compiled.errors.length).toBeGreaterThan(0)
+    expect(compiled.errors[0]?.message).toContain('known object shape')
+  })
+})
+
 describe('strings', () => {
   it('parses single quote string', () => {
     const result = parse('\'hello world\';')

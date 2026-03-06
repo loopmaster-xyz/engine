@@ -25,7 +25,7 @@ const COMPOUND_ASSIGN_OP_TO_OPCODE: Record<string, AudioVmOp> = {
   '>>=': AudioVmOp.ShiftRight,
 }
 
-function variableBindingKey(scope: VariableInfo['scope'], index: number): string {
+export function variableBindingKey(scope: VariableInfo['scope'], index: number): string {
   return `${scope}:${index}`
 }
 
@@ -39,6 +39,81 @@ function clearVariableFunctionBinding(state: State, varInfo: VariableInfo): void
 
 function setVariableFunctionBinding(state: State, varInfo: VariableInfo, functionId: number): void {
   state.variableFunctionIds.set(variableBindingKey(varInfo.scope, varInfo.index), functionId)
+}
+
+function setVariableObjectShape(state: State, varInfo: VariableInfo, keys: string[]): void {
+  state.objectKeysByBinding.set(variableBindingKey(varInfo.scope, varInfo.index), [...keys])
+}
+
+function clearVariableObjectShape(state: State, varInfo: VariableInfo): void {
+  state.objectKeysByBinding.delete(variableBindingKey(varInfo.scope, varInfo.index))
+  if (varInfo.scope === 'closure') {
+    state.objectKeysByBinding.delete(variableBindingKey('local', varInfo.index))
+    state.objectKeysByBinding.delete(variableBindingKey('global', varInfo.index))
+  }
+}
+
+function getFunctionInfoById(state: State, functionId: number): FunctionInfo | undefined {
+  for (const info of state.functions) {
+    if (info.id === functionId) return info
+  }
+  return undefined
+}
+
+function resolveFunctionInfoByAlias(state: State, funcName: string): FunctionInfo | undefined {
+  let info = getFunctionByName(state, funcName)
+  if (info) return info
+  let target = funcName
+  while (state.functionAliases.has(target)) {
+    target = state.functionAliases.get(target)!
+    info = getFunctionByName(state, target)
+    if (info) return info
+  }
+  return undefined
+}
+
+export function getObjectKeysForVarInfo(state: State, varInfo: VariableInfo): string[] | null {
+  const direct = state.objectKeysByBinding.get(variableBindingKey(varInfo.scope, varInfo.index))
+  if (direct) return [...direct]
+  if (varInfo.scope === 'closure') {
+    const local = state.objectKeysByBinding.get(variableBindingKey('local', varInfo.index))
+    if (local) return [...local]
+    const global = state.objectKeysByBinding.get(variableBindingKey('global', varInfo.index))
+    if (global) return [...global]
+  }
+  return null
+}
+
+export function getFunctionReturnObjectKeysForCall(
+  state: State,
+  callExpr: Extract<Expr, { type: 'call' }>,
+): string[] | null {
+  if (callExpr.callee.type !== 'identifier') return null
+  const calleeName = callExpr.callee.name
+  const varInfo = lookupVariable(state, calleeName)
+  if (varInfo) {
+    const functionId = getFunctionIdForVarInfo(state, varInfo)
+    if (functionId !== undefined) {
+      const infoById = getFunctionInfoById(state, functionId)
+      if (infoById?.returnObjectKeys) return [...infoById.returnObjectKeys]
+    }
+  }
+  const info = resolveFunctionInfoByAlias(state, calleeName)
+  if (info?.returnObjectKeys) return [...info.returnObjectKeys]
+  return null
+}
+
+export function getObjectKeysForExpr(state: State, expr: Expr): string[] | null {
+  if (expr.type === 'object') return expr.entries.map(entry => entry.key)
+  if (expr.type === 'identifier') {
+    const varInfo = lookupVariable(state, expr.name)
+    if (!varInfo) return null
+    return getObjectKeysForVarInfo(state, varInfo)
+  }
+  if (expr.type === 'call') {
+    return getFunctionReturnObjectKeysForCall(state, expr)
+  }
+  return null
 }
 
 export function getFunctionIdForVarInfo(state: State, varInfo: VariableInfo): number | undefined {
@@ -279,6 +354,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       // Declare and assign the variable
       const varInfo = declareVariable(state, name, left.loc, shadow)
       clearVariableFunctionBinding(state, varInfo)
+      clearVariableObjectShape(state, varInfo)
       compileSetVariable(state, varInfo, left)
       stack.pop() // value
     }
@@ -289,8 +365,9 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     return
   }
 
-  if (left.type !== 'identifier' && left.type !== 'index') {
-    error(state, 'Assignment target must be an identifier, array index, or destructuring pattern', expr.loc)
+  if (left.type !== 'identifier' && left.type !== 'index' && left.type !== 'member') {
+    error(state, 'Assignment target must be an identifier, object property, array index, or destructuring pattern',
+      expr.loc)
     return
   }
 
@@ -326,6 +403,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
 
     const varInfo = declareVariable(state, leftName, expr.loc)
     setVariableFunctionBinding(state, varInfo, functionId)
+    clearVariableObjectShape(state, varInfo)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
     compileSetVariable(state, varInfo, left)
@@ -371,6 +449,33 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     // Keep assignment-like behavior: the expression evaluates to the bpm value.
     ops.push(AudioVmOp.PushScalar, bpm)
     stack.push(stackExpr)
+    return
+  }
+
+  // Lower known object-property writes to array index writes.
+  if (left.type === 'member') {
+    if (op === ':=') {
+      error(state, 'Object property assignment does not support :=', expr.loc)
+      return
+    }
+    const objectKeys = getObjectKeysForExpr(state, left.object)
+    if (!objectKeys) {
+      error(state, `Property write requires known object shape: ${left.property}`, left.loc)
+      return
+    }
+    const propertyIndex = objectKeys.indexOf(left.property)
+    if (propertyIndex < 0) {
+      error(state, `Unknown object property: ${left.property}`, left.loc)
+      return
+    }
+    const indexExpr: Extract<Expr, { type: 'index' }> = {
+      type: 'index',
+      object: left.object,
+      index: { type: 'number', value: propertyIndex, loc: left.loc },
+      loc: left.loc,
+    }
+    const rewritten: Extract<Expr, { type: 'assign' }> = { ...expr, left: indexExpr }
+    compileAssign(state, rewritten)
     return
   }
 
@@ -486,6 +591,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const functionId = compileFunction(state, right, leftName)
     if (stack.length === 0) return
     setVariableFunctionBinding(state, varInfo, functionId)
+    clearVariableObjectShape(state, varInfo)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
     compileSetVariable(state, varInfo, left)
@@ -500,8 +606,12 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       && hasFunctionByName(state, right.name))
       ? getFunctionByName(state, right.name)?.id
       : undefined
+    const inferredObjectKeys = left.type === 'identifier' ? getObjectKeysForExpr(state, right) : null
     if (left.type === 'identifier' && right.type === 'array') {
       state.varToArrayLiteral.set(left.name, right)
+    }
+    if (left.type === 'identifier' && right.type === 'object') {
+      state.varToObjectLiteral.set(left.name, right)
     }
     if (left.type === 'identifier' && right.type === 'identifier'
       && hasFunctionByName(state, right.name))
@@ -518,7 +628,9 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const shadow = op === ':='
     const varInfo = declareVariable(state, left.name, expr.loc, shadow)
     clearVariableFunctionBinding(state, varInfo)
+    clearVariableObjectShape(state, varInfo)
     if (aliasFunctionId !== undefined) setVariableFunctionBinding(state, varInfo, aliasFunctionId)
+    if (inferredObjectKeys) setVariableObjectShape(state, varInfo, inferredObjectKeys)
     // Duplicate the value on stack so we can both store it and return it
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
@@ -556,6 +668,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     ops.push(AudioVmOp.Dup)
     stack.push(stackExpr)
     clearVariableFunctionBinding(state, varInfo)
+    clearVariableObjectShape(state, varInfo)
     compileSetVariable(state, varInfo, left)
     stack.pop()
     stack.push(stackExpr)

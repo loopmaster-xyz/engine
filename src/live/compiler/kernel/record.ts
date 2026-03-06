@@ -82,6 +82,9 @@ function collectCalleeNamesFromBody(expr: Expr, out: Set<string>): void {
     case 'array':
       for (const it of expr.items) collectCalleeNamesFromBody(it, out)
       return
+    case 'object':
+      for (const entry of expr.entries) collectCalleeNamesFromBody(entry.value, out)
+      return
     case 'index':
       collectCalleeNamesFromBody(expr.object, out)
       collectCalleeNamesFromBody(expr.index, out)

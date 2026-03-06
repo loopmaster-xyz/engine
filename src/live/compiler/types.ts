@@ -115,6 +115,7 @@ export type FunctionInfo = {
   isGlobalScope?: boolean // true = top-level, only these get hoisted to globals in lookupVariable
   defaultParamFunctionIds?: Map<number, number> // paramIndex -> functionId of default's fn (for record setup)
   defaultParamExprs?: Array<Expr | null> // default expressions for transitive callee collection
+  returnObjectKeys?: string[] // static object keys returned by this function, if inferable
 }
 
 export type LoopContext = {

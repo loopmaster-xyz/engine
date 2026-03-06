@@ -79,6 +79,9 @@ export function collectNumberLiterals(program: Program): Extract<Expr, { type: '
       case 'array':
         for (const it of e.items) walkExpr(it)
         return
+      case 'object':
+        for (const entry of e.entries) walkExpr(entry.value)
+        return
       case 'index':
         walkExpr(e.object)
         walkExpr(e.index)
@@ -862,6 +865,56 @@ class Parser {
       }
       const end = this.expect('punct', ']', 'Expected "]" to close array literal')
       return { type: 'array', items, loc: this.locFrom(start, end) }
+    }
+
+    if (this.eat('punct', '{')) {
+      const start = t
+      const entries: Array<{ key: string; value: Expr; shorthand: boolean; loc: Loc }> = []
+      const seen = new Set<string>()
+
+      while (!this.is('eof') && !this.is('punct', '}')) {
+        const entryStart = this.at()
+        const keyToken = this.at()
+        let key: string
+        let value: Expr
+        let shorthand = false
+
+        if (this.is('string')) {
+          key = String(this.at().value)
+          this.pos++
+          this.expect('punct', ':', 'Expected ":" after object key')
+          value = this.parseExpr()
+        }
+        else if (this.is('identifier') || (this.is('keyword') && this.at().value === 'in')) {
+          key = String(this.at().value)
+          const keyLoc = this.locFrom(this.at(), this.at())
+          this.pos++
+          if (this.eat('punct', ':')) {
+            value = this.parseExpr()
+          }
+          else {
+            shorthand = true
+            value = { type: 'identifier', name: key, loc: keyLoc }
+          }
+        }
+        else {
+          this.error('Expected object key', this.at())
+          this.hasFatalError = true
+          throw new Error('parse error')
+        }
+
+        if (seen.has(key)) {
+          this.error(`Duplicate object key: ${key}`, keyToken)
+        }
+        seen.add(key)
+        entries.push({ key, value, shorthand, loc: this.locFrom(entryStart, this.prev()) })
+
+        if (!this.eat('punct', ',')) break
+        if (this.is('punct', '}')) break
+      }
+
+      const end = this.expect('punct', '}', 'Expected "}" to close object literal')
+      return { type: 'object', entries, loc: this.locFrom(start, end) }
     }
 
     if (this.eat('punct', '(')) {
