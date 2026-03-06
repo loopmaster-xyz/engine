@@ -5,7 +5,7 @@ import { TWO_PI, abs, applyCurve, clamp, clamp01, cos, cosNormalized, floor, fra
 export class Slew_default_up_scalar_down_scalar_exp_scalar {
   static readonly defaultInstance: Slew_default_up_scalar_down_scalar_exp_scalar = new Slew_default_up_scalar_down_scalar_exp_scalar()
 
-  current: f32 = 0
+  current: f32 = Infinity
 
   reset(): void {
     this.copyFrom(Slew_default_up_scalar_down_scalar_exp_scalar.defaultInstance)
@@ -31,6 +31,9 @@ export class Slew_default_up_scalar_down_scalar_exp_scalar {
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
         input = load<f32>(input$)
+        if ((current == Infinity)) {
+          current = input
+        }
         diff = (input - current)
         if ((abs(diff) < 0.000001)) {
           current = input
@@ -59,7 +62,7 @@ export class Slew_default_up_scalar_down_scalar_exp_scalar {
 export class Slew_default_up_scalar_down_scalar_exp_audio {
   static readonly defaultInstance: Slew_default_up_scalar_down_scalar_exp_audio = new Slew_default_up_scalar_down_scalar_exp_audio()
 
-  current: f32 = 0
+  current: f32 = Infinity
 
   reset(): void {
     this.copyFrom(Slew_default_up_scalar_down_scalar_exp_audio.defaultInstance)
@@ -88,6 +91,9 @@ export class Slew_default_up_scalar_down_scalar_exp_audio {
       unroll(16, () => {
         exp = load<f32>(exp$)
         input = load<f32>(input$)
+        if ((current == Infinity)) {
+          current = input
+        }
         diff = (input - current)
         if ((abs(diff) < 0.000001)) {
           current = input
@@ -117,7 +123,7 @@ export class Slew_default_up_scalar_down_scalar_exp_audio {
 export class Slew_default_up_scalar_down_audio_exp_scalar {
   static readonly defaultInstance: Slew_default_up_scalar_down_audio_exp_scalar = new Slew_default_up_scalar_down_audio_exp_scalar()
 
-  current: f32 = 0
+  current: f32 = Infinity
 
   reset(): void {
     this.copyFrom(Slew_default_up_scalar_down_audio_exp_scalar.defaultInstance)
@@ -145,6 +151,9 @@ export class Slew_default_up_scalar_down_audio_exp_scalar {
       unroll(16, () => {
         downClamped = clamp(load<f32>(down$), 0, 1)
         input = load<f32>(input$)
+        if ((current == Infinity)) {
+          current = input
+        }
         diff = (input - current)
         if ((abs(diff) < 0.000001)) {
           current = input
@@ -174,7 +183,7 @@ export class Slew_default_up_scalar_down_audio_exp_scalar {
 export class Slew_default_up_scalar_down_audio_exp_audio {
   static readonly defaultInstance: Slew_default_up_scalar_down_audio_exp_audio = new Slew_default_up_scalar_down_audio_exp_audio()
 
-  current: f32 = 0
+  current: f32 = Infinity
 
   reset(): void {
     this.copyFrom(Slew_default_up_scalar_down_audio_exp_audio.defaultInstance)
@@ -204,6 +213,9 @@ export class Slew_default_up_scalar_down_audio_exp_audio {
         downClamped = clamp(load<f32>(down$), 0, 1)
         exp = load<f32>(exp$)
         input = load<f32>(input$)
+        if ((current == Infinity)) {
+          current = input
+        }
         diff = (input - current)
         if ((abs(diff) < 0.000001)) {
           current = input
@@ -234,7 +246,7 @@ export class Slew_default_up_scalar_down_audio_exp_audio {
 export class Slew_default_up_audio_down_scalar_exp_scalar {
   static readonly defaultInstance: Slew_default_up_audio_down_scalar_exp_scalar = new Slew_default_up_audio_down_scalar_exp_scalar()
 
-  current: f32 = 0
+  current: f32 = Infinity
 
   reset(): void {
     this.copyFrom(Slew_default_up_audio_down_scalar_exp_scalar.defaultInstance)
@@ -262,6 +274,9 @@ export class Slew_default_up_audio_down_scalar_exp_scalar {
       unroll(16, () => {
         upClamped = clamp(load<f32>(up$), 0, 1)
         input = load<f32>(input$)
+        if ((current == Infinity)) {
+          current = input
+        }
         diff = (input - current)
         if ((abs(diff) < 0.000001)) {
           current = input
@@ -291,7 +306,7 @@ export class Slew_default_up_audio_down_scalar_exp_scalar {
 export class Slew_default_up_audio_down_scalar_exp_audio {
   static readonly defaultInstance: Slew_default_up_audio_down_scalar_exp_audio = new Slew_default_up_audio_down_scalar_exp_audio()
 
-  current: f32 = 0
+  current: f32 = Infinity
 
   reset(): void {
     this.copyFrom(Slew_default_up_audio_down_scalar_exp_audio.defaultInstance)
@@ -321,6 +336,9 @@ export class Slew_default_up_audio_down_scalar_exp_audio {
         exp = load<f32>(exp$)
         upClamped = clamp(load<f32>(up$), 0, 1)
         input = load<f32>(input$)
+        if ((current == Infinity)) {
+          current = input
+        }
         diff = (input - current)
         if ((abs(diff) < 0.000001)) {
           current = input
@@ -351,7 +369,7 @@ export class Slew_default_up_audio_down_scalar_exp_audio {
 export class Slew_default_up_audio_down_audio_exp_scalar {
   static readonly defaultInstance: Slew_default_up_audio_down_audio_exp_scalar = new Slew_default_up_audio_down_audio_exp_scalar()
 
-  current: f32 = 0
+  current: f32 = Infinity
 
   reset(): void {
     this.copyFrom(Slew_default_up_audio_down_audio_exp_scalar.defaultInstance)
@@ -380,6 +398,9 @@ export class Slew_default_up_audio_down_audio_exp_scalar {
         downClamped = clamp(load<f32>(down$), 0, 1)
         upClamped = clamp(load<f32>(up$), 0, 1)
         input = load<f32>(input$)
+        if ((current == Infinity)) {
+          current = input
+        }
         diff = (input - current)
         if ((abs(diff) < 0.000001)) {
           current = input
@@ -410,7 +431,7 @@ export class Slew_default_up_audio_down_audio_exp_scalar {
 export class Slew_default_up_audio_down_audio_exp_audio {
   static readonly defaultInstance: Slew_default_up_audio_down_audio_exp_audio = new Slew_default_up_audio_down_audio_exp_audio()
 
-  current: f32 = 0
+  current: f32 = Infinity
 
   reset(): void {
     this.copyFrom(Slew_default_up_audio_down_audio_exp_audio.defaultInstance)
@@ -441,6 +462,9 @@ export class Slew_default_up_audio_down_audio_exp_audio {
         exp = load<f32>(exp$)
         upClamped = clamp(load<f32>(up$), 0, 1)
         input = load<f32>(input$)
+        if ((current == Infinity)) {
+          current = input
+        }
         diff = (input - current)
         if ((abs(diff) < 0.000001)) {
           current = input

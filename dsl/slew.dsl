@@ -5,16 +5,19 @@ category: "utilities"
 import { abs, clamp01 }
 
 parameters {
-  up   { default: 0.5, min: 0, max: 1, description: "Rise coefficient (0=slow, 1=instant)" }
-  down { default: 0.5, min: 0, max: 1, description: "Fall coefficient (0=slow, 1=instant); ≤0 uses up" }
+  up   { default: 0.0015, min: 0, max: 1, description: "Rise coefficient (0=slow, 1=instant)" }
+  down { default: 0, min: 0, max: 1, description: "Fall coefficient (0=slow, 1=instant); ≤0 uses up" }
   exp  { default: 1.0, description: "Curve exponent (0=linear, >0=power, <0=mirrored)" }
 }
 
 fields {
-  current: f32 = 0.0
+  current: f32 = Infinity
 }
 
 audio {
+  if current == Infinity {
+    current = input
+  }
   diff = input - current
   if abs(diff) < 0.000001 {
     current = input

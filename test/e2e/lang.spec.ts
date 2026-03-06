@@ -3061,6 +3061,11 @@ describe('arrays', () => {
       99, 99]])
   })
 
+  it('array element assignment with audio index lowers to scalar', () => {
+    expect(audio('arr = [10, 20, 30]; idx = sine(0) + 1; arr[idx] = 99; arr[1] |> out($)')).toMatchAudio([[99, 99, 99],
+      [99, 99, 99]])
+  })
+
   it('array element assignment with negative index', () => {
     expect(audio('arr = [1, 2, 3]; arr[-1] = 100; arr[2] |> out($)')).toMatchAudio([[100, 100, 100], [100, 100, 100]])
   })

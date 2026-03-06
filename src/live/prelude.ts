@@ -246,9 +246,9 @@ grain=(speed=1,seed)->step(.999+.001*((1-clamp(speed,0,1))**.293),random(seed))
 
 // 3-band equalizer with low/mid/high controls
 eq3=(in,low=0,mid=0,high=0,lf=500,mf=2000,hf=8000)->{
-  lo=ls(in,cutoff:lf,gain:low)
-  mi=peak(in,cutoff:mf,q:1,gain:mid)
-  hi=hs(in,cutoff:hf,gain:high)
+  lo:=ls(in,cutoff:lf,gain:low)
+  mi:=peak(in,cutoff:mf,q:1,gain:mid)
+  hi:=hs(in,cutoff:hf,gain:high)
   lo+mi+hi
 }
 

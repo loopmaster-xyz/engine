@@ -528,8 +528,8 @@ export const gens: Record<string, GenDescriptor> = {
     category: 'utilities',
     parameters: [
       { name: 'input', description: 'Input signal' },
-      { name: 'up', default: 0.5, min: 0, max: 1, description: 'Rise coefficient (0=slow, 1=instant)' },
-      { name: 'down', default: 0.5, min: 0, max: 1, description: 'Fall coefficient (0=slow, 1=instant); ≤0 uses up' },
+      { name: 'up', default: 0.0015, min: 0, max: 1, description: 'Rise coefficient (0=slow, 1=instant)' },
+      { name: 'down', default: 0, min: 0, max: 1, description: 'Fall coefficient (0=slow, 1=instant); ≤0 uses up' },
       { name: 'exp', default: 1, description: 'Curve exponent (0=linear, >0=power, <0=mirrored)' }
     ]
   },

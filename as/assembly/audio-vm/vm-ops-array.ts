@@ -272,12 +272,16 @@ export function handleArraySet(
   scope.track(arrTagged)
   const indexResolved: f64 = vmOpsVars.resolveCellRef(vm, indexTagged)
   const arrResolved: f64 = vmOpsVars.resolveCellRef(vm, arrTagged)
-  if (!isArray(arrResolved) || !isScalar(indexResolved)) throw new Error('ArraySet: arr must be array and index scalar')
+  if (!isArray(arrResolved) || (!isScalar(indexResolved) && !isAudio(indexResolved))) {
+    throw new Error('ArraySet: arr must be array and index scalar|audio')
+  }
   const id: u32 = decodeArray(arrResolved)
   const idxArr: i32 = getArrayIndexOrThrow(vm, id, ArrayOpName.ArraySet)
   const len: i32 = vm.arrayLengths.get(idxArr)
   if (len <= 0) throw new Error(`ArraySet: len=${len} <= 0`)
-  const idx: i32 = wrappedIndexFromScalar(indexResolved, len)
+  const idx: i32 = isAudio(indexResolved)
+    ? wrappedIndexFromAudioAt(decodeAudio(indexResolved), 0, len)
+    : wrappedIndexFromScalar(indexResolved, len)
   assert(idx >= 0 && idx < len, 'ArraySet: idx')
   const arr: Float64Array = vm.arrays.get(idxArr)
   const oldVal: f64 = arr[idx]
