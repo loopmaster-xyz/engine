@@ -858,10 +858,39 @@ class Parser {
 
     if (this.eat('punct', '[')) {
       const start = t
-      const items: Expr[] = []
+
+      if (this.eat('punct', ']')) {
+        const end = this.prev()
+        return { type: 'array', items: [], loc: this.locFrom(start, end) }
+      }
+
+      const first = this.parseExpr()
+
+      // Range array literal sugar: [start..end] -> range(start, end)
+      if (this.eat('operator', '..')) {
+        const to = this.parseExpr()
+        const end = this.expect('punct', ']', 'Expected "]" to close range array literal')
+        const callee: Extract<Expr, { type: 'identifier' }> = {
+          type: 'identifier',
+          name: 'range',
+          loc: this.locFrom(start, start),
+        }
+        return {
+          type: 'call',
+          callee,
+          args: [
+            { type: 'arg', value: first, loc: first.loc },
+            { type: 'arg', value: to, loc: to.loc },
+          ],
+          loc: this.locFrom(start, end),
+        }
+      }
+
+      const items: Expr[] = [first]
       while (!this.is('eof') && !this.is('punct', ']')) {
-        items.push(this.parseExpr())
         if (!this.eat('punct', ',')) break
+        if (this.is('punct', ']')) break
+        items.push(this.parseExpr())
       }
       const end = this.expect('punct', ']', 'Expected "]" to close array literal')
       return { type: 'array', items, loc: this.locFrom(start, end) }

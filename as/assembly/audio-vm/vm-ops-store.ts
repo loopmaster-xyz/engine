@@ -57,8 +57,12 @@ function buildStoreHandle(callSiteId: i32, ordinal: i32): i32 {
   return (callSiteId << STORE_HANDLE_ORDINAL_BITS) | ordinal
 }
 
+function coerceStoreValue(value: f64): f64 {
+  if (isAudio(value)) return encodeScalar(load<f32>(decodeAudio(value)))
+  return value
+}
+
 function getStoreValueValidationError(value: f64): string | null {
-  if (isAudio(value)) return 'store does not support audio values'
   if (isArray(value)) return 'store does not support nested array/object values'
   if (isFunction(value)) {
     const functionId: u32 = decodeFunction(value)
@@ -84,21 +88,21 @@ function createStoreEntryFromInit(vm: VmState, initTagged: f64): StoreEntry {
   const valuesSrc: Float64Array = vm.arrays.get(idx)
   const srcLen: i32 = vm.arrayLengths.get(idx)
   const len: i32 = min(srcLen, valuesSrc.length)
-
-  for (let i: i32 = 0; i < len; i++) {
-    const value: f64 = vmOpsVars.resolveCellRef(vm, valuesSrc[i])
-    const validationError: string | null = getStoreValueValidationError(value)
-    if (validationError != null) {
-      vmStack.releaseValueTagged(vm, initTagged)
-      throw new Error(validationError)
-    }
-  }
-
   const valuesDst: Float64Array = len > 0 ? vm.float64Arena.get(len) : VmState.EMPTY_FLOAT64_ARRAY
   for (let i: i32 = 0; i < len; i++) {
-    const value: f64 = vmOpsVars.resolveCellRef(vm, valuesSrc[i])
-    heap.retainValue(vm, value)
-    valuesDst[i] = value
+    const resolvedValue: f64 = vmOpsVars.resolveCellRef(vm, valuesSrc[i])
+    const coercedValue: f64 = coerceStoreValue(resolvedValue)
+    const validationError: string | null = getStoreValueValidationError(coercedValue)
+    if (validationError != null) {
+      vmStack.releaseValueTagged(vm, initTagged)
+      for (let j: i32 = 0; j < i; j++) {
+        heap.releaseValue(vm, valuesDst[j])
+      }
+      if (valuesDst.length > 0) vm.float64Arena.release(valuesDst)
+      throw new Error(validationError)
+    }
+    heap.retainValue(vm, coercedValue)
+    valuesDst[i] = coercedValue
   }
 
   vmStack.releaseValueTagged(vm, initTagged)
@@ -228,6 +232,7 @@ export function handleStoreSet(
   const indexTagged: f64 = vmStack.pop(vm)
   const handleTagged: f64 = vmStack.pop(vm)
   const valueResolved: f64 = vmOpsVars.resolveCellRef(vm, valueTagged)
+  const coercedValue: f64 = coerceStoreValue(valueResolved)
   const indexResolved: f64 = vmOpsVars.resolveCellRef(vm, indexTagged)
   const handleResolved: f64 = vmOpsVars.resolveCellRef(vm, handleTagged)
   if (!isScalar(handleResolved)) {
@@ -236,7 +241,7 @@ export function handleStoreSet(
     vmStack.releaseValueTagged(vm, handleTagged)
     throw new Error('StoreSet: handle must be scalar')
   }
-  const validationError: string | null = getStoreValueValidationError(valueResolved)
+  const validationError: string | null = getStoreValueValidationError(coercedValue)
   if (validationError != null) {
     vmStack.releaseValueTagged(vm, valueTagged)
     vmStack.releaseValueTagged(vm, indexTagged)
@@ -252,9 +257,10 @@ export function handleStoreSet(
     throw new Error('StoreSet: unknown store handle')
   }
   const idx: i32 = resolveWrappedStoreIndex(indexResolved, entry.length)
-  if (isCellRef(valueTagged)) heap.retainValue(vm, valueResolved)
+  if (isCellRef(valueTagged) && coercedValue == valueResolved) heap.retainValue(vm, coercedValue)
   heap.releaseValue(vm, entry.values[idx])
-  entry.values[idx] = valueResolved
+  entry.values[idx] = coercedValue
+  if (isAudio(valueResolved) && !isCellRef(valueTagged)) heap.releaseValue(vm, valueResolved)
   vmStack.releaseValueTagged(vm, indexTagged)
   vmStack.releaseValueTagged(vm, handleTagged)
   return RunResult.normal(pc, opsPtr, params.opsLength)

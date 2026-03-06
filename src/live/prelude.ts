@@ -20,6 +20,18 @@ map=(array,fn)->{
   newArray
 }
 
+range=(start,end)->{
+  from:=floor(start)
+  to:=floor(end)
+  out:=[]
+  if (from <= to) {
+    for (i in from .. to) out.push(i)
+  } else {
+    for (i in to .. from) out.push(from - i + to)
+  }
+  out
+}
+
 sum=array->{
   sum:=0
   for (el of array) sum += el

@@ -2215,6 +2215,26 @@ describe('arrays', () => {
     expect(audio('x = [1, 2, 3]; out(5)')).toMatchAudio([[5, 5, 5], [5, 5, 5]])
   })
 
+  it('range array literal parses and chains with map', () => {
+    const src = '[0..n-1].map(x->x*2)'
+    const { program, errors } = parseTokens(src, tokenize(src).tokens)
+    expect(errors).toEqual([])
+    expect(program).not.toBeNull()
+  })
+
+  it('range array literal is inclusive', () => {
+    expect(audio('x = [1..3]; x.length + x[0] + x[2] |> out($)')).toMatchAudio([[7, 7, 7], [7, 7, 7]])
+  })
+
+  it('range array literal supports descending ranges', () => {
+    expect(audio('x = [3..1]; (x[0] * 100 + x[1] * 10 + x[2]) |> out($)')).toMatchAudio([[321, 321, 321], [321, 321,
+      321]])
+  })
+
+  it('range array literal works with map', () => {
+    expect(audio('[0..3].map(x->x*2).avg() |> out($)')).toMatchAudio([[3, 3, 3], [3, 3, 3]])
+  })
+
   it('array length property', () => {
     expect(audio('x = [1, 2, 3]; x.length |> out($)')).toMatchAudio([[3, 3, 3], [3, 3, 3]])
   })
@@ -3929,6 +3949,10 @@ describe('objects', () => {
     expect(audio('foo=()->{ v=2; return { v } }; x=foo(); x.v |> out($)')).toMatchAudio([[2, 2, 2], [2, 2, 2]])
   })
 
+  it('reads object properties from mapped array elements', () => {
+    expect(audio('foo=[1,2,3].map(x->({ bar: 1 })); foo[0].bar |> out($)')).toMatchAudio([[1, 1, 1], [1, 1, 1]])
+  })
+
   it('propagates object shape across aliases', () => {
     expect(audio('foo=()->{ bar=()->1; return { bar } }; x=foo(); y=x; y.bar() |> out($)')).toMatchAudio([[1, 1, 1], [1, 1, 1]])
   })
@@ -4062,14 +4086,12 @@ describe('store', () => {
     expect(compiled.errors[0]?.message).toContain('Store array methods are not supported')
   })
 
-  it('rejects audio-valued store initialization at runtime', () => {
-    expect(() => audio('s = store([sine(440)]); out(0)', { ticks: 1 })).toThrow('store does not support audio values')
+  it('lowers audio-valued store initialization to scalar', () => {
+    expect(audio('s = store([1 + sine(440)]); out(s[0])', { ticks: 1 })).toMatchAudio([[1, 1, 1], [1, 1, 1]])
   })
 
-  it('rejects audio-valued store writes at runtime', () => {
-    expect(() => audio('s = store([0]); s[0] = sine(440); out(0)', { ticks: 1 })).toThrow(
-      'store does not support audio values',
-    )
+  it('lowers audio-valued store writes to scalar', () => {
+    expect(audio('s = store([0]); s[0] = 2 + sine(440); out(s[0])', { ticks: 1 })).toMatchAudio([[2, 2, 2], [2, 2, 2]])
   })
 })
 

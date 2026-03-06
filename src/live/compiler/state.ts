@@ -87,6 +87,7 @@ export class State {
   varToArrayLiteral: Map<string, ArrayLiteralExpr> = new Map()
   varToObjectLiteral: Map<string, ObjectLiteralExpr> = new Map()
   objectKeysByBinding: Map<string, string[]> = new Map() // binding key -> object keys in declaration order
+  arrayElementObjectKeysByBinding: Map<string, string[]> = new Map() // binding key -> uniform object keys for array elements
   storeShapesByBinding: Map<string, StoreShape> = new Map() // binding key -> store-backed container shape
   variableFunctionIds: Map<string, number> = new Map() // binding key -> functionId for identifiers currently known as fn values
   scale: string = 'major'

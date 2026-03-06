@@ -119,7 +119,7 @@ function collectExplicitReturnObjectKeys(stmt: Stmt, out: Array<string[] | null>
   }
 }
 
-function inferFunctionReturnObjectKeys(expr: Extract<Expr, { type: 'fn' }>): string[] | undefined {
+export function inferFunctionReturnObjectKeys(expr: Extract<Expr, { type: 'fn' }>): string[] | undefined {
   if (expr.body.type !== 'block') {
     const direct = objectKeysFromExpr(expr.body)
     return direct ? [...direct] : undefined
@@ -160,6 +160,9 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   const savedClosureVars = state.closureVars
   const savedParamMap = state.paramNameToLocalIndex
   const savedVariableFunctionIds = state.variableFunctionIds
+  const savedObjectKeysByBinding = state.objectKeysByBinding
+  const savedArrayElementObjectKeysByBinding = state.arrayElementObjectKeysByBinding
+  const savedStoreShapesByBinding = state.storeShapesByBinding
 
   if (savedFunctionDepth > 0) {
     state.functionsByNameStack.push(new Map())
@@ -194,6 +197,9 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   state.closureVars = []
   // Keep outer function-binding map stable while compiling nested function bodies.
   state.variableFunctionIds = new Map(savedVariableFunctionIds)
+  state.objectKeysByBinding = new Map(savedObjectKeysByBinding)
+  state.arrayElementObjectKeysByBinding = new Map(savedArrayElementObjectKeysByBinding)
+  state.storeShapesByBinding = new Map(savedStoreShapesByBinding)
 
   // Set up closure variables - they will reference the outer scope's locals.
   for (let i = 0; i < closureVarNames.length; i++) {
@@ -402,6 +408,9 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   state.closureVars = savedClosureVars
   state.paramNameToLocalIndex = savedParamMap
   state.variableFunctionIds = savedVariableFunctionIds
+  state.objectKeysByBinding = savedObjectKeysByBinding
+  state.arrayElementObjectKeysByBinding = savedArrayElementObjectKeysByBinding
+  state.storeShapesByBinding = savedStoreShapesByBinding
   state.functionDepth = savedFunctionDepth
   if (savedFunctionDepth > 0) {
     state.functionsByNameStack.pop()

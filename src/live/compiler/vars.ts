@@ -3,7 +3,7 @@ import { findScaleIndex } from '../../mini/scales.ts'
 import type { Expr, Loc, Stmt } from '../ast.ts'
 import { collectClosureVarNames } from '../deps.ts'
 import { compileExpr, error, getCurrentScope } from './core.ts'
-import { compileFunction } from './functions.ts'
+import { compileFunction, inferFunctionReturnObjectKeys } from './functions.ts'
 import type { State } from './state.ts'
 import type { FunctionInfo, StoreShape } from './types.ts'
 import { SYSTEM_VARS, type VariableInfo } from './types.ts'
@@ -50,6 +50,18 @@ function clearVariableObjectShape(state: State, varInfo: VariableInfo): void {
   if (varInfo.scope === 'closure') {
     state.objectKeysByBinding.delete(variableBindingKey('local', varInfo.index))
     state.objectKeysByBinding.delete(variableBindingKey('global', varInfo.index))
+  }
+}
+
+function setVariableArrayElementObjectKeys(state: State, varInfo: VariableInfo, keys: string[]): void {
+  state.arrayElementObjectKeysByBinding.set(variableBindingKey(varInfo.scope, varInfo.index), [...keys])
+}
+
+function clearVariableArrayElementObjectKeys(state: State, varInfo: VariableInfo): void {
+  state.arrayElementObjectKeysByBinding.delete(variableBindingKey(varInfo.scope, varInfo.index))
+  if (varInfo.scope === 'closure') {
+    state.arrayElementObjectKeysByBinding.delete(variableBindingKey('local', varInfo.index))
+    state.arrayElementObjectKeysByBinding.delete(variableBindingKey('global', varInfo.index))
   }
 }
 
@@ -103,6 +115,18 @@ export function getObjectKeysForVarInfo(state: State, varInfo: VariableInfo): st
   return null
 }
 
+export function getArrayElementObjectKeysForVarInfo(state: State, varInfo: VariableInfo): string[] | null {
+  const direct = state.arrayElementObjectKeysByBinding.get(variableBindingKey(varInfo.scope, varInfo.index))
+  if (direct) return [...direct]
+  if (varInfo.scope === 'closure') {
+    const local = state.arrayElementObjectKeysByBinding.get(variableBindingKey('local', varInfo.index))
+    if (local) return [...local]
+    const global = state.arrayElementObjectKeysByBinding.get(variableBindingKey('global', varInfo.index))
+    if (global) return [...global]
+  }
+  return null
+}
+
 export function getStoreShapeForVarInfo(state: State, varInfo: VariableInfo): StoreShape | null {
   const direct = state.storeShapesByBinding.get(variableBindingKey(varInfo.scope, varInfo.index))
   if (direct) {
@@ -131,12 +155,7 @@ function isStoreInitializerCall(expr: Expr): expr is Extract<Expr, { type: 'call
   return expr.type === 'call' && expr.callee.type === 'identifier' && expr.callee.name === 'store'
 }
 
-export function getFunctionReturnObjectKeysForCall(
-  state: State,
-  callExpr: Extract<Expr, { type: 'call' }>,
-): string[] | null {
-  if (callExpr.callee.type !== 'identifier') return null
-  const calleeName = callExpr.callee.name
+function getFunctionReturnObjectKeysForIdentifier(state: State, calleeName: string): string[] | null {
   const varInfo = lookupVariable(state, calleeName)
   if (varInfo) {
     const functionId = getFunctionIdForVarInfo(state, varInfo)
@@ -150,6 +169,98 @@ export function getFunctionReturnObjectKeysForCall(
   return null
 }
 
+export function getFunctionReturnObjectKeysForCall(
+  state: State,
+  callExpr: Extract<Expr, { type: 'call' }>,
+): string[] | null {
+  if (callExpr.callee.type !== 'identifier') return null
+  return getFunctionReturnObjectKeysForIdentifier(state, callExpr.callee.name)
+}
+
+function sameObjectKeySequence(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
+function getNthPositionalArgValue(args: Extract<Expr, { type: 'call' }>['args'], ordinal: number): Expr | null {
+  let index = 0
+  for (const arg of args) {
+    if (arg.type !== 'arg' || !arg.value || arg.name) continue
+    if (index === ordinal) return arg.value
+    index++
+  }
+  return null
+}
+
+function getMapCallbackExpr(callExpr: Extract<Expr, { type: 'call' }>): Expr | null {
+  const namedFnArg = callExpr.args.find(arg =>
+    arg.type === 'arg'
+    && !!arg.value
+    && !!arg.name
+    && 'fn'.startsWith(arg.name)
+  )
+  if (namedFnArg && namedFnArg.type === 'arg') return namedFnArg.value ?? null
+
+  if (callExpr.callee.type === 'member' && callExpr.callee.property === 'map') {
+    return getNthPositionalArgValue(callExpr.args, 0)
+  }
+  if (callExpr.callee.type === 'identifier' && callExpr.callee.name === 'map') {
+    return getNthPositionalArgValue(callExpr.args, 1)
+  }
+  return null
+}
+
+function inferMapCallArrayElementObjectKeys(
+  state: State,
+  callExpr: Extract<Expr, { type: 'call' }>,
+): string[] | null {
+  const callbackExpr = getMapCallbackExpr(callExpr)
+  if (!callbackExpr) return null
+  if (callbackExpr.type === 'fn') {
+    const keys = inferFunctionReturnObjectKeys(callbackExpr)
+    return keys ? [...keys] : null
+  }
+  if (callbackExpr.type === 'identifier') {
+    return getFunctionReturnObjectKeysForIdentifier(state, callbackExpr.name)
+  }
+  return null
+}
+
+function inferArrayLiteralElementObjectKeys(
+  state: State,
+  arrayExpr: Extract<Expr, { type: 'array' }>,
+): string[] | null {
+  let elementKeys: string[] | null = null
+  for (const item of arrayExpr.items) {
+    const keys = getObjectKeysForExpr(state, item)
+    if (!keys) return null
+    if (!elementKeys) {
+      elementKeys = [...keys]
+      continue
+    }
+    if (!sameObjectKeySequence(elementKeys, keys)) return null
+  }
+  return elementKeys ? [...elementKeys] : null
+}
+
+export function getArrayElementObjectKeysForExpr(state: State, expr: Expr): string[] | null {
+  if (expr.type === 'array') {
+    return inferArrayLiteralElementObjectKeys(state, expr)
+  }
+  if (expr.type === 'identifier') {
+    const varInfo = lookupVariable(state, expr.name)
+    if (!varInfo) return null
+    return getArrayElementObjectKeysForVarInfo(state, varInfo)
+  }
+  if (expr.type === 'call') {
+    return inferMapCallArrayElementObjectKeys(state, expr)
+  }
+  return null
+}
+
 export function getObjectKeysForExpr(state: State, expr: Expr): string[] | null {
   if (expr.type === 'object') return expr.entries.map(entry => entry.key)
   if (expr.type === 'identifier') {
@@ -159,6 +270,9 @@ export function getObjectKeysForExpr(state: State, expr: Expr): string[] | null 
   }
   if (expr.type === 'call') {
     return getFunctionReturnObjectKeysForCall(state, expr)
+  }
+  if (expr.type === 'index') {
+    return getArrayElementObjectKeysForExpr(state, expr.object)
   }
   return null
 }
@@ -417,6 +531,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       const varInfo = declareVariable(state, name, left.loc, shadow)
       clearVariableFunctionBinding(state, varInfo)
       clearVariableObjectShape(state, varInfo)
+      clearVariableArrayElementObjectKeys(state, varInfo)
       clearVariableStoreShape(state, varInfo)
       compileSetVariable(state, varInfo, left)
       stack.pop() // value
@@ -467,6 +582,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const varInfo = declareVariable(state, leftName, expr.loc)
     setVariableFunctionBinding(state, varInfo, functionId)
     clearVariableObjectShape(state, varInfo)
+    clearVariableArrayElementObjectKeys(state, varInfo)
     clearVariableStoreShape(state, varInfo)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
@@ -689,6 +805,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     if (stack.length === 0) return
     setVariableFunctionBinding(state, varInfo, functionId)
     clearVariableObjectShape(state, varInfo)
+    clearVariableArrayElementObjectKeys(state, varInfo)
     clearVariableStoreShape(state, varInfo)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
@@ -705,6 +822,9 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       ? getFunctionByName(state, right.name)?.id
       : undefined
     const inferredObjectKeys = left.type === 'identifier' ? getObjectKeysForExpr(state, right) : null
+    const inferredArrayElementObjectKeys = left.type === 'identifier'
+      ? getArrayElementObjectKeysForExpr(state, right)
+      : null
     const inferredStoreShape = left.type === 'identifier' ? getStoreShapeForExpr(state, right) : null
     if (left.type === 'identifier' && right.type === 'array') {
       state.varToArrayLiteral.set(left.name, right)
@@ -728,9 +848,13 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const varInfo = declareVariable(state, left.name, expr.loc, shadow)
     clearVariableFunctionBinding(state, varInfo)
     clearVariableObjectShape(state, varInfo)
+    clearVariableArrayElementObjectKeys(state, varInfo)
     clearVariableStoreShape(state, varInfo)
     if (aliasFunctionId !== undefined) setVariableFunctionBinding(state, varInfo, aliasFunctionId)
     if (inferredObjectKeys) setVariableObjectShape(state, varInfo, inferredObjectKeys)
+    if (inferredArrayElementObjectKeys) {
+      setVariableArrayElementObjectKeys(state, varInfo, inferredArrayElementObjectKeys)
+    }
     if (inferredStoreShape) setVariableStoreShape(state, varInfo, inferredStoreShape)
     // Duplicate the value on stack so we can both store it and return it
     ops.push(AudioVmOp.Dup)
@@ -770,6 +894,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     stack.push(stackExpr)
     clearVariableFunctionBinding(state, varInfo)
     clearVariableObjectShape(state, varInfo)
+    clearVariableArrayElementObjectKeys(state, varInfo)
     clearVariableStoreShape(state, varInfo)
     compileSetVariable(state, varInfo, left)
     stack.pop()
