@@ -54,7 +54,7 @@ export type Expr =
   | { type: 'ternary'; test: Expr; then: Expr; else: Expr; loc: Loc }
   | { type: 'call'; callee: Expr; args: Arg[]; loc: Loc }
   | { type: 'member'; object: Expr; property: string; loc: Loc }
-  | { type: 'destructure'; names: string[]; loc: Loc }
+  | { type: 'destructure'; kind: 'array' | 'object'; names: string[]; loc: Loc }
   | { type: 'assign'; op: '=' | ':=' | '=>' | '+=' | '-=' | '*=' | '/=' | '%=' | '**='; left: Expr; right: Expr; loc: Loc }
   | { type: 'switch'; test: Expr; cases: SwitchCase[]; loc: Loc }
 

@@ -771,14 +771,34 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
   const { left, right, op } = expr
   const stackExpr = { expr }
 
-  // Handle destructuring assignment: [a, b] = x
+  // Handle destructuring assignment: [a, b] = x or { foo, bar } = x
   if (left.type === 'destructure') {
     if (op !== '=' && op !== ':=') {
       error(state, 'Destructuring assignment only supports = and := operators', expr.loc)
       return
     }
 
-    // Compile the right-hand side (should be an array)
+    const names = left.names
+    let elementIndexes = names.map((_, i) => i)
+
+    if (left.kind === 'object') {
+      const objectKeys = getObjectKeysForExpr(state, right)
+      if (!objectKeys) {
+        error(state, 'Object destructuring assignment requires known object shape', expr.loc)
+        return
+      }
+      elementIndexes = []
+      for (const name of names) {
+        const propertyIndex = objectKeys.indexOf(name)
+        if (propertyIndex < 0) {
+          error(state, `Unknown object property: ${name}`, left.loc)
+          return
+        }
+        elementIndexes.push(propertyIndex)
+      }
+    }
+
+    // Compile the right-hand side.
     compileExpr(state, right)
     if (stack.length === 0) {
       error(state, 'Assignment has no value', expr.loc)
@@ -788,26 +808,26 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const shadow = op === ':='
     const stackRight = { expr: right }
 
-    // For each name in the destructuring pattern, extract the corresponding index and assign it
-    const names = left.names
+    // For each name in the destructuring pattern, extract the corresponding index and assign it.
     for (let i = 0; i < names.length; i++) {
       const name = names[i]
+      const elementIndex = elementIndexes[i]!
 
-      // Duplicate the array on the stack so we can use it for each index
+      // Duplicate the source value on the stack so we can use it for each index.
       ops.push(AudioVmOp.Dup)
       stack.push(stackRight)
 
-      // Push the index
-      ops.push(AudioVmOp.PushScalar, i)
+      // Push the element/property index.
+      ops.push(AudioVmOp.PushScalar, elementIndex)
       stack.push(stackRight)
 
-      // Index into the array (ArrayGet pops: array, index, pushes: value); 0 = no history recording
+      // Read the value by index (0 = no history recording).
       ops.push(AudioVmOp.ArrayGet, 0)
       stack.pop() // index
-      stack.pop() // array (the duplicate)
+      stack.pop() // source (the duplicate)
       stack.push(stackRight)
 
-      // Declare and assign the variable
+      // Declare and assign the variable.
       const varInfo = declareVariable(state, name, left.loc, shadow)
       clearVariableFunctionBinding(state, varInfo)
       clearVariableObjectShape(state, varInfo)

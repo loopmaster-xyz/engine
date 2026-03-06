@@ -2235,6 +2235,26 @@ describe('functions', () => {
       ])
     })
   })
+
+  describe('object destructuring assignments', () => {
+    it('basic object destructuring assignment', () => {
+      expect(audio('obj = { foo: 3, bar: 5 }; { foo, bar } = obj; out(foo + bar)')).toMatchAudio([[8, 8, 8], [8, 8, 8]])
+    })
+
+    it('object destructuring assignment uses keys, not declaration order', () => {
+      expect(audio('obj = { bar: 5, foo: 3 }; { foo, bar } = obj; out(foo * 10 + bar)')).toMatchAudio([
+        [35, 35, 35],
+        [35, 35, 35],
+      ])
+    })
+
+    it('object destructuring assignment with function call', () => {
+      expect(audio('getObj = () -> ({ foo: 4, bar: 6 }); { foo, bar } = getObj(); out(foo * bar)')).toMatchAudio([
+        [24, 24, 24],
+        [24, 24, 24],
+      ])
+    })
+  })
 })
 
 describe('arrays', () => {

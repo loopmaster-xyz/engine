@@ -368,11 +368,39 @@ class Parser {
     }
   }
 
+  private isObjectDestructureAssignStart(): boolean {
+    if (!this.is('punct', '{')) return false
+    let i = this.pos + 1
+    if (this.tokens[i]?.type === 'punct' && this.tokens[i]?.value === '}') {
+      i++
+      const opTok = this.tokens[i]
+      return opTok?.type === 'operator' && ASSIGN_OPS.has(String(opTok.value))
+    }
+    while (i < this.tokens.length) {
+      const tok = this.tokens[i]
+      const isKey = tok?.type === 'identifier' || (tok?.type === 'keyword' && tok.value === 'in')
+      if (!isKey) return false
+      i++
+      const sep = this.tokens[i]
+      if (sep?.type === 'punct' && sep.value === ',') {
+        i++
+        continue
+      }
+      if (sep?.type === 'punct' && sep.value === '}') {
+        i++
+        const opTok = this.tokens[i]
+        return opTok?.type === 'operator' && ASSIGN_OPS.has(String(opTok.value))
+      }
+      return false
+    }
+    return false
+  }
+
   private parseStmt(): Stmt | null {
     if (this.hasFatalError) return null
     const t = this.at()
 
-    if (this.eat('punct', '{')) {
+    if (!this.isObjectDestructureAssignStart() && this.eat('punct', '{')) {
       const body: Stmt[] = []
       while (!this.is('eof') && !this.is('punct', '}') && !this.hasFatalError) {
         this.tick()
@@ -661,12 +689,20 @@ class Parser {
 
     if (this.is('operator') && ASSIGN_OPS.has(String(this.at().value))) {
       const opTok = this.at()
-      // Check if left side is a potential destructuring pattern: [a, b, c]
+      // Check if left side is a potential destructuring pattern.
       let destructureLeft: Expr | null = null
       if (left.type === 'array' && left.items.every(item => item.type === 'identifier')) {
-        // This looks like a destructuring pattern - convert it
+        // This looks like an array destructuring pattern - convert it.
         const names = left.items.map(item => (item as Extract<Expr, { type: 'identifier' }>).name)
-        destructureLeft = { type: 'destructure', names, loc: left.loc }
+        destructureLeft = { type: 'destructure', kind: 'array', names, loc: left.loc }
+      }
+      else if (
+        left.type === 'object'
+        && left.entries.every(entry => entry.value.type === 'identifier' && entry.value.name === entry.key)
+      ) {
+        // Shorthand/same-name object entries on assignment LHS are object destructuring.
+        const names = left.entries.map(entry => entry.key)
+        destructureLeft = { type: 'destructure', kind: 'object', names, loc: left.loc }
       }
 
       this.pos++
