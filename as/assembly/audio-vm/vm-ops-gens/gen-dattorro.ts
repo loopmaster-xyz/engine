@@ -13,52 +13,52 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Dattorro(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 588, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 590, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).copyFrom(changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 589, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 591, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).copyFrom(changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 590, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 592, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).copyFrom(changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 591, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 593, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).copyFrom(changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 592, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 594, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).copyFrom(changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 593, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 595, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).copyFrom(changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 594, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 596, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).copyFrom(changetype<Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 595, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar(), 597, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).copyFrom(changetype<Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 596, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 598, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).copyFrom(changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 597, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 599, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).copyFrom(changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_scalar_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 598, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 600, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).copyFrom(changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 599, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 601, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).copyFrom(changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_scalar_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 600, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 602, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).copyFrom(changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 601, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 603, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).copyFrom(changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_audio_damping_scalar_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 602, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 604, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).copyFrom(changetype<Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_audio_damping_audio_bandwidth_scalar_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 603, 10, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo(), 605, 10, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).copyFrom(changetype<Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(src))
   }, (dst: Object) => { changetype<Dattorro_default_room_audio_damping_audio_bandwidth_audio_indiff1_scalar_indiff2_scalar_decdiff1_scalar_decdiff2_scalar_excrate_scalar_excdepth_scalar_predelay_scalar_stereo>(dst).reset() }))
 }
@@ -126,7 +126,7 @@ case AudioVmOp.GenDattorro_default: {
         const inputRightPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, params.bufferLength)
         switch (modeMask) {
           case 0: {
-            const slot: GenSlot = vm.genPools[596].get()
+            const slot: GenSlot = vm.genPools[598].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -171,7 +171,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 4: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[597].get()
+            const slot: GenSlot = vm.genPools[599].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -218,7 +218,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 2: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[598].get()
+            const slot: GenSlot = vm.genPools[600].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -265,7 +265,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 6: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[599].get()
+            const slot: GenSlot = vm.genPools[601].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -313,7 +313,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 1: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[600].get()
+            const slot: GenSlot = vm.genPools[602].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -360,7 +360,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 5: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[601].get()
+            const slot: GenSlot = vm.genPools[603].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -408,7 +408,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 3: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[602].get()
+            const slot: GenSlot = vm.genPools[604].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -456,7 +456,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 7: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[603].get()
+            const slot: GenSlot = vm.genPools[605].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -513,7 +513,7 @@ case AudioVmOp.GenDattorro_default: {
         const inputRightPtr: usize = inputLeftPtr
         switch (modeMask) {
           case 0: {
-            const slot: GenSlot = vm.genPools[596].get()
+            const slot: GenSlot = vm.genPools[598].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -558,7 +558,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 4: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[597].get()
+            const slot: GenSlot = vm.genPools[599].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -605,7 +605,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 2: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[598].get()
+            const slot: GenSlot = vm.genPools[600].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -652,7 +652,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 6: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[599].get()
+            const slot: GenSlot = vm.genPools[601].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -700,7 +700,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 1: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[600].get()
+            const slot: GenSlot = vm.genPools[602].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -747,7 +747,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 5: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[601].get()
+            const slot: GenSlot = vm.genPools[603].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -795,7 +795,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 3: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[602].get()
+            const slot: GenSlot = vm.genPools[604].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -843,7 +843,7 @@ case AudioVmOp.GenDattorro_default: {
           }
           case 7: {
             const tempScopeMark: i32 = vm.beginTempAudioScope()
-            const slot: GenSlot = vm.genPools[603].get()
+            const slot: GenSlot = vm.genPools[605].get()
             genOpHelpers.writeCallStackMetaToSlot(vm, slot)
             const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
             genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -901,7 +901,7 @@ case AudioVmOp.GenDattorro_default: {
     const inputRightPtr: usize = inputLeftPtr
     switch (modeMask) {
       case 0: {
-        const slot: GenSlot = vm.genPools[596].get()
+        const slot: GenSlot = vm.genPools[598].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -946,7 +946,7 @@ case AudioVmOp.GenDattorro_default: {
       }
       case 4: {
         const tempScopeMark: i32 = vm.beginTempAudioScope()
-        const slot: GenSlot = vm.genPools[597].get()
+        const slot: GenSlot = vm.genPools[599].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -993,7 +993,7 @@ case AudioVmOp.GenDattorro_default: {
       }
       case 2: {
         const tempScopeMark: i32 = vm.beginTempAudioScope()
-        const slot: GenSlot = vm.genPools[598].get()
+        const slot: GenSlot = vm.genPools[600].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1040,7 +1040,7 @@ case AudioVmOp.GenDattorro_default: {
       }
       case 6: {
         const tempScopeMark: i32 = vm.beginTempAudioScope()
-        const slot: GenSlot = vm.genPools[599].get()
+        const slot: GenSlot = vm.genPools[601].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1088,7 +1088,7 @@ case AudioVmOp.GenDattorro_default: {
       }
       case 1: {
         const tempScopeMark: i32 = vm.beginTempAudioScope()
-        const slot: GenSlot = vm.genPools[600].get()
+        const slot: GenSlot = vm.genPools[602].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1135,7 +1135,7 @@ case AudioVmOp.GenDattorro_default: {
       }
       case 5: {
         const tempScopeMark: i32 = vm.beginTempAudioScope()
-        const slot: GenSlot = vm.genPools[601].get()
+        const slot: GenSlot = vm.genPools[603].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1183,7 +1183,7 @@ case AudioVmOp.GenDattorro_default: {
       }
       case 3: {
         const tempScopeMark: i32 = vm.beginTempAudioScope()
-        const slot: GenSlot = vm.genPools[602].get()
+        const slot: GenSlot = vm.genPools[604].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)
@@ -1231,7 +1231,7 @@ case AudioVmOp.GenDattorro_default: {
       }
       case 7: {
         const tempScopeMark: i32 = vm.beginTempAudioScope()
-        const slot: GenSlot = vm.genPools[603].get()
+        const slot: GenSlot = vm.genPools[605].get()
         genOpHelpers.writeCallStackMetaToSlot(vm, slot)
         const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
         genOpHelpers.writeInputToHistoryRing(slot.history, inputLeftPtr, params.bufferLength)

@@ -13,16 +13,16 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Limiter(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Limiter_default_threshold_scalar_release_scalar(), 395, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Limiter_default_threshold_scalar_release_scalar(), 397, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Limiter_default_threshold_scalar_release_scalar>(dst).copyFrom(changetype<Limiter_default_threshold_scalar_release_scalar>(src))
   }, (dst: Object) => { changetype<Limiter_default_threshold_scalar_release_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Limiter_default_threshold_scalar_release_audio(), 396, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Limiter_default_threshold_scalar_release_audio(), 398, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Limiter_default_threshold_scalar_release_audio>(dst).copyFrom(changetype<Limiter_default_threshold_scalar_release_audio>(src))
   }, (dst: Object) => { changetype<Limiter_default_threshold_scalar_release_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Limiter_default_threshold_audio_release_scalar(), 397, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Limiter_default_threshold_audio_release_scalar(), 399, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Limiter_default_threshold_audio_release_scalar>(dst).copyFrom(changetype<Limiter_default_threshold_audio_release_scalar>(src))
   }, (dst: Object) => { changetype<Limiter_default_threshold_audio_release_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Limiter_default_threshold_audio_release_audio(), 398, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Limiter_default_threshold_audio_release_audio(), 400, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Limiter_default_threshold_audio_release_audio>(dst).copyFrom(changetype<Limiter_default_threshold_audio_release_audio>(src))
   }, (dst: Object) => { changetype<Limiter_default_threshold_audio_release_audio>(dst).reset() }))
 }
@@ -63,7 +63,7 @@ case AudioVmOp.GenLimiter_default: {
           case 0: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[395].get()
+              const slot: GenSlot = vm.genPools[397].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -79,7 +79,7 @@ case AudioVmOp.GenLimiter_default: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[395].get()
+              const slot: GenSlot = vm.genPools[397].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -98,7 +98,7 @@ case AudioVmOp.GenLimiter_default: {
           case 2: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[396].get()
+              const slot: GenSlot = vm.genPools[398].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -115,7 +115,7 @@ case AudioVmOp.GenLimiter_default: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[396].get()
+              const slot: GenSlot = vm.genPools[398].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -135,7 +135,7 @@ case AudioVmOp.GenLimiter_default: {
           case 1: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[397].get()
+              const slot: GenSlot = vm.genPools[399].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -152,7 +152,7 @@ case AudioVmOp.GenLimiter_default: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[397].get()
+              const slot: GenSlot = vm.genPools[399].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -172,7 +172,7 @@ case AudioVmOp.GenLimiter_default: {
           case 3: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[398].get()
+              const slot: GenSlot = vm.genPools[400].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -190,7 +190,7 @@ case AudioVmOp.GenLimiter_default: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[398].get()
+              const slot: GenSlot = vm.genPools[400].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -225,7 +225,7 @@ case AudioVmOp.GenLimiter_default: {
   switch (modeMask) {
     case 0: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[395].get()
+      const slot: GenSlot = vm.genPools[397].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)
@@ -241,7 +241,7 @@ case AudioVmOp.GenLimiter_default: {
     }
     case 2: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[396].get()
+      const slot: GenSlot = vm.genPools[398].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)
@@ -258,7 +258,7 @@ case AudioVmOp.GenLimiter_default: {
     }
     case 1: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[397].get()
+      const slot: GenSlot = vm.genPools[399].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)
@@ -275,7 +275,7 @@ case AudioVmOp.GenLimiter_default: {
     }
     case 3: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[398].get()
+      const slot: GenSlot = vm.genPools[400].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)

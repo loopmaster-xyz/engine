@@ -9,6 +9,10 @@ import {
   compileSetVariable,
   detectClosureVars,
   lookupVariable,
+  setVariableFunctionBinding,
+  setVariableObjectPropertyStoreShapes,
+  setVariableObjectShape,
+  setVariableStoreShape,
 } from './vars.ts'
 
 export function compileFunctionBlock(state: State, block: Extract<Stmt, { type: 'block' }>): void {
@@ -143,6 +147,10 @@ export function inferFunctionReturnObjectKeys(expr: Extract<Expr, { type: 'fn' }
 }
 
 export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }>, name: string | null): number {
+  const functionLocKey = `${expr.loc.start}:${expr.loc.end}`
+  const parameterHints = state.functionParamHintsByFnLoc.get(functionLocKey)
+  if (parameterHints) state.functionParamHintsByFnLoc.delete(functionLocKey)
+
   const savedFunctionDepth = state.functionDepth
   state.functionDepth = savedFunctionDepth + 1
   const functionId = state.nextFunctionId++
@@ -161,7 +169,9 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   const savedParamMap = state.paramNameToLocalIndex
   const savedVariableFunctionIds = state.variableFunctionIds
   const savedObjectKeysByBinding = state.objectKeysByBinding
+  const savedObjectPropertyStoreShapesByBinding = state.objectPropertyStoreShapesByBinding
   const savedArrayElementObjectKeysByBinding = state.arrayElementObjectKeysByBinding
+  const savedArrayElementObjectPropertyStoreShapesByBinding = state.arrayElementObjectPropertyStoreShapesByBinding
   const savedStoreShapesByBinding = state.storeShapesByBinding
 
   if (savedFunctionDepth > 0) {
@@ -198,7 +208,9 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   // Keep outer function-binding map stable while compiling nested function bodies.
   state.variableFunctionIds = new Map(savedVariableFunctionIds)
   state.objectKeysByBinding = new Map(savedObjectKeysByBinding)
+  state.objectPropertyStoreShapesByBinding = new Map(savedObjectPropertyStoreShapesByBinding)
   state.arrayElementObjectKeysByBinding = new Map(savedArrayElementObjectKeysByBinding)
+  state.arrayElementObjectPropertyStoreShapesByBinding = new Map(savedArrayElementObjectPropertyStoreShapesByBinding)
   state.storeShapesByBinding = new Map(savedStoreShapesByBinding)
 
   // Set up closure variables - they will reference the outer scope's locals.
@@ -246,6 +258,16 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
       state.locals[0].set(param.name, paramInfo)
       destructuredParams[i] = null
       paramNameToLocalIndex.set(param.name, i)
+
+      const hint = parameterHints?.get(i)
+      if (hint) {
+        if (hint.functionId !== undefined) setVariableFunctionBinding(state, paramInfo, hint.functionId)
+        if (hint.objectKeys?.length) setVariableObjectShape(state, paramInfo, hint.objectKeys)
+        if (hint.objectPropertyStoreShapes?.size) {
+          setVariableObjectPropertyStoreShapes(state, paramInfo, hint.objectPropertyStoreShapes)
+        }
+        if (hint.storeShape) setVariableStoreShape(state, paramInfo, hint.storeShape)
+      }
     }
   }
 
@@ -380,6 +402,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   }
   const funcInfo: FunctionInfo = {
     id: functionId,
+    locKey: functionLocKey,
     paramCount,
     params: paramNames,
     paramTypes,
@@ -409,7 +432,9 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   state.paramNameToLocalIndex = savedParamMap
   state.variableFunctionIds = savedVariableFunctionIds
   state.objectKeysByBinding = savedObjectKeysByBinding
+  state.objectPropertyStoreShapesByBinding = savedObjectPropertyStoreShapesByBinding
   state.arrayElementObjectKeysByBinding = savedArrayElementObjectKeysByBinding
+  state.arrayElementObjectPropertyStoreShapesByBinding = savedArrayElementObjectPropertyStoreShapesByBinding
   state.storeShapesByBinding = savedStoreShapesByBinding
   state.functionDepth = savedFunctionDepth
   if (savedFunctionDepth > 0) {

@@ -13,52 +13,52 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Inc(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_scalar(), 613, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_scalar(), 615, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_audio(), 614, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_audio(), 616, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_audio>(dst).copyFrom(changetype<Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_scalar(), 615, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_scalar(), 617, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_scalar>(dst).copyFrom(changetype<Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_audio(), 616, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_audio(), 618, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_audio>(dst).copyFrom(changetype<Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_scalar(), 617, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_scalar(), 619, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_audio(), 618, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_audio(), 620, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_audio>(dst).copyFrom(changetype<Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_audio_offset_audio_trig_scalar(), 619, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_audio_offset_audio_trig_scalar(), 621, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_scalar_ceil_audio_offset_audio_trig_scalar>(dst).copyFrom(changetype<Inc_default_hz_scalar_ceil_audio_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_scalar_ceil_audio_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_audio_offset_audio_trig_audio(), 620, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_scalar_ceil_audio_offset_audio_trig_audio(), 622, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_scalar_ceil_audio_offset_audio_trig_audio>(dst).copyFrom(changetype<Inc_default_hz_scalar_ceil_audio_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_scalar_ceil_audio_offset_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_scalar(), 621, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_scalar(), 623, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_audio(), 622, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_audio(), 624, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_audio>(dst).copyFrom(changetype<Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_scalar_offset_audio_trig_scalar(), 623, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_scalar_offset_audio_trig_scalar(), 625, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_audio_ceil_scalar_offset_audio_trig_scalar>(dst).copyFrom(changetype<Inc_default_hz_audio_ceil_scalar_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_audio_ceil_scalar_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_scalar_offset_audio_trig_audio(), 624, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_scalar_offset_audio_trig_audio(), 626, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_audio_ceil_scalar_offset_audio_trig_audio>(dst).copyFrom(changetype<Inc_default_hz_audio_ceil_scalar_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_audio_ceil_scalar_offset_audio_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_audio_offset_scalar_trig_scalar(), 625, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_audio_offset_scalar_trig_scalar(), 627, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_audio_ceil_audio_offset_scalar_trig_scalar>(dst).copyFrom(changetype<Inc_default_hz_audio_ceil_audio_offset_scalar_trig_scalar>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_audio_ceil_audio_offset_scalar_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_audio_offset_scalar_trig_audio(), 626, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_audio_offset_scalar_trig_audio(), 628, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_audio_ceil_audio_offset_scalar_trig_audio>(dst).copyFrom(changetype<Inc_default_hz_audio_ceil_audio_offset_scalar_trig_audio>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_audio_ceil_audio_offset_scalar_trig_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_audio_offset_audio_trig_scalar(), 627, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_audio_offset_audio_trig_scalar(), 629, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_audio_ceil_audio_offset_audio_trig_scalar>(dst).copyFrom(changetype<Inc_default_hz_audio_ceil_audio_offset_audio_trig_scalar>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_audio_ceil_audio_offset_audio_trig_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_audio_offset_audio_trig_audio(), 628, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Inc_default_hz_audio_ceil_audio_offset_audio_trig_audio(), 630, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Inc_default_hz_audio_ceil_audio_offset_audio_trig_audio>(dst).copyFrom(changetype<Inc_default_hz_audio_ceil_audio_offset_audio_trig_audio>(src))
   }, (dst: Object) => { changetype<Inc_default_hz_audio_ceil_audio_offset_audio_trig_audio>(dst).reset() }))
 }
@@ -95,7 +95,7 @@ case AudioVmOp.GenInc_default: {
   vm.paramScratch[3] = trigValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[613].get()
+      const slot: GenSlot = vm.genPools[615].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -111,7 +111,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 8: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[614].get()
+      const slot: GenSlot = vm.genPools[616].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -129,7 +129,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 4: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[615].get()
+      const slot: GenSlot = vm.genPools[617].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -147,7 +147,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 12: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[616].get()
+      const slot: GenSlot = vm.genPools[618].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -166,7 +166,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 2: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[617].get()
+      const slot: GenSlot = vm.genPools[619].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -184,7 +184,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 10: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[618].get()
+      const slot: GenSlot = vm.genPools[620].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -203,7 +203,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 6: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[619].get()
+      const slot: GenSlot = vm.genPools[621].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -222,7 +222,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 14: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[620].get()
+      const slot: GenSlot = vm.genPools[622].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -242,7 +242,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 1: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[621].get()
+      const slot: GenSlot = vm.genPools[623].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -260,7 +260,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 9: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[622].get()
+      const slot: GenSlot = vm.genPools[624].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -279,7 +279,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 5: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[623].get()
+      const slot: GenSlot = vm.genPools[625].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -298,7 +298,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 13: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[624].get()
+      const slot: GenSlot = vm.genPools[626].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -318,7 +318,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 3: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[625].get()
+      const slot: GenSlot = vm.genPools[627].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -337,7 +337,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 11: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[626].get()
+      const slot: GenSlot = vm.genPools[628].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -357,7 +357,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 7: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[627].get()
+      const slot: GenSlot = vm.genPools[629].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -377,7 +377,7 @@ case AudioVmOp.GenInc_default: {
     }
     case 15: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[628].get()
+      const slot: GenSlot = vm.genPools[630].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

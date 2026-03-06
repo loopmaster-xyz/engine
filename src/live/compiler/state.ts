@@ -15,6 +15,13 @@ import type {
   VariableInfo,
 } from './types.ts'
 
+export type FunctionParamHint = {
+  objectKeys?: string[]
+  objectPropertyStoreShapes?: Map<string, StoreShape>
+  storeShape?: StoreShape
+  functionId?: number
+}
+
 export type DeferredGlobalFunction = {
   name: string
   fnExpr: Extract<Expr, { type: 'fn' }>
@@ -39,6 +46,7 @@ export class State {
   functionCallsMeta: FunctionCallInfo[] = []
   functionBytecodes: Map<number, number[]> = new Map() // Store bytecode for each function
   functionBytecodeStarts: Map<number, number> = new Map() // functionId -> absolute bytecode start position in main ops
+  functionParamHintsByFnLoc: Map<string, Map<number, FunctionParamHint>> = new Map() // fn loc key -> parameter hints by index
   functionDepth = 0
   functions: FunctionInfo[] = []
   functionAliases: Map<string, string> = new Map() // alias name -> target function name (e.g. ntof -> midiToHz)
@@ -87,7 +95,9 @@ export class State {
   varToArrayLiteral: Map<string, ArrayLiteralExpr> = new Map()
   varToObjectLiteral: Map<string, ObjectLiteralExpr> = new Map()
   objectKeysByBinding: Map<string, string[]> = new Map() // binding key -> object keys in declaration order
+  objectPropertyStoreShapesByBinding: Map<string, Map<string, StoreShape>> = new Map() // binding key -> object property -> store shape
   arrayElementObjectKeysByBinding: Map<string, string[]> = new Map() // binding key -> uniform object keys for array elements
+  arrayElementObjectPropertyStoreShapesByBinding: Map<string, Map<string, StoreShape>> = new Map() // binding key -> array element object property -> store shape
   storeShapesByBinding: Map<string, StoreShape> = new Map() // binding key -> store-backed container shape
   variableFunctionIds: Map<string, number> = new Map() // binding key -> functionId for identifiers currently known as fn values
   scale: string = 'major'

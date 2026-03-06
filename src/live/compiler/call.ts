@@ -11,9 +11,18 @@ import { compileTimeline } from './kernel/timeline.ts'
 import { compileTram } from './kernel/tram.ts'
 import { getMathBinaryId, getMathTernaryId, getMathUnaryId } from './math-registry.ts'
 import type { State } from './state.ts'
-import type { FunctionInfo, HistorySourceMap, VariableInfo } from './types.ts'
-import { compileGetVariable, compilePushCellRef, getFunctionByName, getObjectKeysForExpr,
-  getStoreShapeForExpr, lookupVariable } from './vars.ts'
+import type { FunctionInfo, HistorySourceMap, StoreShape, VariableInfo } from './types.ts'
+import {
+  compileGetVariable,
+  compilePushCellRef,
+  getArrayElementObjectKeysForExpr,
+  getArrayElementObjectPropertyStoreShapesForExpr,
+  getFunctionByName,
+  getFunctionIdForVarInfo,
+  getObjectKeysForExpr,
+  getStoreShapeForExpr,
+  lookupVariable,
+} from './vars.ts'
 
 const GEN_KEY_SEP = '\0'
 
@@ -1591,11 +1600,135 @@ function resolveFunctionInfo(state: State, funcName: string): FunctionInfo | und
   return undefined
 }
 
+function getFunctionInfoById(state: State, functionId: number): FunctionInfo | undefined {
+  for (const info of state.functions) {
+    if (info.id === functionId) return info
+  }
+  return undefined
+}
+
+function resolveFunctionInfoForVarInfo(state: State, varInfo: VariableInfo): FunctionInfo | undefined {
+  const functionId = getFunctionIdForVarInfo(state, varInfo)
+  if (functionId === undefined) return undefined
+  return getFunctionInfoById(state, functionId)
+}
+
+function resolveFunctionIdFromExpr(state: State, expr: Expr): number | undefined {
+  if (expr.type !== 'identifier') return undefined
+  const varInfo = lookupVariable(state, expr.name)
+  if (varInfo) {
+    const id = getFunctionIdForVarInfo(state, varInfo)
+    if (id !== undefined) return id
+  }
+  const info = resolveFunctionInfo(state, expr.name)
+  return info?.id
+}
+
+function maybeHintFunctionParamBindingsFromPositionalArgs(
+  state: State,
+  resolvedFuncInfo: FunctionInfo | undefined,
+  args: Arg[],
+  dollarIndex: number,
+): void {
+  if (!resolvedFuncInfo) return
+  const fnLocKey = resolvedFuncInfo.locKey
+  if (!fnLocKey) return
+  const paramCount = resolvedFuncInfo.params.length
+  if (paramCount === 0) return
+
+  let positionalParamIndex = 0
+  for (let i = 0; i < args.length; i++) {
+    if (i === dollarIndex) {
+      positionalParamIndex++
+      continue
+    }
+    const arg = args[i]
+    if (arg.type !== 'arg' || !arg.value) continue
+    const paramIndex = positionalParamIndex++
+    if (paramIndex >= paramCount) break
+    const functionId = resolveFunctionIdFromExpr(state, arg.value)
+    if (functionId === undefined) continue
+
+    const paramHints = state.functionParamHintsByFnLoc.get(fnLocKey) ?? new Map()
+    const prev = paramHints.get(paramIndex) ?? {}
+    paramHints.set(paramIndex, { ...prev, functionId })
+    state.functionParamHintsByFnLoc.set(fnLocKey, paramHints)
+  }
+}
+
+function maybeHintFunctionParamBindingsFromMatchedArgs(
+  state: State,
+  resolvedFuncInfo: FunctionInfo | undefined,
+  matchedArgs: Array<Expr | null>,
+): void {
+  if (!resolvedFuncInfo) return
+  const fnLocKey = resolvedFuncInfo.locKey
+  if (!fnLocKey) return
+  if (matchedArgs.length === 0) return
+
+  const paramHints = state.functionParamHintsByFnLoc.get(fnLocKey) ?? new Map()
+  for (let i = 0; i < matchedArgs.length; i++) {
+    const argExpr = matchedArgs[i]
+    if (!argExpr) continue
+    const functionId = resolveFunctionIdFromExpr(state, argExpr)
+    if (functionId === undefined) continue
+    const prev = paramHints.get(i) ?? {}
+    paramHints.set(i, { ...prev, functionId })
+  }
+  if (paramHints.size > 0) state.functionParamHintsByFnLoc.set(fnLocKey, paramHints)
+}
+
+function maybeHintInlineMapCallbackParam(
+  state: State,
+  resolvedFuncInfo: FunctionInfo | undefined,
+  args: Arg[],
+): void {
+  if (!resolvedFuncInfo || resolvedFuncInfo.params.length < 2) return
+  if (resolvedFuncInfo.params[0] !== 'array') return
+  if (!resolvedFuncInfo.params[1]?.startsWith('fn')) return
+
+  let arrayArg: Expr | null = null
+  let callbackArg: Expr | null = null
+  const positional: Expr[] = []
+  for (const arg of args) {
+    if (arg.type !== 'arg' || !arg.value) continue
+    if (arg.name) {
+      if (!arrayArg && 'array'.startsWith(arg.name)) arrayArg = arg.value
+      if (!callbackArg && 'fn'.startsWith(arg.name)) callbackArg = arg.value
+    }
+    else {
+      positional.push(arg.value)
+    }
+  }
+  if (!arrayArg) arrayArg = positional[0] ?? null
+  if (!callbackArg) callbackArg = positional[1] ?? null
+  if (!arrayArg || !callbackArg || callbackArg.type !== 'fn') return
+
+  const objectKeys = getArrayElementObjectKeysForExpr(state, arrayArg)
+  const objectPropertyStoreShapes = getArrayElementObjectPropertyStoreShapesForExpr(state, arrayArg)
+  if (!objectKeys && !objectPropertyStoreShapes) return
+
+  const fnLocKey = `${callbackArg.loc.start}:${callbackArg.loc.end}`
+  const paramHints = new Map<number, {
+    objectKeys?: string[]
+    objectPropertyStoreShapes?: Map<string, StoreShape>
+  }>()
+  paramHints.set(0, {
+    objectKeys: objectKeys ? [...objectKeys] : undefined,
+    objectPropertyStoreShapes: objectPropertyStoreShapes ?? undefined,
+  })
+  state.functionParamHintsByFnLoc.set(fnLocKey, paramHints)
+}
+
 export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { type: 'call' }>, funcName: string,
   varInfo: VariableInfo, args: Arg[], dollarIndex: number): void
 {
   const funcInfo = getFunctionByName(state, funcName)
-  const resolvedFuncInfo = funcInfo ?? resolveFunctionInfo(state, funcName)
+  let resolvedFuncInfo = funcInfo ?? resolveFunctionInfo(state, funcName)
+  if (!resolvedFuncInfo) {
+    resolvedFuncInfo = resolveFunctionInfoForVarInfo(state, varInfo)
+  }
+  maybeHintInlineMapCallbackParam(state, resolvedFuncInfo, args)
 
   const callSiteLocKey = `${callExpr.loc.line}:${callExpr.loc.column}:${callExpr.loc.start}:${callExpr.loc.end}`
   const callSiteId = state.recordCallIds.get(callSiteLocKey)
@@ -1676,6 +1809,7 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
 
   // If no function info or no named arguments, use simple positional matching (use resolvedFuncInfo so aliases work)
   if (!resolvedFuncInfo || !hasNamedArgs) {
+    maybeHintFunctionParamBindingsFromPositionalArgs(state, resolvedFuncInfo, args, dollarIndex)
     pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
     const argsProvided = args.filter(a => a.type === 'arg' && a.value).length + (dollarIndex >= 0 ? 1 : 0)
     const paramCount = resolvedFuncInfo?.params.length ?? 0
@@ -1797,6 +1931,8 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
       positionalIndex++
     }
   }
+
+  maybeHintFunctionParamBindingsFromMatchedArgs(state, resolvedFuncInfo, matchedArgs)
 
   const resolvedArgs: Record<string, Expr[]> = {}
   for (let i = 0; i < paramCount; i++) {

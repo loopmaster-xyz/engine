@@ -13,28 +13,28 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_At(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar(), 399, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar(), 401, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar>(dst).copyFrom(changetype<At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar>(src))
   }, (dst: Object) => { changetype<At_default_bar_scalar_every_scalar_probability_scalar_seed_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new At_default_bar_scalar_every_scalar_probability_audio_seed_scalar(), 400, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new At_default_bar_scalar_every_scalar_probability_audio_seed_scalar(), 402, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<At_default_bar_scalar_every_scalar_probability_audio_seed_scalar>(dst).copyFrom(changetype<At_default_bar_scalar_every_scalar_probability_audio_seed_scalar>(src))
   }, (dst: Object) => { changetype<At_default_bar_scalar_every_scalar_probability_audio_seed_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new At_default_bar_scalar_every_audio_probability_scalar_seed_scalar(), 401, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new At_default_bar_scalar_every_audio_probability_scalar_seed_scalar(), 403, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<At_default_bar_scalar_every_audio_probability_scalar_seed_scalar>(dst).copyFrom(changetype<At_default_bar_scalar_every_audio_probability_scalar_seed_scalar>(src))
   }, (dst: Object) => { changetype<At_default_bar_scalar_every_audio_probability_scalar_seed_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new At_default_bar_scalar_every_audio_probability_audio_seed_scalar(), 402, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new At_default_bar_scalar_every_audio_probability_audio_seed_scalar(), 404, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<At_default_bar_scalar_every_audio_probability_audio_seed_scalar>(dst).copyFrom(changetype<At_default_bar_scalar_every_audio_probability_audio_seed_scalar>(src))
   }, (dst: Object) => { changetype<At_default_bar_scalar_every_audio_probability_audio_seed_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new At_default_bar_audio_every_scalar_probability_scalar_seed_scalar(), 403, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new At_default_bar_audio_every_scalar_probability_scalar_seed_scalar(), 405, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<At_default_bar_audio_every_scalar_probability_scalar_seed_scalar>(dst).copyFrom(changetype<At_default_bar_audio_every_scalar_probability_scalar_seed_scalar>(src))
   }, (dst: Object) => { changetype<At_default_bar_audio_every_scalar_probability_scalar_seed_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new At_default_bar_audio_every_scalar_probability_audio_seed_scalar(), 404, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new At_default_bar_audio_every_scalar_probability_audio_seed_scalar(), 406, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<At_default_bar_audio_every_scalar_probability_audio_seed_scalar>(dst).copyFrom(changetype<At_default_bar_audio_every_scalar_probability_audio_seed_scalar>(src))
   }, (dst: Object) => { changetype<At_default_bar_audio_every_scalar_probability_audio_seed_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new At_default_bar_audio_every_audio_probability_scalar_seed_scalar(), 405, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new At_default_bar_audio_every_audio_probability_scalar_seed_scalar(), 407, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<At_default_bar_audio_every_audio_probability_scalar_seed_scalar>(dst).copyFrom(changetype<At_default_bar_audio_every_audio_probability_scalar_seed_scalar>(src))
   }, (dst: Object) => { changetype<At_default_bar_audio_every_audio_probability_scalar_seed_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new At_default_bar_audio_every_audio_probability_audio_seed_scalar(), 406, 5, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new At_default_bar_audio_every_audio_probability_audio_seed_scalar(), 408, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<At_default_bar_audio_every_audio_probability_audio_seed_scalar>(dst).copyFrom(changetype<At_default_bar_audio_every_audio_probability_audio_seed_scalar>(src))
   }, (dst: Object) => { changetype<At_default_bar_audio_every_audio_probability_audio_seed_scalar>(dst).reset() }))
 }
@@ -68,7 +68,7 @@ case AudioVmOp.GenAt_default: {
   vm.paramScratch[3] = seedValue
   switch (modeMask) {
     case 0: {
-      const slot: GenSlot = vm.genPools[399].get()
+      const slot: GenSlot = vm.genPools[401].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -102,7 +102,7 @@ case AudioVmOp.GenAt_default: {
     }
     case 4: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[400].get()
+      const slot: GenSlot = vm.genPools[402].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -149,7 +149,7 @@ case AudioVmOp.GenAt_default: {
     }
     case 2: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[401].get()
+      const slot: GenSlot = vm.genPools[403].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -196,7 +196,7 @@ case AudioVmOp.GenAt_default: {
     }
     case 6: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[402].get()
+      const slot: GenSlot = vm.genPools[404].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -255,7 +255,7 @@ case AudioVmOp.GenAt_default: {
     }
     case 1: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[403].get()
+      const slot: GenSlot = vm.genPools[405].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -302,7 +302,7 @@ case AudioVmOp.GenAt_default: {
     }
     case 5: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[404].get()
+      const slot: GenSlot = vm.genPools[406].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -361,7 +361,7 @@ case AudioVmOp.GenAt_default: {
     }
     case 3: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[405].get()
+      const slot: GenSlot = vm.genPools[407].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)
@@ -420,7 +420,7 @@ case AudioVmOp.GenAt_default: {
     }
     case 7: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[406].get()
+      const slot: GenSlot = vm.genPools[408].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       genOpHelpers.writeInputToHistoryRingZero(slot.history)

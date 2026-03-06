@@ -21,8 +21,8 @@ import { compileFunction } from './functions.ts'
 import { compileHashVar, compileNoteVar, isNoteName } from './hash-vars.ts'
 import { compileBinaryOp, compileTernary, compileUnaryOp } from './math.ts'
 import { compilePipe } from './pipe.ts'
-import type { State } from './state.ts'
-import type { CompileResult, VariableInfo } from './types.ts'
+import type { FunctionParamHint, State } from './state.ts'
+import type { CompileResult, StoreShape, VariableInfo } from './types.ts'
 import { compileArray, compileMember, compileObject } from './values.ts'
 import {
   compileAssign,
@@ -109,7 +109,55 @@ function collectDeferredGlobalFunctions(state: State, body: Stmt[], atTopLevel =
   }
 }
 
-export function compile(state: State, program: Program, preludeLines: number = 0): CompileResult {
+function cloneStoreShape(shape: StoreShape): StoreShape {
+  if (shape.kind === 'array') return { kind: 'array', length: shape.length }
+  return { kind: 'object', keys: [...shape.keys] }
+}
+
+function cloneFunctionParamHint(hint: FunctionParamHint): FunctionParamHint {
+  return {
+    objectKeys: hint.objectKeys ? [...hint.objectKeys] : undefined,
+    objectPropertyStoreShapes: hint.objectPropertyStoreShapes
+      ? new Map(Array.from(hint.objectPropertyStoreShapes.entries()).map(([k, v]) => [k, cloneStoreShape(v)]))
+      : undefined,
+    storeShape: hint.storeShape ? cloneStoreShape(hint.storeShape) : undefined,
+    functionId: hint.functionId,
+  }
+}
+
+function cloneFunctionParamHintsByFnLoc(
+  hints: Map<string, Map<number, FunctionParamHint>>,
+): Map<string, Map<number, FunctionParamHint>> {
+  const out = new Map<string, Map<number, FunctionParamHint>>()
+  for (const [fnLocKey, byIndex] of hints.entries()) {
+    const cloned = new Map<number, FunctionParamHint>()
+    for (const [paramIndex, hint] of byIndex.entries()) cloned.set(paramIndex, cloneFunctionParamHint(hint))
+    out.set(fnLocKey, cloned)
+  }
+  return out
+}
+
+function mergeFunctionParamHintsByFnLoc(
+  into: Map<string, Map<number, FunctionParamHint>>,
+  from: Map<string, Map<number, FunctionParamHint>>,
+): void {
+  for (const [fnLocKey, byIndex] of from.entries()) {
+    const targetByIndex = into.get(fnLocKey) ?? new Map<number, FunctionParamHint>()
+    for (const [paramIndex, hint] of byIndex.entries()) {
+      const prev = targetByIndex.get(paramIndex) ?? {}
+      targetByIndex.set(paramIndex, { ...prev, ...cloneFunctionParamHint(hint) })
+    }
+    into.set(fnLocKey, targetByIndex)
+  }
+}
+
+export function compile(
+  state: State,
+  program: Program,
+  preludeLines: number = 0,
+  seedFunctionParamHintsByFnLoc: Map<string, Map<number, FunctionParamHint>> = new Map(),
+  allowDeferredFunctionHintRecompile: boolean = true,
+): CompileResult {
   state.preludeLines = preludeLines
   state.ops = []
   state.errors = []
@@ -149,8 +197,12 @@ export function compile(state: State, program: Program, preludeLines: number = 0
   state.varToArrayLiteral = new Map()
   state.varToObjectLiteral = new Map()
   state.objectKeysByBinding = new Map()
+  state.objectPropertyStoreShapesByBinding = new Map()
+  state.arrayElementObjectKeysByBinding = new Map()
+  state.arrayElementObjectPropertyStoreShapesByBinding = new Map()
   state.storeShapesByBinding = new Map()
   state.variableFunctionIds = new Map()
+  state.functionParamHintsByFnLoc = cloneFunctionParamHintsByFnLoc(seedFunctionParamHintsByFnLoc)
   state.mixDefinitionLoc = null
   state.scale = 'major'
   state.scaleIndex = 0
@@ -260,6 +312,20 @@ export function compile(state: State, program: Program, preludeLines: number = 0
         if (state.oversampleCallbackFunctionIds.has(entry.__finalFunctionId)) continue
       }
       // state.historySourceMap[i]!.pc += arrayInitOffset
+    }
+  }
+
+  if (allowDeferredFunctionHintRecompile) {
+    const deferredLocKeys = new Set(state.deferredGlobalFunctions.map(d => `${d.fnExpr.loc.start}:${d.fnExpr.loc.end}`))
+    const pendingDeferredHints = new Map<string, Map<number, FunctionParamHint>>()
+    for (const [fnLocKey, paramHints] of state.functionParamHintsByFnLoc.entries()) {
+      if (!deferredLocKeys.has(fnLocKey)) continue
+      pendingDeferredHints.set(fnLocKey, paramHints)
+    }
+    if (pendingDeferredHints.size > 0) {
+      const mergedHints = cloneFunctionParamHintsByFnLoc(seedFunctionParamHintsByFnLoc)
+      mergeFunctionParamHintsByFnLoc(mergedHints, pendingDeferredHints)
+      return compile(state, program, preludeLines, mergedHints, false)
     }
   }
 

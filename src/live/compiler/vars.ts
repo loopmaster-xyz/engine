@@ -29,7 +29,7 @@ export function variableBindingKey(scope: VariableInfo['scope'], index: number):
   return `${scope}:${index}`
 }
 
-function clearVariableFunctionBinding(state: State, varInfo: VariableInfo): void {
+export function clearVariableFunctionBinding(state: State, varInfo: VariableInfo): void {
   state.variableFunctionIds.delete(variableBindingKey(varInfo.scope, varInfo.index))
   if (varInfo.scope === 'closure') {
     state.variableFunctionIds.delete(variableBindingKey('local', varInfo.index))
@@ -37,15 +37,15 @@ function clearVariableFunctionBinding(state: State, varInfo: VariableInfo): void
   }
 }
 
-function setVariableFunctionBinding(state: State, varInfo: VariableInfo, functionId: number): void {
+export function setVariableFunctionBinding(state: State, varInfo: VariableInfo, functionId: number): void {
   state.variableFunctionIds.set(variableBindingKey(varInfo.scope, varInfo.index), functionId)
 }
 
-function setVariableObjectShape(state: State, varInfo: VariableInfo, keys: string[]): void {
+export function setVariableObjectShape(state: State, varInfo: VariableInfo, keys: string[]): void {
   state.objectKeysByBinding.set(variableBindingKey(varInfo.scope, varInfo.index), [...keys])
 }
 
-function clearVariableObjectShape(state: State, varInfo: VariableInfo): void {
+export function clearVariableObjectShape(state: State, varInfo: VariableInfo): void {
   state.objectKeysByBinding.delete(variableBindingKey(varInfo.scope, varInfo.index))
   if (varInfo.scope === 'closure') {
     state.objectKeysByBinding.delete(variableBindingKey('local', varInfo.index))
@@ -53,11 +53,11 @@ function clearVariableObjectShape(state: State, varInfo: VariableInfo): void {
   }
 }
 
-function setVariableArrayElementObjectKeys(state: State, varInfo: VariableInfo, keys: string[]): void {
+export function setVariableArrayElementObjectKeys(state: State, varInfo: VariableInfo, keys: string[]): void {
   state.arrayElementObjectKeysByBinding.set(variableBindingKey(varInfo.scope, varInfo.index), [...keys])
 }
 
-function clearVariableArrayElementObjectKeys(state: State, varInfo: VariableInfo): void {
+export function clearVariableArrayElementObjectKeys(state: State, varInfo: VariableInfo): void {
   state.arrayElementObjectKeysByBinding.delete(variableBindingKey(varInfo.scope, varInfo.index))
   if (varInfo.scope === 'closure') {
     state.arrayElementObjectKeysByBinding.delete(variableBindingKey('local', varInfo.index))
@@ -65,7 +65,7 @@ function clearVariableArrayElementObjectKeys(state: State, varInfo: VariableInfo
   }
 }
 
-function setVariableStoreShape(state: State, varInfo: VariableInfo, shape: StoreShape): void {
+export function setVariableStoreShape(state: State, varInfo: VariableInfo, shape: StoreShape): void {
   if (shape.kind === 'array') {
     state.storeShapesByBinding.set(variableBindingKey(varInfo.scope, varInfo.index), { kind: 'array', length: shape.length })
     return
@@ -76,11 +76,76 @@ function setVariableStoreShape(state: State, varInfo: VariableInfo, shape: Store
   })
 }
 
-function clearVariableStoreShape(state: State, varInfo: VariableInfo): void {
+export function clearVariableStoreShape(state: State, varInfo: VariableInfo): void {
   state.storeShapesByBinding.delete(variableBindingKey(varInfo.scope, varInfo.index))
   if (varInfo.scope === 'closure') {
     state.storeShapesByBinding.delete(variableBindingKey('local', varInfo.index))
     state.storeShapesByBinding.delete(variableBindingKey('global', varInfo.index))
+  }
+}
+
+function cloneStoreShape(shape: StoreShape): StoreShape {
+  if (shape.kind === 'array') return { kind: 'array', length: shape.length }
+  return { kind: 'object', keys: [...shape.keys] }
+}
+
+function sameStoreShape(a: StoreShape, b: StoreShape): boolean {
+  if (a.kind !== b.kind) return false
+  if (a.kind === 'array' && b.kind === 'array') return a.length === b.length
+  if (a.kind === 'object' && b.kind === 'object') return sameObjectKeySequence(a.keys, b.keys)
+  return false
+}
+
+function cloneObjectPropertyStoreShapes(value: Map<string, StoreShape>): Map<string, StoreShape> {
+  const cloned = new Map<string, StoreShape>()
+  for (const [key, shape] of value) cloned.set(key, cloneStoreShape(shape))
+  return cloned
+}
+
+function sameObjectPropertyStoreShapes(a: Map<string, StoreShape>, b: Map<string, StoreShape>): boolean {
+  if (a.size !== b.size) return false
+  for (const [key, shape] of a) {
+    const rhs = b.get(key)
+    if (!rhs || !sameStoreShape(shape, rhs)) return false
+  }
+  return true
+}
+
+export function setVariableObjectPropertyStoreShapes(
+  state: State,
+  varInfo: VariableInfo,
+  propertyShapes: Map<string, StoreShape>,
+): void {
+  state.objectPropertyStoreShapesByBinding.set(
+    variableBindingKey(varInfo.scope, varInfo.index),
+    cloneObjectPropertyStoreShapes(propertyShapes),
+  )
+}
+
+export function clearVariableObjectPropertyStoreShapes(state: State, varInfo: VariableInfo): void {
+  state.objectPropertyStoreShapesByBinding.delete(variableBindingKey(varInfo.scope, varInfo.index))
+  if (varInfo.scope === 'closure') {
+    state.objectPropertyStoreShapesByBinding.delete(variableBindingKey('local', varInfo.index))
+    state.objectPropertyStoreShapesByBinding.delete(variableBindingKey('global', varInfo.index))
+  }
+}
+
+export function setVariableArrayElementObjectPropertyStoreShapes(
+  state: State,
+  varInfo: VariableInfo,
+  propertyShapes: Map<string, StoreShape>,
+): void {
+  state.arrayElementObjectPropertyStoreShapesByBinding.set(
+    variableBindingKey(varInfo.scope, varInfo.index),
+    cloneObjectPropertyStoreShapes(propertyShapes),
+  )
+}
+
+export function clearVariableArrayElementObjectPropertyStoreShapes(state: State, varInfo: VariableInfo): void {
+  state.arrayElementObjectPropertyStoreShapesByBinding.delete(variableBindingKey(varInfo.scope, varInfo.index))
+  if (varInfo.scope === 'closure') {
+    state.arrayElementObjectPropertyStoreShapesByBinding.delete(variableBindingKey('local', varInfo.index))
+    state.arrayElementObjectPropertyStoreShapesByBinding.delete(variableBindingKey('global', varInfo.index))
   }
 }
 
@@ -123,6 +188,36 @@ export function getArrayElementObjectKeysForVarInfo(state: State, varInfo: Varia
     if (local) return [...local]
     const global = state.arrayElementObjectKeysByBinding.get(variableBindingKey('global', varInfo.index))
     if (global) return [...global]
+  }
+  return null
+}
+
+export function getObjectPropertyStoreShapesForVarInfo(
+  state: State,
+  varInfo: VariableInfo,
+): Map<string, StoreShape> | null {
+  const direct = state.objectPropertyStoreShapesByBinding.get(variableBindingKey(varInfo.scope, varInfo.index))
+  if (direct) return cloneObjectPropertyStoreShapes(direct)
+  if (varInfo.scope === 'closure') {
+    const local = state.objectPropertyStoreShapesByBinding.get(variableBindingKey('local', varInfo.index))
+    if (local) return cloneObjectPropertyStoreShapes(local)
+    const global = state.objectPropertyStoreShapesByBinding.get(variableBindingKey('global', varInfo.index))
+    if (global) return cloneObjectPropertyStoreShapes(global)
+  }
+  return null
+}
+
+export function getArrayElementObjectPropertyStoreShapesForVarInfo(
+  state: State,
+  varInfo: VariableInfo,
+): Map<string, StoreShape> | null {
+  const direct = state.arrayElementObjectPropertyStoreShapesByBinding.get(variableBindingKey(varInfo.scope, varInfo.index))
+  if (direct) return cloneObjectPropertyStoreShapes(direct)
+  if (varInfo.scope === 'closure') {
+    const local = state.arrayElementObjectPropertyStoreShapesByBinding.get(variableBindingKey('local', varInfo.index))
+    if (local) return cloneObjectPropertyStoreShapes(local)
+    const global = state.arrayElementObjectPropertyStoreShapesByBinding.get(variableBindingKey('global', varInfo.index))
+    if (global) return cloneObjectPropertyStoreShapes(global)
   }
   return null
 }
@@ -229,6 +324,132 @@ function inferMapCallArrayElementObjectKeys(
   return null
 }
 
+function inferStoreShapeFromExprWithLocals(
+  state: State,
+  expr: Expr,
+  localStoreShapes: Map<string, StoreShape>,
+): StoreShape | null {
+  if (expr.type === 'identifier') {
+    const localShape = localStoreShapes.get(expr.name)
+    if (localShape) return cloneStoreShape(localShape)
+  }
+  return getStoreShapeForExpr(state, expr)
+}
+
+function inferObjectPropertyStoreShapesFromObjectExprWithLocals(
+  state: State,
+  expr: Expr,
+  localStoreShapes: Map<string, StoreShape>,
+): Map<string, StoreShape> | null {
+  if (expr.type !== 'object') return null
+  const propertyShapes = new Map<string, StoreShape>()
+  for (const entry of expr.entries) {
+    const shape = inferStoreShapeFromExprWithLocals(state, entry.value, localStoreShapes)
+    if (shape) propertyShapes.set(entry.key, shape)
+  }
+  return propertyShapes.size > 0 ? propertyShapes : null
+}
+
+function updateLocalStoreShapesFromStmt(
+  state: State,
+  stmt: Stmt,
+  localStoreShapes: Map<string, StoreShape>,
+): boolean {
+  switch (stmt.type) {
+    case 'expr': {
+      if (stmt.expr.type !== 'assign') return true
+      if (stmt.expr.left.type !== 'identifier') return true
+      if (stmt.expr.op !== '=' && stmt.expr.op !== ':=') return true
+      const shape = inferStoreShapeFromExprWithLocals(state, stmt.expr.right, localStoreShapes)
+      if (shape) localStoreShapes.set(stmt.expr.left.name, shape)
+      else localStoreShapes.delete(stmt.expr.left.name)
+      return true
+    }
+    case 'block':
+      for (const child of stmt.body) {
+        if (child.type === 'return') return true
+        if (!updateLocalStoreShapesFromStmt(state, child, localStoreShapes)) return false
+      }
+      return true
+    case 'return':
+      return true
+    case 'if':
+    case 'while':
+    case 'do':
+    case 'for':
+    case 'for-of':
+    case 'switch':
+    case 'break':
+    case 'continue':
+    case 'label':
+    case 'throw':
+    case 'try':
+      return false
+  }
+}
+
+function inferFunctionReturnObjectPropertyStoreShapes(
+  state: State,
+  fnExpr: Extract<Expr, { type: 'fn' }>,
+): Map<string, StoreShape> | null {
+  if (fnExpr.body.type !== 'block') {
+    return inferObjectPropertyStoreShapesFromObjectExprWithLocals(state, fnExpr.body, new Map())
+  }
+
+  const localStoreShapes = new Map<string, StoreShape>()
+  const explicitReturns: Array<Map<string, StoreShape> | null> = []
+
+  for (const stmt of fnExpr.body.body) {
+    if (stmt.type === 'return') {
+      explicitReturns.push(
+        stmt.value ? inferObjectPropertyStoreShapesFromObjectExprWithLocals(state, stmt.value, localStoreShapes) : null,
+      )
+      continue
+    }
+    if (!updateLocalStoreShapesFromStmt(state, stmt, localStoreShapes)) return null
+  }
+
+  if (explicitReturns.length > 0) {
+    if (explicitReturns.some(v => !v)) return null
+    const first = explicitReturns[0]
+    if (!first) return null
+    for (let i = 1; i < explicitReturns.length; i++) {
+      const next = explicitReturns[i]
+      if (!next || !sameObjectPropertyStoreShapes(first, next)) return null
+    }
+    return cloneObjectPropertyStoreShapes(first)
+  }
+
+  const last = fnExpr.body.body[fnExpr.body.body.length - 1]
+  if (!last) return null
+  if (last.type === 'expr') {
+    return inferObjectPropertyStoreShapesFromObjectExprWithLocals(state, last.expr, localStoreShapes)
+  }
+  if (last.type === 'block') {
+    const nestedFnLike: Extract<Expr, { type: 'fn' }> = {
+      type: 'fn',
+      params: [],
+      defaults: [],
+      body: last,
+      loc: last.loc,
+    }
+    return inferFunctionReturnObjectPropertyStoreShapes(state, nestedFnLike)
+  }
+  return null
+}
+
+function inferMapCallArrayElementObjectPropertyStoreShapes(
+  state: State,
+  callExpr: Extract<Expr, { type: 'call' }>,
+): Map<string, StoreShape> | null {
+  const callbackExpr = getMapCallbackExpr(callExpr)
+  if (!callbackExpr) return null
+  if (callbackExpr.type === 'fn') {
+    return inferFunctionReturnObjectPropertyStoreShapes(state, callbackExpr)
+  }
+  return null
+}
+
 function inferArrayLiteralElementObjectKeys(
   state: State,
   arrayExpr: Extract<Expr, { type: 'array' }>,
@@ -246,6 +467,23 @@ function inferArrayLiteralElementObjectKeys(
   return elementKeys ? [...elementKeys] : null
 }
 
+function inferArrayLiteralElementObjectPropertyStoreShapes(
+  state: State,
+  arrayExpr: Extract<Expr, { type: 'array' }>,
+): Map<string, StoreShape> | null {
+  let elementPropertyShapes: Map<string, StoreShape> | null = null
+  for (const item of arrayExpr.items) {
+    const propertyShapes = getObjectPropertyStoreShapesForExpr(state, item)
+    if (!propertyShapes) return null
+    if (!elementPropertyShapes) {
+      elementPropertyShapes = cloneObjectPropertyStoreShapes(propertyShapes)
+      continue
+    }
+    if (!sameObjectPropertyStoreShapes(elementPropertyShapes, propertyShapes)) return null
+  }
+  return elementPropertyShapes ? cloneObjectPropertyStoreShapes(elementPropertyShapes) : null
+}
+
 export function getArrayElementObjectKeysForExpr(state: State, expr: Expr): string[] | null {
   if (expr.type === 'array') {
     return inferArrayLiteralElementObjectKeys(state, expr)
@@ -257,6 +495,24 @@ export function getArrayElementObjectKeysForExpr(state: State, expr: Expr): stri
   }
   if (expr.type === 'call') {
     return inferMapCallArrayElementObjectKeys(state, expr)
+  }
+  return null
+}
+
+export function getArrayElementObjectPropertyStoreShapesForExpr(
+  state: State,
+  expr: Expr,
+): Map<string, StoreShape> | null {
+  if (expr.type === 'array') {
+    return inferArrayLiteralElementObjectPropertyStoreShapes(state, expr)
+  }
+  if (expr.type === 'identifier') {
+    const varInfo = lookupVariable(state, expr.name)
+    if (!varInfo) return null
+    return getArrayElementObjectPropertyStoreShapesForVarInfo(state, varInfo)
+  }
+  if (expr.type === 'call') {
+    return inferMapCallArrayElementObjectPropertyStoreShapes(state, expr)
   }
   return null
 }
@@ -277,11 +533,35 @@ export function getObjectKeysForExpr(state: State, expr: Expr): string[] | null 
   return null
 }
 
+export function getObjectPropertyStoreShapesForExpr(
+  state: State,
+  expr: Expr,
+): Map<string, StoreShape> | null {
+  if (expr.type === 'object') {
+    return inferObjectPropertyStoreShapesFromObjectExprWithLocals(state, expr, new Map())
+  }
+  if (expr.type === 'identifier') {
+    const varInfo = lookupVariable(state, expr.name)
+    if (!varInfo) return null
+    return getObjectPropertyStoreShapesForVarInfo(state, varInfo)
+  }
+  if (expr.type === 'index') {
+    return getArrayElementObjectPropertyStoreShapesForExpr(state, expr.object)
+  }
+  return null
+}
+
 export function getStoreShapeForExpr(state: State, expr: Expr): StoreShape | null {
   if (expr.type === 'identifier') {
     const varInfo = lookupVariable(state, expr.name)
     if (!varInfo) return null
     return getStoreShapeForVarInfo(state, varInfo)
+  }
+  if (expr.type === 'member') {
+    const propertyShapes = getObjectPropertyStoreShapesForExpr(state, expr.object)
+    if (!propertyShapes) return null
+    const storeShape = propertyShapes.get(expr.property)
+    return storeShape ? cloneStoreShape(storeShape) : null
   }
   if (isStoreInitializerCall(expr)) {
     const initArg = expr.args.find(arg => arg.type === 'arg' && !!arg.value)?.value ?? null
@@ -531,7 +811,9 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       const varInfo = declareVariable(state, name, left.loc, shadow)
       clearVariableFunctionBinding(state, varInfo)
       clearVariableObjectShape(state, varInfo)
+      clearVariableObjectPropertyStoreShapes(state, varInfo)
       clearVariableArrayElementObjectKeys(state, varInfo)
+      clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
       clearVariableStoreShape(state, varInfo)
       compileSetVariable(state, varInfo, left)
       stack.pop() // value
@@ -582,7 +864,9 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const varInfo = declareVariable(state, leftName, expr.loc)
     setVariableFunctionBinding(state, varInfo, functionId)
     clearVariableObjectShape(state, varInfo)
+    clearVariableObjectPropertyStoreShapes(state, varInfo)
     clearVariableArrayElementObjectKeys(state, varInfo)
+    clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
     clearVariableStoreShape(state, varInfo)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
@@ -805,7 +1089,9 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     if (stack.length === 0) return
     setVariableFunctionBinding(state, varInfo, functionId)
     clearVariableObjectShape(state, varInfo)
+    clearVariableObjectPropertyStoreShapes(state, varInfo)
     clearVariableArrayElementObjectKeys(state, varInfo)
+    clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
     clearVariableStoreShape(state, varInfo)
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
@@ -822,8 +1108,14 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       ? getFunctionByName(state, right.name)?.id
       : undefined
     const inferredObjectKeys = left.type === 'identifier' ? getObjectKeysForExpr(state, right) : null
+    const inferredObjectPropertyStoreShapes = left.type === 'identifier'
+      ? getObjectPropertyStoreShapesForExpr(state, right)
+      : null
     const inferredArrayElementObjectKeys = left.type === 'identifier'
       ? getArrayElementObjectKeysForExpr(state, right)
+      : null
+    const inferredArrayElementObjectPropertyStoreShapes = left.type === 'identifier'
+      ? getArrayElementObjectPropertyStoreShapesForExpr(state, right)
       : null
     const inferredStoreShape = left.type === 'identifier' ? getStoreShapeForExpr(state, right) : null
     if (left.type === 'identifier' && right.type === 'array') {
@@ -848,12 +1140,20 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const varInfo = declareVariable(state, left.name, expr.loc, shadow)
     clearVariableFunctionBinding(state, varInfo)
     clearVariableObjectShape(state, varInfo)
+    clearVariableObjectPropertyStoreShapes(state, varInfo)
     clearVariableArrayElementObjectKeys(state, varInfo)
+    clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
     clearVariableStoreShape(state, varInfo)
     if (aliasFunctionId !== undefined) setVariableFunctionBinding(state, varInfo, aliasFunctionId)
     if (inferredObjectKeys) setVariableObjectShape(state, varInfo, inferredObjectKeys)
+    if (inferredObjectPropertyStoreShapes) {
+      setVariableObjectPropertyStoreShapes(state, varInfo, inferredObjectPropertyStoreShapes)
+    }
     if (inferredArrayElementObjectKeys) {
       setVariableArrayElementObjectKeys(state, varInfo, inferredArrayElementObjectKeys)
+    }
+    if (inferredArrayElementObjectPropertyStoreShapes) {
+      setVariableArrayElementObjectPropertyStoreShapes(state, varInfo, inferredArrayElementObjectPropertyStoreShapes)
     }
     if (inferredStoreShape) setVariableStoreShape(state, varInfo, inferredStoreShape)
     // Duplicate the value on stack so we can both store it and return it
@@ -894,7 +1194,9 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     stack.push(stackExpr)
     clearVariableFunctionBinding(state, varInfo)
     clearVariableObjectShape(state, varInfo)
+    clearVariableObjectPropertyStoreShapes(state, varInfo)
     clearVariableArrayElementObjectKeys(state, varInfo)
+    clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
     clearVariableStoreShape(state, varInfo)
     compileSetVariable(state, varInfo, left)
     stack.pop()

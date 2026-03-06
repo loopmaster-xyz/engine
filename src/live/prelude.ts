@@ -171,6 +171,21 @@ play=(x,cb,voices=1)->{
   sum/voices
 }
 
+poly=(count,trig,notescb,voicecb)->{
+  voices:=[0..count-1].map(()->{
+    return { state: store({ hz: 0 }) }
+  })
+  trigs:=[0..count-1].map(()->audio(0))
+
+  current:=scalarmax(acc(trig))
+  trigs[current]=trig
+  voices[current].state.hz=notescb(trig)
+  voices.map((v,i)->{
+    hz:=v.state.hz
+    if (hz > 0) return voicecb(v.state.hz,trigs[i])
+  }).avg()
+}
+
 dec=(hz=1,floor=0,offset=1,trig)->1-inc(hz,1-floor,1-offset,trig)
 
 buses=[[0,0],[0,0],[0,0],[0,0],[0,0]]

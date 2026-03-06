@@ -13,16 +13,16 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Moog(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Moog_lpm_cutoff_scalar_q_scalar(), 661, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Moog_lpm_cutoff_scalar_q_scalar(), 664, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Moog_lpm_cutoff_scalar_q_scalar>(dst).copyFrom(changetype<Moog_lpm_cutoff_scalar_q_scalar>(src))
   }, (dst: Object) => { changetype<Moog_lpm_cutoff_scalar_q_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Moog_lpm_cutoff_audio_q_scalar(), 662, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Moog_lpm_cutoff_audio_q_scalar(), 665, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Moog_lpm_cutoff_audio_q_scalar>(dst).copyFrom(changetype<Moog_lpm_cutoff_audio_q_scalar>(src))
   }, (dst: Object) => { changetype<Moog_lpm_cutoff_audio_q_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Moog_hpm_cutoff_scalar_q_scalar(), 663, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Moog_hpm_cutoff_scalar_q_scalar(), 666, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Moog_hpm_cutoff_scalar_q_scalar>(dst).copyFrom(changetype<Moog_hpm_cutoff_scalar_q_scalar>(src))
   }, (dst: Object) => { changetype<Moog_hpm_cutoff_scalar_q_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Moog_hpm_cutoff_audio_q_scalar(), 664, 2, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Moog_hpm_cutoff_audio_q_scalar(), 667, 2, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Moog_hpm_cutoff_audio_q_scalar>(dst).copyFrom(changetype<Moog_hpm_cutoff_audio_q_scalar>(src))
   }, (dst: Object) => { changetype<Moog_hpm_cutoff_audio_q_scalar>(dst).reset() }))
 }
@@ -60,7 +60,7 @@ case AudioVmOp.GenMoog_lpm: {
           case 0: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[661].get()
+              const slot: GenSlot = vm.genPools[664].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -76,7 +76,7 @@ case AudioVmOp.GenMoog_lpm: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[661].get()
+              const slot: GenSlot = vm.genPools[664].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -95,7 +95,7 @@ case AudioVmOp.GenMoog_lpm: {
           case 1: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[662].get()
+              const slot: GenSlot = vm.genPools[665].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -112,7 +112,7 @@ case AudioVmOp.GenMoog_lpm: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[662].get()
+              const slot: GenSlot = vm.genPools[665].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -146,7 +146,7 @@ case AudioVmOp.GenMoog_lpm: {
   switch (modeMask) {
     case 0: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[661].get()
+      const slot: GenSlot = vm.genPools[664].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)
@@ -162,7 +162,7 @@ case AudioVmOp.GenMoog_lpm: {
     }
     case 1: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[662].get()
+      const slot: GenSlot = vm.genPools[665].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)
@@ -223,7 +223,7 @@ case AudioVmOp.GenMoog_hpm: {
           case 0: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[663].get()
+              const slot: GenSlot = vm.genPools[666].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -239,7 +239,7 @@ case AudioVmOp.GenMoog_hpm: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[663].get()
+              const slot: GenSlot = vm.genPools[666].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -258,7 +258,7 @@ case AudioVmOp.GenMoog_hpm: {
           case 1: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[664].get()
+              const slot: GenSlot = vm.genPools[667].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -275,7 +275,7 @@ case AudioVmOp.GenMoog_hpm: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[664].get()
+              const slot: GenSlot = vm.genPools[667].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -309,7 +309,7 @@ case AudioVmOp.GenMoog_hpm: {
   switch (modeMask) {
     case 0: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[663].get()
+      const slot: GenSlot = vm.genPools[666].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)
@@ -325,7 +325,7 @@ case AudioVmOp.GenMoog_hpm: {
     }
     case 1: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[664].get()
+      const slot: GenSlot = vm.genPools[667].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)

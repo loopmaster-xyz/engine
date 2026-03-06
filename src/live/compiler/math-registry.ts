@@ -3,7 +3,7 @@
 export const MATH_UNARY = [
   'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'tanh', 'abs', 'sqrt', 'square',
   'cube', 'log', 'exp', 'log10', 'log2', 'exp2', 'floor', 'ceil', 'round',
-  'trunc', 'fract', 'sign', 'isnan', 'isinf', 'heaviside',
+  'trunc', 'fract', 'sign', 'isnan', 'isinf', 'heaviside', 'scalar', 'scalarmax',
 ] as const
 
 export const MATH_BINARY = [

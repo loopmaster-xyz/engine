@@ -316,6 +316,15 @@ export const gens: Record<string, GenDescriptor> = {
       { name: 'trig', description: 'Trigger reset' }
     ]
   },
+  Acc: {
+    name: 'Acc',
+    description: 'Accumulates (adds) a value on trigger',
+    category: 'utilities',
+    parameters: [
+      { name: 'trig', description: 'Trigger impulse' },
+      { name: 'amount', default: 1, description: 'Amount to accumulate' }
+    ]
+  },
   Tri: {
     name: 'Tri',
     description: 'Band-limited triangle oscillator',
@@ -558,6 +567,14 @@ export const gens: Record<string, GenDescriptor> = {
       { name: 'cutoff', default: 1000, min: 20, max: 20000, unit: 'hz', description: 'Cutoff frequency' },
       { name: 'q', default: 0.70710678, min: 0.01, max: 20, description: 'Q factor (peak only)' },
       { name: 'gain', default: 0, min: -40, max: 40, unit: 'dB', description: 'Gain in dB' }
+    ]
+  },
+  Audio: {
+    name: 'Audio',
+    description: 'Creates an audio signal of a single value',
+    category: 'utilities',
+    parameters: [
+      { name: 'input', description: 'Input signal' },
     ]
   },
   Sampler: {

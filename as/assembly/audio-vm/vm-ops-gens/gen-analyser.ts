@@ -13,7 +13,7 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Analyser(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Analyser_default_(), 511, 0, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Analyser_default_(), 513, 0, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Analyser_default_>(dst).copyFrom(changetype<Analyser_default_>(src))
   }, (dst: Object) => { changetype<Analyser_default_>(dst).reset() }))
 }
@@ -42,7 +42,7 @@ case AudioVmOp.GenAnalyser_default: {
           case 0: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[511].get()
+              const slot: GenSlot = vm.genPools[513].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -58,7 +58,7 @@ case AudioVmOp.GenAnalyser_default: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[511].get()
+              const slot: GenSlot = vm.genPools[513].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -91,7 +91,7 @@ case AudioVmOp.GenAnalyser_default: {
   switch (modeMask) {
     case 0: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[511].get()
+      const slot: GenSlot = vm.genPools[513].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)

@@ -1341,6 +1341,33 @@ describe('loops', () => {
       14], [14, 14, 14]])
   })
 
+  it('for-of preserves mapped element object shape for member access', () => {
+    const parsed = parse(
+      'voices = [0..4].map(() -> { state = store({ hz: 0 }); return { state } }); for (voice of voices) { voice.state }; out(0)',
+    )
+    expect(parsed.errors).toHaveLength(0)
+    const compileResult = compile(parsed.program!, parsed.preludeLines)
+    expect(compileResult.errors).toHaveLength(0)
+  })
+
+  it('map result keeps nested store shape through index member writes', () => {
+    const parsed = parse(
+      'voices = [0..4].map(() -> { state = store({ hz: 0 }); return { state } }); #i * o4 |> $.map((hz, i) -> { voices[i].state.hz = hz }); out(0)',
+    )
+    expect(parsed.errors).toHaveLength(0)
+    const compileResult = compile(parsed.program!, parsed.preludeLines)
+    expect(compileResult.errors).toHaveLength(0)
+  })
+
+  it('map callback parameter receives element object shape', () => {
+    const parsed = parse(
+      'voices = [0..4].map(() -> { state = store({ hz: 0 }); return { state } }); voices.map(v -> saw(v.state.hz)); out(0)',
+    )
+    expect(parsed.errors).toHaveLength(0)
+    const compileResult = compile(parsed.program!, parsed.preludeLines)
+    expect(compileResult.errors).toHaveLength(0)
+  })
+
   it('for-of with break and continue', () => {
     expect(
       audio(

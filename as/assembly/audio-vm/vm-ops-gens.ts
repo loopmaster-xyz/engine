@@ -30,6 +30,7 @@ import { handleGenOp_Compressor, initGenPools_Compressor } from './vm-ops-gens/g
 import { handleGenOp_Emit, initGenPools_Emit } from './vm-ops-gens/gen-emit'
 import { handleGenOp_Fractal, initGenPools_Fractal } from './vm-ops-gens/gen-fractal'
 import { handleGenOp_Lforamp, initGenPools_Lforamp } from './vm-ops-gens/gen-lforamp'
+import { handleGenOp_Acc, initGenPools_Acc } from './vm-ops-gens/gen-acc'
 import { handleGenOp_Tri, initGenPools_Tri } from './vm-ops-gens/gen-tri'
 import { handleGenOp_Pitchshift, initGenPools_Pitchshift } from './vm-ops-gens/gen-pitchshift'
 import { handleGenOp_Zerox, initGenPools_Zerox } from './vm-ops-gens/gen-zerox'
@@ -52,6 +53,7 @@ import { handleGenOp_Random, initGenPools_Random } from './vm-ops-gens/gen-rando
 import { handleGenOp_Slew, initGenPools_Slew } from './vm-ops-gens/gen-slew'
 import { handleGenOp_Inc, initGenPools_Inc } from './vm-ops-gens/gen-inc'
 import { handleGenOp_Biquadshelf, initGenPools_Biquadshelf } from './vm-ops-gens/gen-biquadshelf'
+import { handleGenOp_Audio, initGenPools_Audio } from './vm-ops-gens/gen-audio'
 import { handleGenOp_Sampler, initGenPools_Sampler } from './vm-ops-gens/gen-sampler'
 import { handleGenOp_Moog, initGenPools_Moog } from './vm-ops-gens/gen-moog'
 import { handleGenOp_Svf, initGenPools_Svf } from './vm-ops-gens/gen-svf'
@@ -94,6 +96,7 @@ export function initGenPools(vm: VmState): void {
   initGenPools_Emit(vm)
   initGenPools_Fractal(vm)
   initGenPools_Lforamp(vm)
+  initGenPools_Acc(vm)
   initGenPools_Tri(vm)
   initGenPools_Pitchshift(vm)
   initGenPools_Zerox(vm)
@@ -116,29 +119,30 @@ export function initGenPools(vm: VmState): void {
   initGenPools_Slew(vm)
   initGenPools_Inc(vm)
   initGenPools_Biquadshelf(vm)
+  initGenPools_Audio(vm)
   initGenPools_Sampler(vm)
   initGenPools_Moog(vm)
   initGenPools_Svf(vm)
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 689, 2, vm.genPoolManager))
-  vm.genPools.push(new GenPool(() => new TramKernel(), 690, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 692, 2, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => new TramKernel(), 693, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TramKernel>(dst).reset()
   }, (dst: Object) => { changetype<TramKernel>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new MiniKernel(), 691, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new MiniKernel(), 694, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<MiniKernel>(dst).reset()
   }, (dst: Object) => { changetype<MiniKernel>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new TimelineKernel(), 692, 1, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new TimelineKernel(), 695, 1, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<TimelineKernel>(dst).reset()
   }, (dst: Object) => { changetype<TimelineKernel>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 693, 0, vm.genPoolManager))
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 694, 0, vm.genPoolManager))
-  vm.genPools.push(new GenPool(() => changetype<Object>(0), 695, 1, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 696, 0, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 697, 0, vm.genPoolManager))
+  vm.genPools.push(new GenPool(() => changetype<Object>(0), 698, 1, vm.genPoolManager))
   vm.arrayGetGenPoolIndex = vm.genPools.length - 1
-  vm.tableGenPoolIndex = 689
-  vm.tramGenPoolIndex = 690
-  vm.miniGenPoolIndex = 691
-  vm.timelineGenPoolIndex = 692
-  vm.outGenPoolIndex = 693
-  vm.mixGenPoolIndex = 694
+  vm.tableGenPoolIndex = 692
+  vm.tramGenPoolIndex = 693
+  vm.miniGenPoolIndex = 694
+  vm.timelineGenPoolIndex = 695
+  vm.outGenPoolIndex = 696
+  vm.mixGenPoolIndex = 697
 }
 
 export function handleGenOp(vm: VmState, op: AudioVmOp, pc: i32, opsPtr: usize, params: RunParams): i32 {
@@ -202,6 +206,8 @@ export function handleGenOp(vm: VmState, op: AudioVmOp, pc: i32, opsPtr: usize, 
       return handleGenOp_Fractal(vm, op, pc, opsPtr, params)
     case AudioVmOp.GenLforamp_default:
       return handleGenOp_Lforamp(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenAcc_default:
+      return handleGenOp_Acc(vm, op, pc, opsPtr, params)
     case AudioVmOp.GenTri_default:
       return handleGenOp_Tri(vm, op, pc, opsPtr, params)
     case AudioVmOp.GenPitchshift_default:
@@ -252,6 +258,8 @@ export function handleGenOp(vm: VmState, op: AudioVmOp, pc: i32, opsPtr: usize, 
     case AudioVmOp.GenBiquadshelf_hs:
     case AudioVmOp.GenBiquadshelf_peak:
       return handleGenOp_Biquadshelf(vm, op, pc, opsPtr, params)
+    case AudioVmOp.GenAudio_default:
+      return handleGenOp_Audio(vm, op, pc, opsPtr, params)
     case AudioVmOp.GenSampler_default:
       return handleGenOp_Sampler(vm, op, pc, opsPtr, params)
     case AudioVmOp.GenMoog_lpm:

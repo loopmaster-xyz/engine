@@ -3,7 +3,21 @@ import type { Stmt } from '../ast.ts'
 import { compileExpr, compileStmt, error, getCurrentScope, popScope, pushScope } from './core.ts'
 import type { State } from './state.ts'
 import type { LoopContext } from './types.ts'
-import { compileGetVariable, compileSetVariable, declareVariable } from './vars.ts'
+import {
+  clearVariableArrayElementObjectPropertyStoreShapes,
+  clearVariableArrayElementObjectKeys,
+  clearVariableFunctionBinding,
+  clearVariableObjectPropertyStoreShapes,
+  clearVariableObjectShape,
+  clearVariableStoreShape,
+  compileGetVariable,
+  compileSetVariable,
+  declareVariable,
+  getArrayElementObjectPropertyStoreShapesForExpr,
+  getArrayElementObjectKeysForExpr,
+  setVariableObjectPropertyStoreShapes,
+  setVariableObjectShape,
+} from './vars.ts'
 
 export function compileIf(state: State, stmt: Extract<Stmt, { type: 'if' }>): void {
   // Compile test condition
@@ -202,6 +216,8 @@ export function compileForOf(state: State, stmt: Extract<Stmt, { type: 'for-of' 
   const arrName = `__arr_${tempId}`
   const lenName = `__len_${tempId}`
   const idxName = `__i_${tempId}`
+  const iterableElementObjectKeys = getArrayElementObjectKeysForExpr(state, stmt.iterable)
+  const iterableElementObjectPropertyStoreShapes = getArrayElementObjectPropertyStoreShapesForExpr(state, stmt.iterable)
 
   // Compile iterable expression
   compileExpr(state, stmt.iterable)
@@ -267,6 +283,16 @@ export function compileForOf(state: State, stmt: Extract<Stmt, { type: 'for-of' 
   state.stack.push({ expr: { type: 'identifier', name: stmt.value, loc: stmt.loc } })
 
   const valueVar = declareVariable(state, stmt.value, stmt.loc)
+  clearVariableFunctionBinding(state, valueVar)
+  clearVariableObjectShape(state, valueVar)
+  clearVariableObjectPropertyStoreShapes(state, valueVar)
+  clearVariableArrayElementObjectKeys(state, valueVar)
+  clearVariableArrayElementObjectPropertyStoreShapes(state, valueVar)
+  clearVariableStoreShape(state, valueVar)
+  if (iterableElementObjectKeys) setVariableObjectShape(state, valueVar, iterableElementObjectKeys)
+  if (iterableElementObjectPropertyStoreShapes) {
+    setVariableObjectPropertyStoreShapes(state, valueVar, iterableElementObjectPropertyStoreShapes)
+  }
   compileSetVariable(state, valueVar, stmt.iterable)
   state.stack.pop()
 
@@ -598,6 +624,11 @@ export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }
       const arrName = `__arr_${tempId}`
       const lenName = `__len_${tempId}`
       const idxName = `__i_${tempId}`
+      const iterableElementObjectKeys = getArrayElementObjectKeysForExpr(state, forOfStmt.iterable)
+      const iterableElementObjectPropertyStoreShapes = getArrayElementObjectPropertyStoreShapesForExpr(
+        state,
+        forOfStmt.iterable,
+      )
 
       compileExpr(state, forOfStmt.iterable)
       if (state.stack.length === 0) {
@@ -652,6 +683,16 @@ export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }
       state.stack.push({ expr: { type: 'identifier', name: forOfStmt.value, loc: forOfStmt.loc } })
 
       const valueVar = declareVariable(state, forOfStmt.value, forOfStmt.loc)
+      clearVariableFunctionBinding(state, valueVar)
+      clearVariableObjectShape(state, valueVar)
+      clearVariableObjectPropertyStoreShapes(state, valueVar)
+      clearVariableArrayElementObjectKeys(state, valueVar)
+      clearVariableArrayElementObjectPropertyStoreShapes(state, valueVar)
+      clearVariableStoreShape(state, valueVar)
+      if (iterableElementObjectKeys) setVariableObjectShape(state, valueVar, iterableElementObjectKeys)
+      if (iterableElementObjectPropertyStoreShapes) {
+        setVariableObjectPropertyStoreShapes(state, valueVar, iterableElementObjectPropertyStoreShapes)
+      }
       compileSetVariable(state, valueVar, forOfStmt.iterable)
       state.stack.pop()
 

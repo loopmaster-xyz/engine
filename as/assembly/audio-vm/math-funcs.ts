@@ -115,9 +115,19 @@ function applyUnary(id: i32, x: f32): f32 {
       return isinf(x)
     case 24:
       return heaviside(x)
+    case 25:
+      return x
+    case 26:
+      return x
     default:
       return 0.0
   }
+}
+
+// @ts-ignore
+// @inline
+function unaryIdReturnsScalar(id: i32): bool {
+  return id == 25 || id == 26
 }
 
 // @ts-ignore
@@ -186,6 +196,21 @@ export function mathUnaryById(
   }
   if (isAudio(tagged)) {
     const inputPtr: usize = decodeAudio(tagged)
+    if (id == 25) {
+      if (bufferLength <= 0) return encodeScalar(0.0)
+      return encodeScalar(load<f32>(inputPtr))
+    }
+    if (id == 26) {
+      if (bufferLength <= 0) return encodeScalar(0.0)
+      let m: f32 = load<f32>(inputPtr)
+      let input$: usize = inputPtr + 4
+      for (let i: i32 = 1; i < bufferLength; i++) {
+        const v: f32 = load<f32>(input$)
+        if (v > m) m = v
+        input$ += 4
+      }
+      return encodeScalar(m)
+    }
     const procLen: i32 = (bufferLength + 15) & ~15
     let outputPtr: usize = reuseOutputPtr
     if (outputPtr == 0) outputPtr = vm.arena.get(procLen).dataStart
@@ -351,7 +376,8 @@ export function handleMathUnary(
     result = encodeScalar(applyUnary(id, decodeScalar(tagged)))
   }
   else {
-    const canReuse: bool = isAudio(tagged)
+    const canReuse: bool = !unaryIdReturnsScalar(id)
+      && isAudio(tagged)
       && !fromCellRef
       && vm.arena.canMutateByPtr(u32(decodeAudio(tagged)))
     const reusePtr: usize = canReuse ? decodeAudio(tagged) : 0

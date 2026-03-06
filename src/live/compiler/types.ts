@@ -111,6 +111,7 @@ export type VariableInfo = {
 
 export type FunctionInfo = {
   id: number
+  locKey?: string
   paramCount: number
   params: string[]
   paramTypes: Array<'param' | 'param-destructure' | 'param-named-destructure'>
