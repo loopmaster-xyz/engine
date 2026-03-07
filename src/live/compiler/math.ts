@@ -7,7 +7,7 @@ export function compileUnaryOp(state: State, expr: Extract<Expr, { type: 'unary'
   compileExpr(state, expr.expr)
 
   if (state.stack.length === 0) {
-    error(state, 'Unary operator requires an operand', expr.loc.line, expr.loc.column)
+    error(state, 'Unary operator requires an operand', expr.loc)
     return
   }
 
@@ -19,7 +19,7 @@ export function compileUnaryOp(state: State, expr: Extract<Expr, { type: 'unary'
 
   const opCode = opMap[expr.op]
   if (opCode === undefined) {
-    error(state, `Unknown unary operator: ${expr.op}`, expr.loc.line, expr.loc.column)
+    error(state, `Unknown unary operator: ${expr.op}`, expr.loc)
     return
   }
 
@@ -57,7 +57,7 @@ export function compileBinaryOp(state: State, expr: Extract<Expr, { type: 'binar
 
   const opCode = opMap[expr.op]
   if (opCode === undefined) {
-    error(state, `Unknown binary operator: ${expr.op}`, expr.loc.line, expr.loc.column)
+    error(state, `Unknown binary operator: ${expr.op}`, expr.loc)
     return
   }
 

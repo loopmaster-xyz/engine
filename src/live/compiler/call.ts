@@ -97,9 +97,9 @@ function exprContainsArrayOrObjectLiteral(expr: Expr): boolean {
     case 'unary':
       return exprContainsArrayOrObjectLiteral(expr.expr)
     case 'ternary':
-      return exprContainsArrayOrObjectLiteral(expr.condition)
-        || exprContainsArrayOrObjectLiteral(expr.trueExpr)
-        || exprContainsArrayOrObjectLiteral(expr.falseExpr)
+      return exprContainsArrayOrObjectLiteral(expr.test)
+        || exprContainsArrayOrObjectLiteral(expr.then)
+        || exprContainsArrayOrObjectLiteral(expr.else)
     case 'call':
       if (exprContainsArrayOrObjectLiteral(expr.callee)) return true
       for (const arg of expr.args) {

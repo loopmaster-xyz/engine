@@ -3,8 +3,8 @@ import { compileMiniNotation } from '../../../mini/compiler.ts'
 import type { Arg, Expr } from '../../ast.ts'
 import { compileExpr, error } from '../core.ts'
 import type { State } from '../state.ts'
-import { lookupVariable } from '../vars.ts'
 import type { HistorySourceMap } from '../types.ts'
+import { lookupVariable } from '../vars.ts'
 
 export function compileMini(state: State, callExpr: Extract<Expr, { type: 'call' }>, args: Arg[]): void {
   // Find seq argument (string) and bars argument (optional, default 1.0)
@@ -31,12 +31,12 @@ export function compileMini(state: State, callExpr: Extract<Expr, { type: 'call'
   }
 
   if (!seqExpr) {
-    error(state, 'mini() requires a sequence string argument', callExpr.loc.line, callExpr.loc.column)
+    error(state, 'mini() requires a sequence string argument', callExpr.loc)
     return
   }
 
   if (seqExpr.type !== 'string') {
-    error(state, 'mini() sequence argument must be a string literal', callExpr.loc.line, callExpr.loc.column)
+    error(state, 'mini() sequence argument must be a string literal', callExpr.loc)
     return
   }
 
@@ -46,7 +46,7 @@ export function compileMini(state: State, callExpr: Extract<Expr, { type: 'call'
     defaultScale: { rootMidi: state.rootMidi, scaleIndex: state.scaleIndex },
   })
   if (compileResult.bytecode.length === 0) {
-    error(state, 'mini() sequence is empty', callExpr.loc.line, callExpr.loc.column)
+    error(state, 'mini() sequence is empty', callExpr.loc)
     return
   }
 
