@@ -423,12 +423,16 @@ function parseOctaveDelta(tokens: Token[]): number {
   return parseDeltaToken(tokens[1])
 }
 
-function parseScaleDirective(tokens: Token[],
-  startIndex: number): { rootMidi: number; scaleIndex: number; nextIndex: number }
+function parseScaleDirective(
+  tokens: Token[],
+  startIndex: number,
+  fallbackRootMidi: number,
+  fallbackScaleIndex: number,
+): { rootMidi: number; scaleIndex: number; nextIndex: number }
 {
   let i = startIndex
-  let rootMidi = noteNameToMidi('c4')
-  let scaleIndex = SCALE_KEY_TO_INDEX.major ?? 0
+  let rootMidi = fallbackRootMidi
+  let scaleIndex = fallbackScaleIndex
 
   const t0 = tokens[i]?.text?.toLowerCase()
   if (t0 && isNoteNameText(t0)) {
@@ -457,8 +461,15 @@ function parseScaleDirective(tokens: Token[],
   return { rootMidi, scaleIndex, nextIndex: i }
 }
 
-function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
+function tokensToNodesInternal(
+  tokens: Token[],
+  input: string,
+  fallbackRootMidi: number,
+  fallbackScaleIndex: number,
+): Node[] {
   const nodes: Node[] = []
+  let currentRootMidi = fallbackRootMidi
+  let currentScaleIndex = fallbackScaleIndex
 
   for (let ti = 0; ti < tokens.length; ti++) {
     const token = tokens[ti]!
@@ -473,7 +484,9 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
     if (raw === ',') {
       const left = nodes.slice()
       const rightTokens = tokens.slice(ti + 1)
-      const right = rightTokens.length > 0 ? tokensToNodesInternal(rightTokens, input) : []
+      const right = rightTokens.length > 0
+        ? tokensToNodesInternal(rightTokens, input, currentRootMidi, currentScaleIndex)
+        : []
       if (left.length === 0 && right.length === 0) {
         return []
       }
@@ -526,7 +539,9 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
         if (!isEnd && !isDot) continue
 
         const partTokens = tokens.slice(segStart, j)
-        const partNodes = partTokens.length > 0 ? tokensToNodesInternal(partTokens, input) : []
+        const partNodes = partTokens.length > 0
+          ? tokensToNodesInternal(partTokens, input, currentRootMidi, currentScaleIndex)
+          : []
         if (partNodes.length > 0) segments.push(partNodes)
         segStart = j + 1
       }
@@ -582,7 +597,12 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
     }
 
     if (raw === 'scale') {
-      const { rootMidi, scaleIndex, nextIndex } = parseScaleDirective(tokens, ti + 1)
+      const { rootMidi, scaleIndex, nextIndex } = parseScaleDirective(
+        tokens,
+        ti + 1,
+        currentRootMidi,
+        currentScaleIndex,
+      )
       const last = nextIndex > ti + 1 ? tokens[nextIndex - 1] : token
       nodes.push({
         type: 'scale',
@@ -593,6 +613,8 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
         modifiers: getDefaultMods(),
         source: makeSource(input, token.start, last?.end ?? token.end),
       })
+      currentRootMidi = rootMidi
+      currentScaleIndex = scaleIndex
       ti = nextIndex - 1
       continue
     }
@@ -622,7 +644,7 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
         }
       }
       const bodyTokens = tokens.slice(bodyStart, bodyEnd)
-      const children = tokensToNodesInternal(bodyTokens, input)
+      const children = tokensToNodesInternal(bodyTokens, input, currentRootMidi, currentScaleIndex)
       const last = tokens[bodyEnd - 1] ?? next ?? token
       nodes.push({
         type: 'at',
@@ -654,6 +676,20 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
       continue
     }
 
+    const octaveShorthand = raw.match(/^o(-?(?:\d+(?:\.\d+)?|\.\d+))$/i)
+    if (octaveShorthand) {
+      nodes.push({
+        type: 'octave',
+        angle: false,
+        parallel: false,
+        values: [parseFloat(octaveShorthand[1]!)],
+        children: [],
+        modifiers: getDefaultMods(),
+        source: makeSource(input, token.start, token.end),
+      })
+      continue
+    }
+
     if (raw === 'swing') {
       const next = tokens[ti + 1]
       const amount = parseDeltaToken(next)
@@ -681,7 +717,7 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
         start: t.start + token.start + 1, // +1 to account for opening bracket
         end: t.end + token.start + 1,
       }))
-      const children = tokensToNodesInternal(adjustedInnerTokens, input)
+      const children = tokensToNodesInternal(adjustedInnerTokens, input, currentRootMidi, currentScaleIndex)
       nodes.push({
         type: 'group',
         angle: first === '<',
@@ -725,7 +761,12 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
 
       const head = adjustedInnerTokens[0]?.text
       if (head === 'scale') {
-        const { rootMidi, scaleIndex, nextIndex } = parseScaleDirective(adjustedInnerTokens, 1)
+        const { rootMidi, scaleIndex, nextIndex } = parseScaleDirective(
+          adjustedInnerTokens,
+          1,
+          currentRootMidi,
+          currentScaleIndex,
+        )
         const items = adjustedInnerTokens.slice(nextIndex)
         const scaleNode: Node = {
           type: 'scale',
@@ -736,7 +777,7 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
           modifiers: getDefaultMods(),
           source: makeSource(input, token.start, token.end),
         }
-        const restChildren = tokensToNodesInternal(items, input)
+        const restChildren = tokensToNodesInternal(items, input, rootMidi, scaleIndex)
         const children = [scaleNode, ...restChildren]
         nodes.push({
           type: 'group',
@@ -787,7 +828,7 @@ function tokensToNodesInternal(tokens: Token[], input: string): Node[] {
       }
 
       const modifiers = parseModifiers(modText)
-      const children = tokensToNodesInternal(adjustedInnerTokens, input)
+      const children = tokensToNodesInternal(adjustedInnerTokens, input, currentRootMidi, currentScaleIndex)
       nodes.push({
         type: 'group',
         angle: false,
@@ -895,7 +936,9 @@ export function tokensToNodes(
   input: string,
   options: { defaultScale?: DefaultScale } = {},
 ): Node[] {
-  const nodes = tokensToNodesInternal(tokens, input)
+  const rootMidi = options.defaultScale?.rootMidi ?? noteNameToMidi('c4')
+  const scaleIndex = options.defaultScale?.scaleIndex ?? SCALE_KEY_TO_INDEX.major ?? 0
+  const nodes = tokensToNodesInternal(tokens, input, rootMidi, scaleIndex)
 
   // Check if any scale nodes exist
   const hasScaleNode = nodes.some(node => node.type === 'scale')
@@ -903,8 +946,6 @@ export function tokensToNodes(
 
   // If no scale nodes found, prepend a default scale (C4 major unless overridden by caller)
   if (!hasScaleNode) {
-    const rootMidi = options.defaultScale?.rootMidi ?? noteNameToMidi('c4')
-    const scaleIndex = options.defaultScale?.scaleIndex ?? SCALE_KEY_TO_INDEX.major ?? 0
     const defaultScaleNode: Node = {
       type: 'scale',
       angle: false,

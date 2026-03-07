@@ -587,6 +587,19 @@ export class MiniEvents {
         }
       }
 
+      const turnBasePitch: f64 = pitch
+      const turnBaseScaleActive: bool = this.scaleActive
+      const turnBaseScaleRootMidi: i32 = this.scaleRootMidi
+      const turnBaseScaleIndex: i32 = this.scaleIndex
+      const turnBaseSwing: f64 = this.swing
+
+      let lastPitch: f64 = turnBasePitch
+      let lastScaleActive: bool = turnBaseScaleActive
+      let lastScaleRootMidi: i32 = turnBaseScaleRootMidi
+      let lastScaleIndex: i32 = turnBaseScaleIndex
+      let lastSwing: f64 = turnBaseSwing
+      let hadTurn: bool = false
+
       const normalizedPosition: f64 = 0.0
       let delta: f64 = normalizedPosition - phaseStart
       if (delta < 0.0) delta += 1.0
@@ -595,6 +608,12 @@ export class MiniEvents {
       while (true) {
         const passF: f64 = pass as f64
         if (delta + passF >= density) break
+
+        let turnPitch: f64 = turnBasePitch
+        this.scaleActive = turnBaseScaleActive
+        this.scaleRootMidi = turnBaseScaleRootMidi
+        this.scaleIndex = turnBaseScaleIndex
+        this.swing = turnBaseSwing
 
         const phase01: f64 = (delta + passF) * invDensity
         const childCycle: f64 = roundToDecimals(cycleDensity + delta + passF, 6)
@@ -610,7 +629,7 @@ export class MiniEvents {
         const childRelativeTime: f64 = roundToDecimals(startTime + groupOffsetTime, 6)
 
         if (roundToDecimals(childRelativeTime, 3) < parentSlotDuration) {
-          pitch = this.processChild(
+          turnPitch = this.processChild(
             reader,
             childOpOffset,
             groupStartTime,
@@ -624,23 +643,64 @@ export class MiniEvents {
             groupStrumMul,
             groupJitter,
             effectiveGlide,
-            pitch,
+            turnPitch,
             emitter,
             depth,
           )
         }
 
+        hadTurn = true
+        lastPitch = turnPitch
+        lastScaleActive = this.scaleActive
+        lastScaleRootMidi = this.scaleRootMidi
+        lastScaleIndex = this.scaleIndex
+        lastSwing = this.swing
+
         pass++
+      }
+
+      if (hadTurn) {
+        pitch = lastPitch
+        this.scaleActive = lastScaleActive
+        this.scaleRootMidi = lastScaleRootMidi
+        this.scaleIndex = lastScaleIndex
+        this.swing = lastSwing
+      }
+      else {
+        pitch = turnBasePitch
+        this.scaleActive = turnBaseScaleActive
+        this.scaleRootMidi = turnBaseScaleRootMidi
+        this.scaleIndex = turnBaseScaleIndex
+        this.swing = turnBaseSwing
       }
 
       return pitch
     }
+
+    const turnBasePitch: f64 = pitch
+    const turnBaseScaleActive: bool = this.scaleActive
+    const turnBaseScaleRootMidi: i32 = this.scaleRootMidi
+    const turnBaseScaleIndex: i32 = this.scaleIndex
+    const turnBaseSwing: f64 = this.swing
+
+    let lastPitch: f64 = turnBasePitch
+    let lastScaleActive: bool = turnBaseScaleActive
+    let lastScaleRootMidi: i32 = turnBaseScaleRootMidi
+    let lastScaleIndex: i32 = turnBaseScaleIndex
+    let lastSwing: f64 = turnBaseSwing
+    let hadTurn: bool = false
 
     let pass: i32 = 0
     while (true) {
       const passF: f64 = pass as f64
       let scheduled: bool = false
       let timeIndex: f64 = 0.0
+      let turnPitch: f64 = turnBasePitch
+
+      this.scaleActive = turnBaseScaleActive
+      this.scaleRootMidi = turnBaseScaleRootMidi
+      this.scaleIndex = turnBaseScaleIndex
+      this.swing = turnBaseSwing
 
       for (let i: i32 = 0; i < childOpsBuffer.length; i++) {
         const childOpOffset = childOpsBuffer.get(i)
@@ -699,7 +759,7 @@ export class MiniEvents {
             const childSlotDurationScaled: f64 = isTimed
               ? roundToDecimals(slotDurationScaled * weight, 4)
               : slotDurationScaled
-            pitch = this.processChild(
+            turnPitch = this.processChild(
               reader,
               childOpOffset,
               groupStartTime,
@@ -713,7 +773,7 @@ export class MiniEvents {
               groupStrumMul,
               groupJitter,
               effectiveGlide,
-              pitch,
+              turnPitch,
               emitter,
               depth,
             )
@@ -726,7 +786,28 @@ export class MiniEvents {
       }
 
       if (!scheduled) break
+      hadTurn = true
+      lastPitch = turnPitch
+      lastScaleActive = this.scaleActive
+      lastScaleRootMidi = this.scaleRootMidi
+      lastScaleIndex = this.scaleIndex
+      lastSwing = this.swing
       pass++
+    }
+
+    if (hadTurn) {
+      pitch = lastPitch
+      this.scaleActive = lastScaleActive
+      this.scaleRootMidi = lastScaleRootMidi
+      this.scaleIndex = lastScaleIndex
+      this.swing = lastSwing
+    }
+    else {
+      pitch = turnBasePitch
+      this.scaleActive = turnBaseScaleActive
+      this.scaleRootMidi = turnBaseScaleRootMidi
+      this.scaleIndex = turnBaseScaleIndex
+      this.swing = turnBaseSwing
     }
 
     return pitch
