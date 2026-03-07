@@ -1024,11 +1024,13 @@ class Parser {
       this.tick()
       const paramStart = this.at()
 
-      // Check for array destructuring: [a, b, c] or name:[a, b, c]
-      if (this.is('punct', '[')) {
+      // Check for destructuring: [a, b, c] / {a, b, c} or name:[a, b] / name:{a, b}
+      if (this.is('punct', '[') || this.is('punct', '{')) {
+        const open = String(this.at().value)
+        const close = open === '[' ? ']' : '}'
         this.pos++
         const names: string[] = []
-        while (!this.is('eof') && !this.is('punct', ']')) {
+        while (!this.is('eof') && !this.is('punct', close)) {
           if (!this.is('identifier') && !(this.is('keyword') && this.at().value === 'in')) {
             this.pos = startPos
             return null
@@ -1037,7 +1039,7 @@ class Parser {
           this.pos++
           if (!this.eat('punct', ',')) break
         }
-        if (!this.eat('punct', ']')) {
+        if (!this.eat('punct', close)) {
           this.pos = startPos
           return null
         }
@@ -1050,11 +1052,13 @@ class Parser {
         const name = String(this.at().value)
         this.pos++
 
-        // Check for named destructuring: name:[a, b]
-        if (this.eat('punct', ':') && this.is('punct', '[')) {
+        // Check for named destructuring: name:[a, b] / name:{a, b}
+        if (this.eat('punct', ':') && (this.is('punct', '[') || this.is('punct', '{'))) {
+          const open = String(this.at().value)
+          const close = open === '[' ? ']' : '}'
           this.pos++
           const names: string[] = []
-          while (!this.is('eof') && !this.is('punct', ']')) {
+          while (!this.is('eof') && !this.is('punct', close)) {
             if (!this.is('identifier') && !(this.is('keyword') && this.at().value === 'in')) {
               this.pos = startPos
               return null
@@ -1063,7 +1067,7 @@ class Parser {
             this.pos++
             if (!this.eat('punct', ',')) break
           }
-          if (!this.eat('punct', ']')) {
+          if (!this.eat('punct', close)) {
             this.pos = startPos
             return null
           }

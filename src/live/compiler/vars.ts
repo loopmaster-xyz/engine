@@ -10,6 +10,7 @@ import { SYSTEM_VARS, type VariableInfo } from './types.ts'
 
 const PIPE_SCOPE: Map<string, unknown> = new Map([['$', true]])
 const SYSTEM_VAR_NAMES = Array.from(SYSTEM_VARS)
+const MINI_EVENT_OBJECT_KEYS = ['hz', 'trig', 'from', 'id'] as const
 
 const COMPOUND_ASSIGN_OP_TO_OPCODE: Record<string, AudioVmOp> = {
   '+=': AudioVmOp.Add,
@@ -494,6 +495,9 @@ export function getArrayElementObjectKeysForExpr(state: State, expr: Expr): stri
     return getArrayElementObjectKeysForVarInfo(state, varInfo)
   }
   if (expr.type === 'call') {
+    if (expr.callee.type === 'identifier' && expr.callee.name === 'mini') {
+      return [...MINI_EVENT_OBJECT_KEYS]
+    }
     return inferMapCallArrayElementObjectKeys(state, expr)
   }
   return null
@@ -529,6 +533,12 @@ export function getObjectKeysForExpr(state: State, expr: Expr): string[] | null 
   }
   if (expr.type === 'index') {
     return getArrayElementObjectKeysForExpr(state, expr.object)
+  }
+  if (expr.type === 'ternary') {
+    const thenKeys = getObjectKeysForExpr(state, expr.then)
+    const elseKeys = getObjectKeysForExpr(state, expr.else)
+    if (!thenKeys || !elseKeys) return null
+    return sameObjectKeySequence(thenKeys, elseKeys) ? thenKeys : null
   }
   return null
 }

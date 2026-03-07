@@ -222,16 +222,17 @@ export function handleMini(
   const instance: MiniKernel = changetype<MiniKernel>(slot.instance)
   const windowStartSample: i32 = i32(params.sampleCount)
   const windowEndSample: i32 = windowStartSample + params.bufferLength
-  const tupleBuffer: Float64Array = vm.float64Arena.get(1024 * 3)
-  const tupleCount: i32 = instance.process(params.bufferLength, f32(params.sampleCount), params.sampleRate,
-    vm.currentBpm, miniBytecodePtr, bytecodeLen, barsValue, windowStartSample, windowEndSample, tupleBuffer)
+  const eventBuffer: Float64Array = vm.float64Arena.get(1024 * 4)
+  const eventCount: i32 = instance.process(params.bufferLength, f32(params.sampleCount), params.sampleRate,
+    vm.currentBpm, miniBytecodePtr, bytecodeLen, barsValue, windowStartSample, windowEndSample, eventBuffer)
   if (freqMul != 1.0) {
-    for (let i: i32 = 0; i < tupleCount * 3; i += 3) {
-      tupleBuffer[i] = tupleBuffer[i] * freqMul
+    for (let i: i32 = 0; i < eventCount * 4; i += 4) {
+      eventBuffer[i] = eventBuffer[i] * freqMul // hz
+      if (eventBuffer[i + 2] > 0.0) eventBuffer[i + 2] = eventBuffer[i + 2] * freqMul // from
     }
   }
-  if (tupleCount <= 0) {
-    vm.float64Arena.release(tupleBuffer)
+  if (eventCount <= 0) {
+    vm.float64Arena.release(eventBuffer)
     const outerArrayValues: Float64Array = VmState.EMPTY_FLOAT64_ARRAY
     vm.arrays.push(outerArrayValues)
     vm.arrayLengths.push(0)
@@ -239,25 +240,28 @@ export function handleMini(
     vmStack.push(vm, encodeArray(u32(vm.arrays.length)))
     return RunResult.normal(pc, opsPtr, params.opsLength)
   }
-  for (let i: i32 = tupleCount - 1; i >= 0; i--) {
-    const baseIdx: i32 = i * 3
-    const tupleArr: Float64Array = vm.float64Arena.get(3)
-    tupleArr[0] = encodeScalar(tupleBuffer[baseIdx + 0] as f32)
-    tupleArr[1] = encodeScalar(tupleBuffer[baseIdx + 1] as f32)
-    tupleArr[2] = encodeScalar(tupleBuffer[baseIdx + 2] as f32)
+  for (let i: i32 = eventCount - 1; i >= 0; i--) {
+    const baseIdx: i32 = i * 4
+    // Object layout order for mini events:
+    // [hz, trig, from, id] => { hz, trig, from, id }
+    const tupleArr: Float64Array = vm.float64Arena.get(4)
+    tupleArr[0] = encodeScalar(eventBuffer[baseIdx + 0] as f32)
+    tupleArr[1] = encodeScalar(eventBuffer[baseIdx + 1] as f32)
+    tupleArr[2] = encodeScalar(eventBuffer[baseIdx + 2] as f32)
+    tupleArr[3] = encodeScalar(eventBuffer[baseIdx + 3] as f32)
     vm.arrays.push(tupleArr)
-    vm.arrayLengths.push(3)
+    vm.arrayLengths.push(4)
     vm.arrayRefcounts.push(0)
     vmStack.push(vm, encodeArray(u32(vm.arrays.length)))
   }
-  vm.float64Arena.release(tupleBuffer)
-  const outerArrayValues: Float64Array = vm.float64Arena.get(tupleCount)
-  for (let i: i32 = tupleCount - 1; i >= 0; i--) {
+  vm.float64Arena.release(eventBuffer)
+  const outerArrayValues: Float64Array = vm.float64Arena.get(eventCount)
+  for (let i: i32 = eventCount - 1; i >= 0; i--) {
     outerArrayValues[i] = vmStack.pop(vm)
     if (isAudio(outerArrayValues[i])) vm.arena.retain(u32(decodeAudio(outerArrayValues[i])))
   }
   vm.arrays.push(outerArrayValues)
-  vm.arrayLengths.push(tupleCount)
+  vm.arrayLengths.push(eventCount)
   vm.arrayRefcounts.push(0)
   vmStack.push(vm, encodeArray(u32(vm.arrays.length)))
   return RunResult.normal(pc, opsPtr, params.opsLength)

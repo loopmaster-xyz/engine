@@ -129,16 +129,18 @@ describe('oversample function', () => {
   it('oversample capture outer value', () => {
     expect(audio(`
       x=mini('c4 e4/2 g4 a4/5')
-      ;[hz,vel,trig]=x.length > 0 ? x[0] : [0,0,0]
-      hz=hold(hz)
+      ;event=x.length > 0 ? x[0] : { hz:0, trig:0, from:0, id:0 }
+      hz=hold(event.hz)
+      trig=event[1]
       f=>oversample(2,()->{
         sine($+sine($)*$)*ad(.0001,.12,trig)
       })
       f(hz) |> out($)
     `)).toMatchAudio(audio(`
       x=mini('c4 e4/2 g4 a4/5')
-      ;[hz,vel,trig]=x.length > 0 ? x[0] : [0,0,0]
-      hz=hold(hz)
+      ;event=x.length > 0 ? x[0] : { hz:0, trig:0, from:0, id:0 }
+      hz=hold(event.hz)
+      trig=event[1]
       f=>oversample(2,()->{
         m=$
         sine($+sine($)*$)*ad(.0001,.12,trig)
@@ -368,15 +370,17 @@ describe('oversample function', () => {
   it('mini + oversample', () => {
     expect(audio(`
       x=mini('c4 e4/2 g4 a4/5')
-      ;[hz,vel,trig]=x.length > 0 ? x[0] : [0,0,0]
-      hz=hold(hz)
+      ;event=x.length > 0 ? x[0] : { hz:0, trig:0, from:0, id:0 }
+      hz=hold(event.hz)
+      trig=event[1]
       hz|>oversample(1,()->
         sine($+sine($)*$)*ad(.0001,.12,trig)
       ) |> out($)
     `)).toMatchAudio(audio(`
       x=mini('c4 e4/2 g4 a4/5')
-      ;[hz,vel,trig]=x.length > 0 ? x[0] : [0,0,0]
-      hz=hold(hz)
+      ;event=x.length > 0 ? x[0] : { hz:0, trig:0, from:0, id:0 }
+      hz=hold(event.hz)
+      trig=event[1]
       hz|>sine($+sine($)*$)*ad(.0001,.12,trig) |> out($)
     `), 128)
   })

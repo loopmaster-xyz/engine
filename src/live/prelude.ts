@@ -162,13 +162,96 @@ midiToHz = midi -> {
   440 * 2 ** ((m - 69) / 12) * tune
 }
 
-play=(x,cb,voices=1)->{
-  sum=0
-  for (i in 0 .. voices - 1) {
-    [hz,vel,trig]=isarray(x) && isarray(x[i]) ? x[i] : [0,0,0]
-    sum+=cb(hold(hz),vel,trig)
+// mini event interpreter.
+// Input event shape: { hz, trig, from, id } encoded as [hz, trig, from, id].
+// Callback receives one object argument: { hz, trig }.
+// trig semantics in callback:
+// - >0 on onset (velocity from mini event)
+// - 1 while sustained (event still active, no onset)
+// - 0 when voice is off/releasing
+play=(events,cb,voices=1,glide=0)->{
+  voiceCount:=max(1,floor(voices))
+  lanes:=[0..voiceCount-1].map(()->{
+    return {
+      state: store({
+        id: 0,
+        hz: 0,
+        targetHz: 0,
+        glideFrom: 0,
+        onsetTrig: 0,
+        active: 0,
+        touched: 0,
+      }),
+    }
+  })
+
+  // Reset per-block edge fields.
+  for (i in 0 .. voiceCount - 1) {
+    lane:=lanes[i].state
+    lane.onsetTrig=0
+    lane.touched=0
   }
-  sum/voices
+
+  // Assign incoming events to lane states by stable mini id.
+  if (isarray(events)) {
+    for (event of events) {
+      if (isarray(event) && event.length >= 4) {
+        hz:=event[0]
+        trig:=event[1]
+        from:=event[2]
+        id:=floor(event[3])
+        if (hz > 0 && id > 0) {
+          slot:=-1
+          for (i in 0 .. voiceCount - 1) {
+            if (lanes[i].state.id == id) {
+              slot=i
+              break
+            }
+          }
+          if (slot < 0) {
+            for (i in 0 .. voiceCount - 1) {
+              if (lanes[i].state.active <= 0) {
+                slot=i
+                break
+              }
+            }
+          }
+          // Deterministic fallback when all lanes are busy.
+          if (slot < 0) slot=(id - 1) % voiceCount
+
+          lane:=lanes[slot].state
+          lane.id=id
+          lane.targetHz=hz
+          if (trig > 0) {
+            lane.onsetTrig=trig
+            lane.glideFrom=from > 0 ? from : hz
+          }
+          lane.active=1
+          lane.touched=1
+        }
+      }
+    }
+  }
+
+  glideRate=glide > 0 ? 1 / max(glide,.00001) : 0
+  sum=0
+  for (i in 0 .. voiceCount - 1) {
+    lane:=lanes[i].state
+    if (lane.touched <= 0) {
+      // Mark lane free but keep last hz so envelopes can release naturally.
+      lane.id=0
+      lane.active=0
+    }
+    if (lane.touched > 0) {
+      glideTrig:=lane.onsetTrig > 0 && lane.glideFrom > 0 ? lane.onsetTrig : 0
+      glidePos:=glide > 0 ? inc(glideRate,1,0,glideTrig) : 1
+      lane.hz=glide > 0 ? lerp(lane.glideFrom,lane.targetHz,glidePos) : lane.targetHz
+    }
+    trig:=lane.touched > 0 ? (lane.onsetTrig > 0 ? lane.onsetTrig : 1) : 0
+    note={ hz: lane.hz, trig }
+    sum+=cb(note)
+  }
+  sum/voiceCount
 }
 
 poly=(count,trig,notescb,voicecb)->{
