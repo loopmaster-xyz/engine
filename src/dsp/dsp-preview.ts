@@ -225,8 +225,12 @@ export function createDspPreview(runtime: WasmRuntime) {
       bars: number,
       beatsPerBar = 4,
       vmId = 999,
+      opts?: { projectId?: string | null },
     ): Generator<number, { left: Float32Array; right: Float32Array }, void> {
-      const ccs = controlPipeline.compileSource(code)
+      const ccs = controlPipeline.compileSource(
+        code,
+        opts?.projectId !== undefined ? { projectId: opts.projectId } : undefined,
+      )
       this.setControlCompileSnapshot(ccs)
       if (ccs.errors.length > 0) throw new Error(`Compilation failed:\n${ccs.errors.join('\n')}`)
       if (!state.bytecode) throw new Error('No bytecode generated')
