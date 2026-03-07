@@ -234,7 +234,7 @@ play=(events,cb,voices=1,glide=0)->{
   }
 
   glideRate=glide > 0 ? 1 / max(glide,.00001) : 0
-  sum=0
+  sum:=0
   for (i in 0 .. voiceCount - 1) {
     lane:=lanes[i].state
     if (lane.touched <= 0) {
@@ -248,7 +248,7 @@ play=(events,cb,voices=1,glide=0)->{
       lane.hz=glide > 0 ? lerp(lane.glideFrom,lane.targetHz,glidePos) : lane.targetHz
     }
     trig:=lane.touched > 0 ? (lane.onsetTrig > 0 ? lane.onsetTrig : 1) : 0
-    note={ hz: lane.hz, trig }
+    note:={ hz: lane.hz, trig }
     sum+=cb(note)
   }
   sum/voiceCount
