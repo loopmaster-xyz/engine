@@ -1027,6 +1027,7 @@ class Parser {
       // Check for destructuring: [a, b, c] / {a, b, c} or name:[a, b] / name:{a, b}
       if (this.is('punct', '[') || this.is('punct', '{')) {
         const open = String(this.at().value)
+        const kind = open === '[' ? 'array' as const : 'object' as const
         const close = open === '[' ? ']' : '}'
         this.pos++
         const names: string[] = []
@@ -1043,7 +1044,7 @@ class Parser {
           this.pos = startPos
           return null
         }
-        const param: Param = { type: 'param-destructure', names, loc: this.locFrom(paramStart, this.prev()) }
+        const param: Param = { type: 'param-destructure', kind, names, loc: this.locFrom(paramStart, this.prev()) }
         params.push(param)
       }
       // Regular identifier parameter or named destructuring: name:[a, b]
@@ -1055,6 +1056,7 @@ class Parser {
         // Check for named destructuring: name:[a, b] / name:{a, b}
         if (this.eat('punct', ':') && (this.is('punct', '[') || this.is('punct', '{'))) {
           const open = String(this.at().value)
+          const kind = open === '[' ? 'array' as const : 'object' as const
           const close = open === '[' ? ']' : '}'
           this.pos++
           const names: string[] = []
@@ -1071,7 +1073,7 @@ class Parser {
             this.pos = startPos
             return null
           }
-          const param: Param = { type: 'param-named-destructure', paramName: name, names,
+          const param: Param = { type: 'param-named-destructure', kind, paramName: name, names,
             loc: this.locFrom(paramStart, this.prev()) }
           params.push(param)
         }

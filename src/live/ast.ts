@@ -31,8 +31,8 @@ export type Stmt =
 
 export type Param =
   | { type: 'param'; name: string; loc: Loc }
-  | { type: 'param-destructure'; names: string[]; loc: Loc }
-  | { type: 'param-named-destructure'; paramName: string; names: string[]; loc: Loc }
+  | { type: 'param-destructure'; kind: 'array' | 'object'; names: string[]; loc: Loc }
+  | { type: 'param-named-destructure'; kind: 'array' | 'object'; paramName: string; names: string[]; loc: Loc }
 
 export type ObjectEntry = {
   key: string

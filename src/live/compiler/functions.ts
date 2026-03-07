@@ -8,6 +8,7 @@ import {
   compilePushCellRef,
   compileSetVariable,
   detectClosureVars,
+  getObjectKeysForVarInfo,
   lookupVariable,
   setVariableFunctionBinding,
   setVariableObjectPropertyStoreShapes,
@@ -146,6 +147,34 @@ export function inferFunctionReturnObjectKeys(expr: Extract<Expr, { type: 'fn' }
   return implicit ? [...implicit] : undefined
 }
 
+function normalizeTopOfStackObjectToArrayInFunction(
+  state: State,
+  sourceExpr: Expr,
+  objectKeys: string[],
+  names: string[],
+): void {
+  const tempIndex = state.nextLocalIndex++
+  state.ops.push(AudioVmOp.SetLocal, tempIndex)
+  state.stack.pop()
+
+  const stackExpr = { expr: sourceExpr }
+  for (const name of names) {
+    const keyIndex = objectKeys.indexOf(name)
+    if (keyIndex < 0) continue
+    state.ops.push(AudioVmOp.GetLocal, tempIndex)
+    state.stack.push(stackExpr)
+    state.ops.push(AudioVmOp.PushScalar, keyIndex)
+    state.stack.push(stackExpr)
+    state.ops.push(AudioVmOp.ArrayGet, 0)
+    state.stack.pop()
+    state.stack.pop()
+    state.stack.push(stackExpr)
+  }
+  state.ops.push(AudioVmOp.MakeArray, names.length)
+  for (let i = 0; i < names.length; i++) state.stack.pop()
+  state.stack.push(stackExpr)
+}
+
 export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }>, name: string | null): number {
   const functionLocKey = `${expr.loc.start}:${expr.loc.end}`
   const parameterHints = state.functionParamHintsByFnLoc.get(functionLocKey)
@@ -226,28 +255,46 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
 
   // Declare parameters as local variables
   // Track which parameters are destructured for later processing
-  const destructuredParams: Array<{ names: string[]; tempVar: VariableInfo } | null> = new Array(paramCount)
+  const destructuredParams: Array<{ kind: 'array' | 'object'; names: string[]; tempVar: VariableInfo } | null> = new Array(paramCount)
   const paramNameToLocalIndex = new Map<string, number>()
 
   for (let i = 0; i < paramCount; i++) {
     const param = params[i]
 
     if (param.type === 'param-destructure') {
-      // For destructuring, create a temporary array parameter
+      // For destructuring, create a temporary parameter slot.
       const tempVarInfo: VariableInfo = {
         scope: 'local',
         index: state.nextLocalIndex++,
       }
-      destructuredParams[i] = { names: param.names, tempVar: tempVarInfo }
+      destructuredParams[i] = { kind: param.kind, names: param.names, tempVar: tempVarInfo }
+
+      const hint = parameterHints?.get(i)
+      if (hint) {
+        if (hint.objectKeys?.length) setVariableObjectShape(state, tempVarInfo, hint.objectKeys)
+        if (hint.objectPropertyStoreShapes?.size) {
+          setVariableObjectPropertyStoreShapes(state, tempVarInfo, hint.objectPropertyStoreShapes)
+        }
+        if (hint.storeShape) setVariableStoreShape(state, tempVarInfo, hint.storeShape)
+      }
     }
     else if (param.type === 'param-named-destructure') {
-      // For named destructuring, create a temporary array parameter
+      // For named destructuring, create a temporary parameter slot.
       const tempVarInfo: VariableInfo = {
         scope: 'local',
         index: state.nextLocalIndex++,
       }
-      destructuredParams[i] = { names: param.names, tempVar: tempVarInfo }
+      destructuredParams[i] = { kind: param.kind, names: param.names, tempVar: tempVarInfo }
       paramNameToLocalIndex.set(param.paramName, tempVarInfo.index)
+
+      const hint = parameterHints?.get(i)
+      if (hint) {
+        if (hint.objectKeys?.length) setVariableObjectShape(state, tempVarInfo, hint.objectKeys)
+        if (hint.objectPropertyStoreShapes?.size) {
+          setVariableObjectPropertyStoreShapes(state, tempVarInfo, hint.objectPropertyStoreShapes)
+        }
+        if (hint.storeShape) setVariableStoreShape(state, tempVarInfo, hint.storeShape)
+      }
     }
     else {
       // Regular parameter
@@ -315,6 +362,13 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
       }
       if (paramName) state.locals[0].set(paramName, paramInfo)
 
+      if (destructInfo?.kind === 'object') {
+        const defaultObjectKeys = defaultExpr.type === 'object' ? defaultExpr.entries.map(entry => entry.key) : null
+        if (defaultObjectKeys) {
+          normalizeTopOfStackObjectToArrayInFunction(state, defaultExpr, defaultObjectKeys, destructInfo.names)
+        }
+      }
+
       // Set parameter to default value
       compileSetVariable(state, paramInfo, defaultExpr)
       state.stack.pop()
@@ -328,14 +382,21 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
     state.functionIdToDefaultParamFunctions.set(functionId, defaultParamFunctionIdsByName)
   }
 
-  // Destructure array parameters
+  // Destructure parameters
   for (let i = 0; i < paramCount; i++) {
     const destructInfo = destructuredParams[i]
     if (destructInfo) {
-      const { names, tempVar } = destructInfo
+      const { kind, names, tempVar } = destructInfo
+      const objectKeys = kind === 'object' ? getObjectKeysForVarInfo(state, tempVar) : null
 
       // Declare local variables for each destructured name
       for (let j = 0; j < names.length; j++) {
+        let sourceIndex = j
+        if (objectKeys) {
+          const keyIndex = objectKeys.indexOf(names[j]!)
+          if (keyIndex >= 0) sourceIndex = keyIndex
+        }
+
         const localInfo: VariableInfo = {
           scope: 'local',
           index: state.nextLocalIndex++,
@@ -348,7 +409,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
 
         // Push the index
         state.ops.push(AudioVmOp.PushScalar)
-        state.ops.push(j)
+        state.ops.push(sourceIndex)
         state.stack.push({ expr: params[i] as unknown as Expr })
 
         // Index into the array (0 = no history recording)
@@ -385,19 +446,31 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   // Store function info for named parameter lookup
   const paramNames: string[] = new Array(paramCount)
   const paramTypes: Array<'param' | 'param-destructure' | 'param-named-destructure'> = new Array(paramCount)
+  const paramDestructureKinds: Array<'array' | 'object' | null> = new Array(paramCount).fill(null)
+  const paramDestructureNames: Array<string[] | null> = new Array(paramCount).fill(null)
   let firstParamIn = 0
   for (let i = 0; i < paramCount; i++) {
     const p = params[i]!
     paramTypes[i] = p.type
-    if (p.type === 'param') paramNames[i] = p.name
-    else if (p.type === 'param-named-destructure') paramNames[i] = p.paramName
-    else paramNames[i] = p.names[0] || '_'
+    if (p.type === 'param') {
+      paramNames[i] = p.name
+    }
+    else if (p.type === 'param-named-destructure') {
+      paramNames[i] = p.paramName
+      paramDestructureKinds[i] = p.kind
+      paramDestructureNames[i] = [...p.names]
+    }
+    else {
+      paramNames[i] = p.names[0] || '_'
+      paramDestructureKinds[i] = p.kind
+      paramDestructureNames[i] = [...p.names]
+    }
   }
   if (paramCount > 0 && paramNames[0] === 'in') {
     if (paramTypes[0] === 'param') firstParamIn = 1
     else if (paramTypes[0] === 'param-named-destructure') {
       const first = params[0] as Extract<Param, { type: 'param-named-destructure' }>
-      if (first.names.length === 2) firstParamIn = 2
+      if (first.kind === 'array' && first.names.length === 2) firstParamIn = 2
     }
   }
   const funcInfo: FunctionInfo = {
@@ -406,6 +479,8 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
     paramCount,
     params: paramNames,
     paramTypes,
+    paramDestructureKinds,
+    paramDestructureNames,
     firstParamIn,
     bytecodeStart: 0,
     bytecodeLength,

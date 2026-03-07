@@ -115,6 +115,8 @@ export type FunctionInfo = {
   paramCount: number
   params: string[]
   paramTypes: Array<'param' | 'param-destructure' | 'param-named-destructure'>
+  paramDestructureKinds: Array<'array' | 'object' | null>
+  paramDestructureNames: Array<string[] | null>
   firstParamIn: number // 0=none, 1=plain 'in', 2=in:[L,R]
   bytecodeStart: number
   bytecodeLength: number

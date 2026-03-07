@@ -39,6 +39,7 @@ const typePredOpByName: Record<string, AudioVmOp> = {
   isarray: AudioVmOp.IsArray,
   isfunction: AudioVmOp.IsFunction,
 }
+const PLAY_CALLBACK_OBJECT_KEYS = ['hz', 'trig'] as const
 
 for (const [genName, desc] of Object.entries(gens)) {
   const out: Record<string, number> = Object.create(null)
@@ -1720,6 +1721,160 @@ function maybeHintInlineMapCallbackParam(
   state.functionParamHintsByFnLoc.set(fnLocKey, paramHints)
 }
 
+function setFirstParamObjectKeysHintByFunctionLoc(
+  state: State,
+  fnLocKey: string,
+  objectKeys: readonly string[],
+): void {
+  const paramHints = state.functionParamHintsByFnLoc.get(fnLocKey) ?? new Map()
+  const prev = paramHints.get(0) ?? {}
+  paramHints.set(0, {
+    ...prev,
+    objectKeys: [...objectKeys],
+  })
+  state.functionParamHintsByFnLoc.set(fnLocKey, paramHints)
+}
+
+function maybeHintFunctionValueFirstParamObjectKeys(
+  state: State,
+  valueExpr: Expr,
+  objectKeys: readonly string[],
+): void {
+  if (valueExpr.type === 'fn') {
+    const fnLocKey = `${valueExpr.loc.start}:${valueExpr.loc.end}`
+    setFirstParamObjectKeysHintByFunctionLoc(state, fnLocKey, objectKeys)
+    return
+  }
+  if (valueExpr.type !== 'identifier') return
+
+  let targetInfo: FunctionInfo | undefined
+  const varInfo = lookupVariable(state, valueExpr.name)
+  if (varInfo) targetInfo = resolveFunctionInfoForVarInfo(state, varInfo)
+  if (!targetInfo) targetInfo = resolveFunctionInfo(state, valueExpr.name)
+  if (!targetInfo?.locKey) return
+
+  setFirstParamObjectKeysHintByFunctionLoc(state, targetInfo.locKey, objectKeys)
+}
+
+function getPreludePlayCallbackParamIndex(state: State, resolvedFuncInfo: FunctionInfo | undefined): number {
+  if (!resolvedFuncInfo) return -1
+  if (resolvedFuncInfo.definitionLine === undefined || resolvedFuncInfo.definitionLine > state.preludeLines) return -1
+  if (resolvedFuncInfo.params[0] !== 'events') return -1
+  return resolvedFuncInfo.params.indexOf('cb')
+}
+
+function maybeHintPlayCallbackParamFromPositionalArgs(
+  state: State,
+  resolvedFuncInfo: FunctionInfo | undefined,
+  args: Arg[],
+  dollarIndex: number,
+): void {
+  const callbackParamIndex = getPreludePlayCallbackParamIndex(state, resolvedFuncInfo)
+  if (callbackParamIndex < 0) return
+
+  let positionalParamIndex = 0
+  for (let i = 0; i < args.length; i++) {
+    if (i === dollarIndex) {
+      positionalParamIndex++
+      continue
+    }
+    const arg = args[i]
+    if (arg.type !== 'arg' || !arg.value) continue
+    if (positionalParamIndex === callbackParamIndex) {
+      maybeHintFunctionValueFirstParamObjectKeys(state, arg.value, PLAY_CALLBACK_OBJECT_KEYS)
+      return
+    }
+    positionalParamIndex++
+  }
+}
+
+function maybeHintPlayCallbackParamFromMatchedArgs(
+  state: State,
+  resolvedFuncInfo: FunctionInfo | undefined,
+  matchedArgs: Array<Expr | null>,
+): void {
+  const callbackParamIndex = getPreludePlayCallbackParamIndex(state, resolvedFuncInfo)
+  if (callbackParamIndex < 0) return
+  const callbackArg = matchedArgs[callbackParamIndex]
+  if (!callbackArg) return
+  maybeHintFunctionValueFirstParamObjectKeys(state, callbackArg, PLAY_CALLBACK_OBJECT_KEYS)
+}
+
+function compileObjectDestructureArgumentForParam(
+  state: State,
+  callExpr: Extract<Expr, { type: 'call' }>,
+  argExpr: Expr,
+  objectKeys: string[],
+  destructureNames: string[],
+): boolean {
+  const keyIndexes: number[] = []
+  for (const keyName of destructureNames) {
+    const keyIndex = objectKeys.indexOf(keyName)
+    if (keyIndex < 0) {
+      error(state, `Unknown object property: ${keyName}`, callExpr.loc)
+      return false
+    }
+    keyIndexes.push(keyIndex)
+  }
+
+  compileExpr(state, argExpr)
+  if (state.stack.length === 0) {
+    error(state, 'Argument has no value', callExpr.loc)
+    return false
+  }
+
+  const isGlobal = state.functionDepth === 0
+  const tempIndex = isGlobal ? state.nextGlobalIndex++ : state.nextLocalIndex++
+  const setOp = isGlobal ? AudioVmOp.SetGlobal : AudioVmOp.SetLocal
+  const getOp = isGlobal ? AudioVmOp.GetGlobal : AudioVmOp.GetLocal
+  const stackExpr = { expr: argExpr }
+
+  state.ops.push(setOp, tempIndex)
+  state.stack.pop()
+
+  for (const keyIndex of keyIndexes) {
+    state.ops.push(getOp, tempIndex)
+    state.stack.push(stackExpr)
+    state.ops.push(AudioVmOp.PushScalar, keyIndex)
+    state.stack.push(stackExpr)
+    state.ops.push(AudioVmOp.ArrayGet, 0)
+    state.stack.pop() // index
+    state.stack.pop() // source
+    state.stack.push(stackExpr)
+  }
+
+  state.ops.push(AudioVmOp.MakeArray, keyIndexes.length)
+  for (let i = 0; i < keyIndexes.length; i++) state.stack.pop()
+  state.stack.push(stackExpr)
+  return true
+}
+
+function compileUserFunctionArgument(
+  state: State,
+  callExpr: Extract<Expr, { type: 'call' }>,
+  resolvedFuncInfo: FunctionInfo | undefined,
+  paramIndex: number,
+  argExpr: Expr,
+): boolean {
+  const isObjectDestructureParam = resolvedFuncInfo
+    && (resolvedFuncInfo.paramTypes[paramIndex] === 'param-destructure'
+      || resolvedFuncInfo.paramTypes[paramIndex] === 'param-named-destructure')
+    && resolvedFuncInfo.paramDestructureKinds[paramIndex] === 'object'
+
+  if (!isObjectDestructureParam) {
+    compileExpr(state, argExpr)
+    return true
+  }
+
+  const destructureNames = resolvedFuncInfo.paramDestructureNames[paramIndex] ?? []
+  const objectKeys = getObjectKeysForExpr(state, argExpr)
+  if (!objectKeys) {
+    error(state, 'Object destructuring parameter requires known object shape', callExpr.loc)
+    return false
+  }
+  return compileObjectDestructureArgumentForParam(state, callExpr, argExpr, objectKeys, destructureNames)
+}
+
 export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { type: 'call' }>, funcName: string,
   varInfo: VariableInfo, args: Arg[], dollarIndex: number): void
 {
@@ -1809,6 +1964,7 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
 
   // If no function info or no named arguments, use simple positional matching (use resolvedFuncInfo so aliases work)
   if (!resolvedFuncInfo || !hasNamedArgs) {
+    maybeHintPlayCallbackParamFromPositionalArgs(state, resolvedFuncInfo, args, dollarIndex)
     maybeHintFunctionParamBindingsFromPositionalArgs(state, resolvedFuncInfo, args, dollarIndex)
     pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
     const argsProvided = args.filter(a => a.type === 'arg' && a.value).length + (dollarIndex >= 0 ? 1 : 0)
@@ -1818,14 +1974,17 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
       return
     }
     // Push arguments onto stack
+    let positionalParamIndex = 0
     for (let i = 0; i < args.length; i++) {
       if (i === dollarIndex) {
         // $ is already on stack, skip
+        positionalParamIndex++
         continue
       }
       const arg = args[i]
       if (arg.type === 'arg' && arg.value) {
-        compileExpr(state, arg.value)
+        const paramIndex = positionalParamIndex++
+        if (!compileUserFunctionArgument(state, callExpr, resolvedFuncInfo, paramIndex, arg.value)) return
       }
     }
     // Push undefined for missing params so defaults apply
@@ -1933,6 +2092,7 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
   }
 
   maybeHintFunctionParamBindingsFromMatchedArgs(state, resolvedFuncInfo, matchedArgs)
+  maybeHintPlayCallbackParamFromMatchedArgs(state, resolvedFuncInfo, matchedArgs)
 
   const resolvedArgs: Record<string, Expr[]> = {}
   for (let i = 0; i < paramCount; i++) {
@@ -1960,7 +2120,7 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
     }
     const argExpr = matchedArgs[i]
     if (argExpr) {
-      compileExpr(state, argExpr)
+      if (!compileUserFunctionArgument(state, callExpr, resolvedFuncInfo, i, argExpr)) return
     }
     else {
       // Push undefined for missing arguments (will use default)

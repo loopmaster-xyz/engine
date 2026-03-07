@@ -2236,6 +2236,48 @@ describe('functions', () => {
     })
   })
 
+  describe('object destructuring parameters', () => {
+    it('basic object destructuring parameter', () => {
+      expect(audio('f = ({ hz, trig }) -> hz + trig; out(f({ hz: 440, trig: 2 }))')).toMatchAudio([
+        [442, 442, 442],
+        [442, 442, 442],
+      ])
+    })
+
+    it('object destructuring parameter is key-order independent', () => {
+      const leftToRight = audio('f = ({ hz, trig }) -> hz + trig; out(f({ hz: 440, trig: 2 }))')
+      const rightToLeft = audio('f = ({ hz, trig }) -> hz + trig; out(f({ trig: 2, hz: 440 }))')
+      expect(rightToLeft).toMatchAudio(leftToRight)
+    })
+
+    it('named object destructuring parameter', () => {
+      expect(audio('f = (cfg:{ hz, trig }) -> hz + trig; out(f(cfg:{ trig: 2, hz: 440 }))')).toMatchAudio([
+        [442, 442, 442],
+        [442, 442, 442],
+      ])
+    })
+
+    it('object destructuring parameter with function-call argument', () => {
+      expect(audio('mk = () -> ({ trig: 2, hz: 440 }); f = ({ hz, trig }) -> hz + trig; out(f(mk()))')).toMatchAudio([
+        [442, 442, 442],
+        [442, 442, 442],
+      ])
+    })
+
+    it('object destructuring parameter default is key-order independent', () => {
+      expect(audio('f = ({ hz, trig } = { trig: 2, hz: 440 }) -> hz + trig; out(f())')).toMatchAudio([
+        [442, 442, 442],
+        [442, 442, 442],
+      ])
+    })
+
+    it('object destructuring callback parameter in play() is key-order independent', () => {
+      const ordered = audio('out(play([[440,2,0,1]], ({ hz, trig }) -> hz * 10 + trig))')
+      const reordered = audio('out(play([[440,2,0,1]], ({ trig, hz }) -> hz * 10 + trig))')
+      expect(reordered).toMatchAudio(ordered)
+    })
+  })
+
   describe('object destructuring assignments', () => {
     it('basic object destructuring assignment', () => {
       expect(audio('obj = { foo: 3, bar: 5 }; { foo, bar } = obj; out(foo + bar)')).toMatchAudio([[8, 8, 8], [8, 8, 8]])
@@ -2253,6 +2295,12 @@ describe('functions', () => {
         [24, 24, 24],
         [24, 24, 24],
       ])
+    })
+
+    it('object destructuring assignment is key-order independent', () => {
+      const leftToRight = audio('obj = { hz: 440, trig: 2 }; { hz, trig } = obj; out(hz + trig)')
+      const rightToLeft = audio('obj = { hz: 440, trig: 2 }; { trig, hz } = obj; out(hz + trig)')
+      expect(rightToLeft).toMatchAudio(leftToRight)
     })
   })
 })
