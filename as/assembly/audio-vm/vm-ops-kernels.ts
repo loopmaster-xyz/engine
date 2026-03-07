@@ -222,11 +222,11 @@ export function handleMini(
   const instance: MiniKernel = changetype<MiniKernel>(slot.instance)
   const windowStartSample: i32 = i32(params.sampleCount)
   const windowEndSample: i32 = windowStartSample + params.bufferLength
-  const eventBuffer: Float64Array = vm.float64Arena.get(1024 * 4)
+  const eventBuffer: Float64Array = vm.float64Arena.get(1024 * 5)
   const eventCount: i32 = instance.process(params.bufferLength, f32(params.sampleCount), params.sampleRate,
     vm.currentBpm, miniBytecodePtr, bytecodeLen, barsValue, windowStartSample, windowEndSample, eventBuffer)
   if (freqMul != 1.0) {
-    for (let i: i32 = 0; i < eventCount * 4; i += 4) {
+    for (let i: i32 = 0; i < eventCount * 5; i += 5) {
       eventBuffer[i] = eventBuffer[i] * freqMul // hz
       if (eventBuffer[i + 2] > 0.0) eventBuffer[i + 2] = eventBuffer[i + 2] * freqMul // from
     }
@@ -241,22 +241,25 @@ export function handleMini(
     return RunResult.normal(pc, opsPtr, params.opsLength)
   }
   for (let i: i32 = eventCount - 1; i >= 0; i--) {
-    const baseIdx: i32 = i * 4
+    const baseIdx: i32 = i * 5
     // Object layout order for mini events:
-    // [hz, trig, from, id] => { hz, trig, from, id }
-    const tupleArr: Float64Array = vm.float64Arena.get(4)
+    // [hz, trig, from, id, glide] => { hz, trig, from, id, glide }
+    // Keep tuple storage stable for vm.arrays. Using arena buckets here can alias
+    // the same backing array across ids when stale duplicate releases occur.
+    const tupleArr: Float64Array = new Float64Array(5)
     tupleArr[0] = encodeScalar(eventBuffer[baseIdx + 0] as f32)
     tupleArr[1] = encodeScalar(eventBuffer[baseIdx + 1] as f32)
     tupleArr[2] = encodeScalar(eventBuffer[baseIdx + 2] as f32)
     tupleArr[3] = encodeScalar(eventBuffer[baseIdx + 3] as f32)
+    tupleArr[4] = encodeScalar(eventBuffer[baseIdx + 4] as f32)
     vm.arrays.push(tupleArr)
-    vm.arrayLengths.push(4)
+    vm.arrayLengths.push(5)
     vm.arrayRefcounts.push(0)
     vmStack.push(vm, encodeArray(u32(vm.arrays.length)))
   }
   vm.float64Arena.release(eventBuffer)
-  const outerArrayValues: Float64Array = vm.float64Arena.get(eventCount)
-  for (let i: i32 = eventCount - 1; i >= 0; i--) {
+  const outerArrayValues: Float64Array = new Float64Array(eventCount)
+  for (let i: i32 = 0; i < eventCount; i++) {
     outerArrayValues[i] = vmStack.pop(vm)
     if (isAudio(outerArrayValues[i])) vm.arena.retain(u32(decodeAudio(outerArrayValues[i])))
   }

@@ -1,4 +1,6 @@
 import {
+  MINI_ARRAY_HEADER_SIZE,
+  MINI_HEADER_SIZE,
   MINI_MAX_EVENT_VALUES,
   MINI_HISTORY_DATA_OFFSET,
   MINI_HISTORY_ENTRY_SIZE,
@@ -9,7 +11,7 @@ import {
 } from '../mini/constants'
 import { generateMiniHistoryWindow } from '../mini/index'
 
-const MINI_EVENT_FIELDS: i32 = 4 // hz, trig, from, id
+const MINI_EVENT_FIELDS: i32 = 5 // hz, trig, from, id, glideSeconds
 const MINI_LANE_STATE_CAPACITY: i32 = MINI_HISTORY_SIZE
 
 export class MiniKernel {
@@ -20,6 +22,8 @@ export class MiniKernel {
   laneHz: StaticArray<f32> = new StaticArray<f32>(MINI_LANE_STATE_CAPACITY)
   laneActive: StaticArray<i32> = new StaticArray<i32>(MINI_LANE_STATE_CAPACITY)
   laneTouched: StaticArray<i32> = new StaticArray<i32>(MINI_LANE_STATE_CAPACITY)
+  voiceLastHz: StaticArray<f32> = new StaticArray<f32>(MINI_MAX_EVENT_VALUES)
+  voiceSeen: StaticArray<i32> = new StaticArray<i32>(MINI_MAX_EVENT_VALUES)
   laneCount: i32 = 0
   touchToken: i32 = 1
   lastWindowEndSample: i32 = -1
@@ -30,6 +34,10 @@ export class MiniKernel {
     this.laneCount = 0
     this.touchToken = 1
     this.lastWindowEndSample = -1
+    for (let i: i32 = 0; i < MINI_MAX_EVENT_VALUES; i++) {
+      this.voiceLastHz[i] = 0.0
+      this.voiceSeen[i] = 0
+    }
   }
 
   private beginWindow(bytecodePtr: usize, bytecodeLength: i32, windowStartSample: i32): void {
@@ -104,10 +112,11 @@ export class MiniKernel {
 
     // Read history entries
     const history = changetype<StaticArray<f32>>(this.history.dataStart)
+    const bytecode = changetype<StaticArray<f32>>(bytecodePtr)
     const writePos = i32(history[MINI_HISTORY_WRITE_POS_OFFSET])
 
     // Fill buffer with mini events encoded as object-shape arrays:
-    // [hz, trig, from, id]
+    // [hz, trig, from, id, glideSeconds]
     // id is a stable lane key: id = opIndex * MINI_MAX_EVENT_VALUES + voiceIndex + 1.
     // This keeps IDs deterministic for the same sequence while avoiding voice-age allocation.
     let tupleIdx: i32 = 0
@@ -129,6 +138,17 @@ export class MiniKernel {
       // Check if event overlaps with window
       if (windowStartSample < endSample && windowEndSample > startSample) {
         const opIndex = i32(history[historyIdx + 0])
+        const opOffset = MINI_ARRAY_HEADER_SIZE + MINI_HEADER_SIZE + opIndex
+        let glideSeconds: f64 = 0.0
+        if (opOffset + 10 < bytecodeLength) {
+          const glideFactor = bytecode[opOffset + 10] as f64
+          if (glideFactor > 0.0) {
+            let durationSamples = endSample - startSample
+            if (durationSamples <= 0) durationSamples = 1
+            glideSeconds = ((durationSamples as f64) * glideFactor) / (sampleRate as f64)
+          }
+        }
+
         const id: i32 = opIndex * MINI_MAX_EVENT_VALUES + voiceIndex + 1
         const lane = this.getOrCreateLane(id)
         if (lane < 0) continue
@@ -141,16 +161,26 @@ export class MiniKernel {
 
         if (onset) {
           trig = velocity as f64
-          if (this.laneActive[lane] !== 0) from = this.laneHz[lane] as f64
+          if (this.laneActive[lane] !== 0) {
+            from = this.laneHz[lane] as f64
+          }
+          else if (voiceIndex >= 0 && voiceIndex < MINI_MAX_EVENT_VALUES && this.voiceSeen[voiceIndex] !== 0) {
+            from = this.voiceLastHz[voiceIndex] as f64
+          }
         }
 
         this.laneHz[lane] = hz
         this.laneActive[lane] = 1
+        if (voiceIndex >= 0 && voiceIndex < MINI_MAX_EVENT_VALUES) {
+          this.voiceLastHz[voiceIndex] = hz
+          this.voiceSeen[voiceIndex] = 1
+        }
 
         tupleBuffer[tupleIdx++] = hz as f64
         tupleBuffer[tupleIdx++] = trig
         tupleBuffer[tupleIdx++] = from
         tupleBuffer[tupleIdx++] = id as f64
+        tupleBuffer[tupleIdx++] = glideSeconds
       }
     }
 

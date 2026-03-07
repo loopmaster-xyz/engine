@@ -35,7 +35,7 @@ export class Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_scalar {
 
 
     if (trigChanged) {
-      if (((trig > 0) && (this.prevTrig <= 0))) {
+      if (((trig > 0) && (trig != this.prevTrig))) {
         this.phase = offsetClamped
       }
       this.prevTrig = trig
@@ -116,7 +116,7 @@ export class Inc_default_hz_scalar_ceil_scalar_offset_scalar_trig_audio {
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
         trig = load<f32>(trig$)
-        if (((trig > 0) && (prevTrig <= 0))) {
+        if (((trig > 0) && (trig != prevTrig))) {
           phase = offsetClamped
         }
         prevTrig = trig
@@ -246,7 +246,7 @@ export class Inc_default_hz_scalar_ceil_scalar_offset_audio_trig_audio {
     for (let i = 0; i < bufferLength; i += 16) {
       unroll(16, () => {
         trig = load<f32>(trig$)
-        if (((trig > 0) && (prevTrig <= 0))) {
+        if (((trig > 0) && (trig != prevTrig))) {
           const offsetClamped: f32 = max(load<f32>(offset$), 0)
           phase = offsetClamped
         }
@@ -300,7 +300,7 @@ export class Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_scalar {
 
 
     if (trigChanged) {
-      if (((trig > 0) && (this.prevTrig <= 0))) {
+      if (((trig > 0) && (trig != this.prevTrig))) {
         this.phase = offsetClamped
       }
       this.prevTrig = trig
@@ -387,7 +387,7 @@ export class Inc_default_hz_scalar_ceil_audio_offset_scalar_trig_audio {
       unroll(16, () => {
         trig = load<f32>(trig$)
         ceilClamped = max(load<f32>(ceil$), 0)
-        if (((trig > 0) && (prevTrig <= 0))) {
+        if (((trig > 0) && (trig != prevTrig))) {
           phase = offsetClamped
         }
         prevTrig = trig
@@ -523,7 +523,7 @@ export class Inc_default_hz_scalar_ceil_audio_offset_audio_trig_audio {
       unroll(16, () => {
         trig = load<f32>(trig$)
         ceilClamped = max(load<f32>(ceil$), 0)
-        if (((trig > 0) && (prevTrig <= 0))) {
+        if (((trig > 0) && (trig != prevTrig))) {
           const offsetClamped: f32 = max(load<f32>(offset$), 0)
           phase = offsetClamped
         }
@@ -572,7 +572,7 @@ export class Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_scalar {
 
 
     if (trigChanged) {
-      if (((trig > 0) && (this.prevTrig <= 0))) {
+      if (((trig > 0) && (trig != this.prevTrig))) {
         this.phase = offsetClamped
       }
       this.prevTrig = trig
@@ -638,7 +638,7 @@ export class Inc_default_hz_audio_ceil_scalar_offset_scalar_trig_audio {
       unroll(16, () => {
         hzClamped = max(load<f32>(hz$), 0)
         trig = load<f32>(trig$)
-        if (((trig > 0) && (prevTrig <= 0))) {
+        if (((trig > 0) && (trig != prevTrig))) {
           phase = offsetClamped
         }
         prevTrig = trig
@@ -750,7 +750,7 @@ export class Inc_default_hz_audio_ceil_scalar_offset_audio_trig_audio {
       unroll(16, () => {
         hzClamped = max(load<f32>(hz$), 0)
         trig = load<f32>(trig$)
-        if (((trig > 0) && (prevTrig <= 0))) {
+        if (((trig > 0) && (trig != prevTrig))) {
           const offsetClamped: f32 = max(load<f32>(offset$), 0)
           phase = offsetClamped
         }
@@ -801,7 +801,7 @@ export class Inc_default_hz_audio_ceil_audio_offset_scalar_trig_scalar {
 
 
     if (trigChanged) {
-      if (((trig > 0) && (this.prevTrig <= 0))) {
+      if (((trig > 0) && (trig != this.prevTrig))) {
         this.phase = offsetClamped
       }
       this.prevTrig = trig
@@ -873,7 +873,7 @@ export class Inc_default_hz_audio_ceil_audio_offset_scalar_trig_audio {
         hzClamped = max(load<f32>(hz$), 0)
         trig = load<f32>(trig$)
         ceilClamped = max(load<f32>(ceil$), 0)
-        if (((trig > 0) && (prevTrig <= 0))) {
+        if (((trig > 0) && (trig != prevTrig))) {
           phase = offsetClamped
         }
         prevTrig = trig
@@ -1000,7 +1000,7 @@ export class Inc_default_hz_audio_ceil_audio_offset_audio_trig_audio {
         hzClamped = max(load<f32>(hz$), 0)
         trig = load<f32>(trig$)
         ceilClamped = max(load<f32>(ceil$), 0)
-        if (((trig > 0) && (prevTrig <= 0))) {
+        if (((trig > 0) && (trig != prevTrig))) {
           const offsetClamped: f32 = max(load<f32>(offset$), 0)
           phase = offsetClamped
         }

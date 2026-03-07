@@ -21,7 +21,7 @@ emit {
 }
 
 control {
-  if trig > 0.0 && prevTrig <= 0.0 {
+  if trig > 0.0 && trig != prevTrig {
     phase = offset
   }
 

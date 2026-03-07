@@ -163,7 +163,7 @@ midiToHz = midi -> {
 }
 
 // mini event interpreter.
-// Input event shape: { hz, trig, from, id } encoded as [hz, trig, from, id].
+// Input event shape: { hz, trig, from, id, glide? } encoded as [hz, trig, from, id, glide?].
 // Callback receives one object argument: { hz, trig }.
 // trig semantics in callback:
 // - >0 on onset (velocity from mini event)
@@ -178,7 +178,9 @@ play=(events,cb,voices=1,glide=0)->{
         hz: 0,
         targetHz: 0,
         glideFrom: 0,
+        glide: 0,
         onsetTrig: 0,
+        onsetSeq: 0,
         active: 0,
         touched: 0,
       }),
@@ -200,6 +202,7 @@ play=(events,cb,voices=1,glide=0)->{
         trig:=event[1]
         from:=event[2]
         id:=floor(event[3])
+        glideEvt:=event.length >= 5 ? event[4] : 0
         if (hz > 0 && id > 0) {
           slot:=-1
           for (i in 0 .. voiceCount - 1) {
@@ -224,7 +227,9 @@ play=(events,cb,voices=1,glide=0)->{
           lane.targetHz=hz
           if (trig > 0) {
             lane.onsetTrig=trig
+            lane.onsetSeq+=1
             lane.glideFrom=from > 0 ? from : hz
+            lane.glide=glideEvt > 0 ? glideEvt : 0
           }
           lane.active=1
           lane.touched=1
@@ -233,7 +238,6 @@ play=(events,cb,voices=1,glide=0)->{
     }
   }
 
-  glideRate=glide > 0 ? 1 / max(glide,.00001) : 0
   sum:=0
   for (i in 0 .. voiceCount - 1) {
     lane:=lanes[i].state
@@ -242,10 +246,13 @@ play=(events,cb,voices=1,glide=0)->{
       lane.id=0
       lane.active=0
     }
+    // Keep Inc call count/order stable across lanes so each lane keeps its own glide state slot.
+    laneGlide:=lane.glide > 0 ? lane.glide : glide
+    glideRate:=laneGlide > 0 ? 1 / max(laneGlide,.00001) : 0
+    glideTrig:=lane.touched > 0 && lane.onsetTrig > 0 && lane.glideFrom > 0 ? lane.onsetSeq : 0
+    glidePos:=inc(glideRate,1,0,glideTrig)
     if (lane.touched > 0) {
-      glideTrig:=lane.onsetTrig > 0 && lane.glideFrom > 0 ? lane.onsetTrig : 0
-      glidePos:=glide > 0 ? inc(glideRate,1,0,glideTrig) : 1
-      lane.hz=glide > 0 ? lerp(lane.glideFrom,lane.targetHz,glidePos) : lane.targetHz
+      lane.hz=laneGlide > 0 ? lerp(lane.glideFrom,lane.targetHz,glidePos) : lane.targetHz
     }
     trig:=lane.touched > 0 ? (lane.onsetTrig > 0 ? lane.onsetTrig : 1) : 0
     note:={ hz: lane.hz, trig }
