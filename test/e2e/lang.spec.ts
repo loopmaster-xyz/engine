@@ -985,6 +985,14 @@ describe('loops', () => {
     ])
   })
 
+  it('while loop with #scale does not clobber loop index', () => {
+    expect(
+      audio(
+        'i = 0; while (i < 3) { saw(#scale[i*2]*o4)/3 |> out($); i += 1 }',
+      ),
+    ).toMatchAudio(audio('for (i in 0..2) saw(#scale[i*2]*o4)/3 |> out($)'))
+  })
+
   it('do-while loop basic', () => {
     expect(audio('x = 0; i = 0; do { x = x + 1; i = i + 1 } while (i < 3); x |> out($)')).toMatchAudio([[3, 3, 3], [3,
       3, 3]])
@@ -1037,6 +1045,14 @@ describe('loops', () => {
   it('do-while with function call', () => {
     expect(audio('f = x -> x * 2; sum = 0; i = 1; do { sum = sum + f(i); i = i + 1 } while (i <= 3); sum |> out($)'))
       .toMatchAudio([[12, 12, 12], [12, 12, 12]])
+  })
+
+  it('do-while loop with #scale does not clobber loop index', () => {
+    expect(
+      audio(
+        'i = 0; do { saw(#scale[i*2]*o4)/3 |> out($); i += 1 } while (i < 3)',
+      ),
+    ).toMatchAudio(audio('for (i in 0..2) saw(#scale[i*2]*o4)/3 |> out($)'))
   })
 
   it('for loop basic', () => {

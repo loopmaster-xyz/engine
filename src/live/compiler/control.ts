@@ -143,7 +143,7 @@ export function compileFor(state: State, stmt: Extract<Stmt, { type: 'for' }>): 
     popScope(state)
     return
   }
-  const loopVar = declareVariable(state, stmt.init, stmt.loc)
+  const loopVar = declareVariable(state, stmt.init, stmt.loc, state.inFunction)
   compileSetVariable(state, loopVar, stmt.from)
   state.stack.pop()
 
@@ -227,7 +227,7 @@ export function compileForOf(state: State, stmt: Extract<Stmt, { type: 'for-of' 
   }
 
   // Store array in temp variable
-  const arrayVar = declareVariable(state, arrName, stmt.loc)
+  const arrayVar = declareVariable(state, arrName, stmt.loc, state.inFunction)
   compileSetVariable(state, arrayVar, stmt.iterable)
   state.stack.pop()
 
@@ -239,7 +239,7 @@ export function compileForOf(state: State, stmt: Extract<Stmt, { type: 'for-of' 
   state.stack.push({ expr: stmt.iterable })
 
   // Store length in temp variable
-  const lengthVar = declareVariable(state, lenName, stmt.loc)
+  const lengthVar = declareVariable(state, lenName, stmt.loc, state.inFunction)
   compileSetVariable(state, lengthVar, stmt.iterable)
   state.stack.pop()
 
@@ -247,7 +247,7 @@ export function compileForOf(state: State, stmt: Extract<Stmt, { type: 'for-of' 
   state.ops.push(AudioVmOp.PushScalar)
   state.ops.push(0)
   state.stack.push({ expr: { type: 'number', value: 0, loc: stmt.loc } })
-  const indexVar = declareVariable(state, idxName, stmt.loc)
+  const indexVar = declareVariable(state, idxName, stmt.loc, state.inFunction)
   compileSetVariable(state, indexVar, stmt.iterable)
   state.stack.pop()
 
@@ -282,7 +282,7 @@ export function compileForOf(state: State, stmt: Extract<Stmt, { type: 'for-of' 
   state.stack.pop()
   state.stack.push({ expr: { type: 'identifier', name: stmt.value, loc: stmt.loc } })
 
-  const valueVar = declareVariable(state, stmt.value, stmt.loc)
+  const valueVar = declareVariable(state, stmt.value, stmt.loc, state.inFunction)
   clearVariableFunctionBinding(state, valueVar)
   clearVariableObjectShape(state, valueVar)
   clearVariableObjectPropertyStoreShapes(state, valueVar)
@@ -300,7 +300,7 @@ export function compileForOf(state: State, stmt: Extract<Stmt, { type: 'for-of' 
   if (stmt.index) {
     compileGetVariable(state, indexVar)
     state.stack.push({ expr: { type: 'identifier', name: idxName, loc: stmt.loc } })
-    const idxVar = declareVariable(state, stmt.index, stmt.loc)
+    const idxVar = declareVariable(state, stmt.index, stmt.loc, state.inFunction)
     compileSetVariable(state, idxVar, stmt.iterable)
     state.stack.pop()
   }
@@ -309,7 +309,7 @@ export function compileForOf(state: State, stmt: Extract<Stmt, { type: 'for-of' 
   if (stmt.length) {
     compileGetVariable(state, lengthVar)
     state.stack.push({ expr: { type: 'identifier', name: lenName, loc: stmt.loc } })
-    const lenVar = declareVariable(state, stmt.length, stmt.loc)
+    const lenVar = declareVariable(state, stmt.length, stmt.loc, state.inFunction)
     compileSetVariable(state, lenVar, stmt.iterable)
     state.stack.pop()
   }
@@ -569,7 +569,7 @@ export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }
         state.loopStack.pop()
         return
       }
-      const loopVar = declareVariable(state, stmt.stmt.init, stmt.stmt.loc)
+      const loopVar = declareVariable(state, stmt.stmt.init, stmt.stmt.loc, state.inFunction)
       compileSetVariable(state, loopVar, stmt.stmt.from)
       state.stack.pop()
 
@@ -637,7 +637,7 @@ export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }
         return
       }
 
-      const arrayVar = declareVariable(state, arrName, forOfStmt.loc)
+      const arrayVar = declareVariable(state, arrName, forOfStmt.loc, state.inFunction)
       compileSetVariable(state, arrayVar, forOfStmt.iterable)
       state.stack.pop()
 
@@ -647,14 +647,14 @@ export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }
       state.stack.pop()
       state.stack.push({ expr: forOfStmt.iterable })
 
-      const lengthVar = declareVariable(state, lenName, forOfStmt.loc)
+      const lengthVar = declareVariable(state, lenName, forOfStmt.loc, state.inFunction)
       compileSetVariable(state, lengthVar, forOfStmt.iterable)
       state.stack.pop()
 
       state.ops.push(AudioVmOp.PushScalar)
       state.ops.push(0)
       state.stack.push({ expr: { type: 'number', value: 0, loc: forOfStmt.loc } })
-      const indexVar = declareVariable(state, idxName, forOfStmt.loc)
+      const indexVar = declareVariable(state, idxName, forOfStmt.loc, state.inFunction)
       compileSetVariable(state, indexVar, forOfStmt.iterable)
       state.stack.pop()
 
@@ -682,7 +682,7 @@ export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }
       state.stack.pop()
       state.stack.push({ expr: { type: 'identifier', name: forOfStmt.value, loc: forOfStmt.loc } })
 
-      const valueVar = declareVariable(state, forOfStmt.value, forOfStmt.loc)
+      const valueVar = declareVariable(state, forOfStmt.value, forOfStmt.loc, state.inFunction)
       clearVariableFunctionBinding(state, valueVar)
       clearVariableObjectShape(state, valueVar)
       clearVariableObjectPropertyStoreShapes(state, valueVar)
@@ -699,7 +699,7 @@ export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }
       if (forOfStmt.index) {
         compileGetVariable(state, indexVar)
         state.stack.push({ expr: { type: 'identifier', name: idxName, loc: forOfStmt.loc } })
-        const idxVar = declareVariable(state, forOfStmt.index, forOfStmt.loc)
+        const idxVar = declareVariable(state, forOfStmt.index, forOfStmt.loc, state.inFunction)
         compileSetVariable(state, idxVar, forOfStmt.iterable)
         state.stack.pop()
       }
@@ -707,7 +707,7 @@ export function compileLabel(state: State, stmt: Extract<Stmt, { type: 'label' }
       if (forOfStmt.length) {
         compileGetVariable(state, lengthVar)
         state.stack.push({ expr: { type: 'identifier', name: lenName, loc: forOfStmt.loc } })
-        const lenVar = declareVariable(state, forOfStmt.length, forOfStmt.loc)
+        const lenVar = declareVariable(state, forOfStmt.length, forOfStmt.loc, state.inFunction)
         compileSetVariable(state, lenVar, forOfStmt.iterable)
         state.stack.pop()
       }
