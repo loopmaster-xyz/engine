@@ -494,6 +494,12 @@ piano=(hz,trig)->{
          +delay(s,1.8/hzco,.94,mode:append,x->tanh(lp1(x,hz*3)))*.015
 }
 
+bongo=(hz,trig)->{
+  pink()*ad(.0008,.01+.02*(random(123) |> sah($,trig)),2,trig)*(1+.6*(random(567) |> sah($,trig)))+
+  sine(hz+sine(300)*50+sine(800+800*(random(234) |> sah($,trig)))*(700+200*(random(345) |> sah($,trig))))*ad(.01,.12,3,trig)
+  *(.2+.8*(random(456) |> sah($,trig)))
+}
+
 ;
 `
 
