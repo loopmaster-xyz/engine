@@ -1,4 +1,5 @@
 import type { Expr, FunctionCallInfo, Loc } from '../ast.ts'
+import type { DefineFunctionSegmentCache } from './encode.ts'
 
 type ArrayLiteralExpr = Extract<Expr, { type: 'array' }>
 type ObjectLiteralExpr = Extract<Expr, { type: 'object' }>
@@ -80,6 +81,7 @@ export class State {
   recordCallbackTemplates: Map<string, RecordCallback> = new Map() // record() loc key -> template
   recordCallExprs: Map<string, Extract<Expr, { type: 'call' }>> = new Map() // record() loc key -> record() call expr
   recordCallIds: Map<string, number> = new Map()
+  preencodedDefineFunctionSegmentsById: DefineFunctionSegmentCache | null = null
   /** Global index of array mapping scopeId -> handle; host fills before run. */
   recordHandleByScopeGlobal: number | null = null
   /** When record() is inside a function: global holding current scope id so body can lookup handle. */

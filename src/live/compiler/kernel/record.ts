@@ -14,6 +14,38 @@ import {
   hasGlobalFunctionByName,
 } from '../vars.ts'
 
+const preludeFunctionIdsCache = new WeakMap<State, {
+  preludeLines: number
+  functionCount: number
+  ids: Set<number>
+}>()
+
+function getPreludeFunctionIds(state: State): Set<number> {
+  const cached = preludeFunctionIdsCache.get(state)
+  if (cached && cached.preludeLines === state.preludeLines && cached.functionCount === state.functions.length) {
+    return cached.ids
+  }
+  const ids = new Set<number>()
+  for (const fn of state.functions) {
+    if (fn.definitionLine != null && fn.definitionLine <= state.preludeLines) ids.add(fn.id)
+  }
+  preludeFunctionIdsCache.set(state, {
+    preludeLines: state.preludeLines,
+    functionCount: state.functions.length,
+    ids,
+  })
+  return ids
+}
+
+function getFunctionInfoById(state: State, functionId: number): FunctionInfo | undefined {
+  const byIndex = state.functions[functionId]
+  if (byIndex && byIndex.id === functionId) return byIndex
+  for (const info of state.functions) {
+    if (info.id === functionId) return info
+  }
+  return undefined
+}
+
 /** Collect global indices from GetGlobal ops in bytecode (including nested DefineFunction bodies). */
 function collectGlobalIndicesFromOps(ops: number[], start: number, end: number, out: Set<number>): void {
   let pc = start
@@ -149,9 +181,25 @@ function collectCalleeNamesFromStmt(stmt: Stmt, out: Set<string>): void {
   }
 }
 
+function findParamIndexByPrefix(params: readonly string[], prefix: string): number {
+  for (let i = 0; i < params.length; i++) {
+    if (params[i]!.startsWith(prefix)) return i
+  }
+  return -1
+}
+
+function hasOwnEnumerableKeys(value: Record<string, number> | undefined): boolean {
+  if (!value) return false
+  for (const _key in value) return true
+  return false
+}
+
 function matchCallArgsToParams(callExpr: Extract<Expr, { type: 'call' }>, params: string[]): Array<Expr | null> {
   const paramCount = params.length
   const matchedArgs: Array<Expr | null> = new Array(paramCount).fill(null)
+  const paramIndexByName = new Map<string, number>()
+  for (let i = 0; i < paramCount; i++) paramIndexByName.set(params[i]!, i)
+  const prefixMatchCache = new Map<string, number>()
   let positionalIndex = 0
 
   for (let i = 0; i < callExpr.args.length; i++) {
@@ -160,12 +208,10 @@ function matchCallArgsToParams(callExpr: Extract<Expr, { type: 'call' }>, params
 
     if (arg.name) {
       // Named argument with prefix matching.
-      let matchedParamIndex = -1
-      for (let j = 0; j < params.length; j++) {
-        if (params[j].startsWith(arg.name)) {
-          matchedParamIndex = j
-          break
-        }
+      let matchedParamIndex = prefixMatchCache.get(arg.name)
+      if (matchedParamIndex === undefined) {
+        matchedParamIndex = findParamIndexByPrefix(params, arg.name)
+        prefixMatchCache.set(arg.name, matchedParamIndex)
       }
       if (matchedParamIndex === -1 || matchedArgs[matchedParamIndex] !== null) continue
       matchedArgs[matchedParamIndex] = arg.value
@@ -174,7 +220,7 @@ function matchCallArgsToParams(callExpr: Extract<Expr, { type: 'call' }>, params
 
     if (arg.shorthand && arg.value.type === 'identifier') {
       // Shorthand named argument when exact parameter exists.
-      const shorthandParamIndex = params.indexOf(arg.value.name)
+      const shorthandParamIndex = paramIndexByName.get(arg.value.name) ?? -1
       if (shorthandParamIndex !== -1 && matchedArgs[shorthandParamIndex] === null) {
         matchedArgs[shorthandParamIndex] = arg.value
         continue
@@ -323,12 +369,9 @@ export function processRecordCall(
   const savedStack = state.stack
   const savedLocals = state.locals
   const savedClosureVars = state.closureVars
-  const savedGlobals = new Map(state.globals)
+  const savedGlobals = state.globals
 
   const resolveToCanonical = (n: string) => state.functionAliases.get(n) ?? n
-  const isPreludeFunction = (info: { definitionLine?: number }) =>
-    info.definitionLine != null && info.definitionLine <= state.preludeLines
-
   const hasGlobalFnCache = new Map<string, boolean>()
   const hasGlobalFn = (name: string): boolean => {
     if (hasGlobalFnCache.has(name)) return hasGlobalFnCache.get(name)!
@@ -340,6 +383,8 @@ export function processRecordCall(
   const globalFnMap = state.functionsByNameStack[0]!
   const funcIdToGlobalName = new Map<number, string>()
   for (const [name, info] of globalFnMap) funcIdToGlobalName.set(info.id, name)
+
+  const preludeFunctionIds = getPreludeFunctionIds(state)
 
   const canonicalToAliases = new Map<string, string[]>()
   for (const [alias, target] of state.functionAliases) {
@@ -369,7 +414,9 @@ export function processRecordCall(
     const canonical = resolveToCanonical(name)
     if (canonical !== name && hasGlobalFn(canonical)) enqueueRequired(canonical)
   }
+  const requiredGlobalFunctionIds = new Set<number>()
   const tmpCallees = new Set<string>()
+  const indices = new Set<number>()
 
   while (requiredQueue.length > 0) {
     const name = requiredQueue.pop()!
@@ -377,6 +424,7 @@ export function processRecordCall(
 
     const funcInfo = globalFnMap.get(name)
     if (!funcInfo) continue
+    requiredGlobalFunctionIds.add(funcInfo.id)
 
     // Add callees from default parameter expressions
     for (const defaultExpr of funcInfo.defaultParamExprs ?? []) {
@@ -392,7 +440,7 @@ export function processRecordCall(
     // Add callees referenced by compiled bytecode via global indices
     const bytecode = state.functionBytecodes.get(funcInfo.id)
     if (!bytecode) continue
-    const indices = new Set<number>()
+    indices.clear()
     collectGlobalIndicesFromOps(bytecode, 0, bytecode.length, indices)
     for (const idx of indices) {
       const refName = indexToName.get(idx)
@@ -402,8 +450,8 @@ export function processRecordCall(
     }
   }
 
-  // STEP 1: Identify ALL default param functions that need dedicated slots
-  // This includes both enclosing scope default params AND default params from required/prelude functions
+  // STEP 1: Identify default param functions that need dedicated slots.
+  // This includes enclosing scope defaults and defaults from transitively required global functions.
   const defaultParamFnToRecordGlobal = new Map<number, number>()
   const enclosingDefaultParamNameToSlot = new Map<string, number>()
 
@@ -423,14 +471,10 @@ export function processRecordCall(
 
   // Second, handle default params from required and prelude functions
   // These are looked up by function ID only, not by name (to avoid name collisions)
-  for (const funcInfo of state.functions) {
-    const fnName = funcIdToGlobalName.get(funcInfo.id)
-    const isRequired = fnName !== undefined && requiredNames.has(fnName)
-    const isPrelude = isPreludeFunction(funcInfo)
-
-    if (!isRequired && !isPrelude) continue
-
-    const thisDefaultParams = state.functionIdToDefaultParamFunctions.get(funcInfo.id)
+  const defaultParamSourceFunctionIds = new Set<number>(preludeFunctionIds)
+  for (const fnId of requiredGlobalFunctionIds) defaultParamSourceFunctionIds.add(fnId)
+  for (const fnId of defaultParamSourceFunctionIds) {
+    const thisDefaultParams = state.functionIdToDefaultParamFunctions.get(fnId)
     if (!thisDefaultParams) continue
 
     for (const [paramName, defaultFnId] of thisDefaultParams) {
@@ -448,13 +492,16 @@ export function processRecordCall(
   const capturedVarMapping = new Map<string, number>()
   const capturedInfoByName = new Map<string, VariableInfo>()
   const requiredLocalFunctionIds = new Set<number>()
-  const localFunctionTargetGlobals = new Map<number, number[]>()
+  const localFunctionTargetGlobals = new Map<number, Set<number>>()
   const scalarCaptureSources: Array<{ scope: VariableScope; sourceIndex: number }> = []
-  const functionInfoById = new Map<number, FunctionInfo>()
-  for (const fn of state.functions) functionInfoById.set(fn.id, fn)
 
   const toCaptureSourceIndex = (scope: VariableScope, sourceIndex: number, closureIndex?: number): number =>
     scope === 'closure' ? (closureIndex ?? sourceIndex) : sourceIndex
+  const addLocalFunctionTargetGlobal = (functionId: number, recordGlobalIdx: number): void => {
+    const existing = localFunctionTargetGlobals.get(functionId)
+    if (existing) existing.add(recordGlobalIdx)
+    else localFunctionTargetGlobals.set(functionId, new Set([recordGlobalIdx]))
+  }
 
   for (const { name, info } of capturedVars) capturedInfoByName.set(name, info)
 
@@ -512,9 +559,7 @@ export function processRecordCall(
     const capturedFunctionId = calleeNames.has(name) ? getFunctionIdForVarInfo(state, info) : undefined
     if (capturedFunctionId !== undefined) {
       requiredLocalFunctionIds.add(capturedFunctionId)
-      const existing = localFunctionTargetGlobals.get(capturedFunctionId)
-      if (existing) existing.push(recordGlobalIdx)
-      else localFunctionTargetGlobals.set(capturedFunctionId, [recordGlobalIdx])
+      addLocalFunctionTargetGlobal(capturedFunctionId, recordGlobalIdx)
       continue
     }
     scalarCaptureSources.push({ scope: info.scope, sourceIndex })
@@ -523,20 +568,16 @@ export function processRecordCall(
   // Process closure vars from required functions (global + local), including transitive local-function captures.
   const closureFnQueue: number[] = []
   const closureFnSeen = new Set<number>()
-  for (const funcInfo of state.functions) {
-    const fnName = funcIdToGlobalName.get(funcInfo.id)
-    const isRequired = (fnName !== undefined && requiredNames.has(fnName))
-      || defaultParamFnToRecordGlobal.has(funcInfo.id)
-      || requiredLocalFunctionIds.has(funcInfo.id)
-    if (isRequired) closureFnQueue.push(funcInfo.id)
-  }
+  for (const fnId of requiredGlobalFunctionIds) closureFnQueue.push(fnId)
+  for (const fnId of defaultParamFnToRecordGlobal.keys()) closureFnQueue.push(fnId)
+  for (const fnId of requiredLocalFunctionIds) closureFnQueue.push(fnId)
 
   while (closureFnQueue.length > 0) {
     const fnId = closureFnQueue.pop()!
     if (closureFnSeen.has(fnId)) continue
     closureFnSeen.add(fnId)
 
-    const funcInfo = functionInfoById.get(fnId)
+    const funcInfo = getFunctionInfoById(state, fnId)
     if (!funcInfo || !(funcInfo.closureVars?.length ?? 0)) continue
 
     for (const name of funcInfo.closureVars!) {
@@ -556,9 +597,7 @@ export function processRecordCall(
       const capturedFunctionId = getFunctionIdForVarInfo(state, info)
       if (capturedFunctionId !== undefined) {
         requiredLocalFunctionIds.add(capturedFunctionId)
-        const existing = localFunctionTargetGlobals.get(capturedFunctionId)
-        if (existing) existing.push(recordGlobalIdx)
-        else localFunctionTargetGlobals.set(capturedFunctionId, [recordGlobalIdx])
+        addLocalFunctionTargetGlobal(capturedFunctionId, recordGlobalIdx)
         if (!closureFnSeen.has(capturedFunctionId)) closureFnQueue.push(capturedFunctionId)
         continue
       }
@@ -626,12 +665,14 @@ export function processRecordCall(
   state.stack = []
   let maxSetupGlobalIndex = -1
 
+  const setupFunctionIds = new Set<number>(preludeFunctionIds)
+  for (const fnId of requiredGlobalFunctionIds) setupFunctionIds.add(fnId)
+  for (const fnId of defaultParamFnToRecordGlobal.keys()) setupFunctionIds.add(fnId)
+  for (const fnId of requiredLocalFunctionIds) setupFunctionIds.add(fnId)
+
   for (const funcInfo of state.functions) {
+    if (!setupFunctionIds.has(funcInfo.id)) continue
     const fnName = funcIdToGlobalName.get(funcInfo.id)
-    const required = (fnName !== undefined && requiredNames.has(fnName))
-      || defaultParamFnToRecordGlobal.has(funcInfo.id)
-      || requiredLocalFunctionIds.has(funcInfo.id)
-    if (!required && !isPreludeFunction(funcInfo)) continue
 
     const funcBytecode = state.functionBytecodes.get(funcInfo.id)
     if (!funcBytecode) continue
@@ -672,20 +713,24 @@ export function processRecordCall(
 
     const recordGlobalForDefaultParam = defaultParamFnToRecordGlobal.get(funcInfo.id)
     if (!fnName) {
-      const indicesToSet = [...(localFunctionTargetGlobals.get(funcInfo.id) ?? [])]
-      if (recordGlobalForDefaultParam !== undefined && !indicesToSet.includes(recordGlobalForDefaultParam)) {
-        indicesToSet.push(recordGlobalForDefaultParam)
+      const indicesToSet = localFunctionTargetGlobals.get(funcInfo.id)
+      if (recordGlobalForDefaultParam !== undefined) {
+        if (indicesToSet) indicesToSet.add(recordGlobalForDefaultParam)
+        else localFunctionTargetGlobals.set(funcInfo.id, new Set([recordGlobalForDefaultParam]))
       }
-      if (indicesToSet.length === 0) {
+      const targetGlobals = localFunctionTargetGlobals.get(funcInfo.id)
+      if (!targetGlobals || targetGlobals.size === 0) {
         setupOps.push(AudioVmOp.Pop)
         continue
       }
-      for (let i = 0; i < indicesToSet.length; i++) {
-        if (i < indicesToSet.length - 1) setupOps.push(AudioVmOp.Dup)
-        const idx = indicesToSet[i]!
+      let targetIndex = 0
+      const lastTargetIndex = targetGlobals.size - 1
+      for (const idx of targetGlobals) {
+        if (targetIndex < lastTargetIndex) setupOps.push(AudioVmOp.Dup)
         if (idx > maxSetupGlobalIndex) maxSetupGlobalIndex = idx
         setupOps.push(AudioVmOp.SetGlobal)
         setupOps.push(idx)
+        targetIndex++
       }
       continue
     }
@@ -693,11 +738,18 @@ export function processRecordCall(
       canonicalToAliases.get(fnName) ?? [],
     )
     const indicesToSet: number[] = []
+    const seenTargetIndices = new Set<number>()
     for (const name of targetNames) {
       const globalInfo = savedGlobals.get(name)
-      if (globalInfo?.scope === 'global') indicesToSet.push(globalInfo.index)
+      if (globalInfo?.scope === 'global' && !seenTargetIndices.has(globalInfo.index)) {
+        seenTargetIndices.add(globalInfo.index)
+        indicesToSet.push(globalInfo.index)
+      }
       const capturedIdx = capturedVarMapping.get(name)
-      if (capturedIdx !== undefined) indicesToSet.push(capturedIdx)
+      if (capturedIdx !== undefined && !seenTargetIndices.has(capturedIdx)) {
+        seenTargetIndices.add(capturedIdx)
+        indicesToSet.push(capturedIdx)
+      }
     }
     for (let i = 0; i < indicesToSet.length; i++) {
       if (i < indicesToSet.length - 1) setupOps.push(AudioVmOp.Dup)
@@ -798,8 +850,8 @@ export function processRecordCallSite(
   const defaultParamSlotsByName = template.defaultParamRecordGlobalsByName
   const capturedSlotsByName = template.capturedRecordGlobalsByName
   if (
-    (defaultParamSlotsByName && Object.keys(defaultParamSlotsByName).length > 0)
-    || (capturedSlotsByName && Object.keys(capturedSlotsByName).length > 0)
+    hasOwnEnumerableKeys(defaultParamSlotsByName)
+    || hasOwnEnumerableKeys(capturedSlotsByName)
   ) {
     const matchedArgs = matchCallArgsToParams(callExpr, funcInfo.params)
     const overrideOps: number[] = []

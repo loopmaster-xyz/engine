@@ -76,6 +76,12 @@ function sameObjectKeySequence(a: string[], b: string[]): boolean {
   return true
 }
 
+function buildObjectKeyIndexMap(objectKeys: readonly string[]): Map<string, number> {
+  const indexByKey = new Map<string, number>()
+  for (let i = 0; i < objectKeys.length; i++) indexByKey.set(objectKeys[i]!, i)
+  return indexByKey
+}
+
 function inferImplicitReturnObjectKeys(block: Extract<Stmt, { type: 'block' }>): string[] | null {
   if (block.body.length === 0) return null
   const last = block.body[block.body.length - 1]
@@ -153,14 +159,15 @@ function normalizeTopOfStackObjectToArrayInFunction(
   objectKeys: string[],
   names: string[],
 ): void {
+  const keyIndexByName = buildObjectKeyIndexMap(objectKeys)
   const tempIndex = state.nextLocalIndex++
   state.ops.push(AudioVmOp.SetLocal, tempIndex)
   state.stack.pop()
 
   const stackExpr = { expr: sourceExpr }
   for (const name of names) {
-    const keyIndex = objectKeys.indexOf(name)
-    if (keyIndex < 0) continue
+    const keyIndex = keyIndexByName.get(name)
+    if (keyIndex === undefined) continue
     state.ops.push(AudioVmOp.GetLocal, tempIndex)
     state.stack.push(stackExpr)
     state.ops.push(AudioVmOp.PushScalar, keyIndex)
@@ -256,6 +263,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   // Declare parameters as local variables
   // Track which parameters are destructured for later processing
   const destructuredParams: Array<{ kind: 'array' | 'object'; names: string[]; tempVar: VariableInfo } | null> = new Array(paramCount)
+  const paramVarInfos: VariableInfo[] = new Array(paramCount)
   const paramNameToLocalIndex = new Map<string, number>()
 
   for (let i = 0; i < paramCount; i++) {
@@ -268,6 +276,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
         index: state.nextLocalIndex++,
       }
       destructuredParams[i] = { kind: param.kind, names: param.names, tempVar: tempVarInfo }
+      paramVarInfos[i] = tempVarInfo
 
       const hint = parameterHints?.get(i)
       if (hint) {
@@ -285,6 +294,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
         index: state.nextLocalIndex++,
       }
       destructuredParams[i] = { kind: param.kind, names: param.names, tempVar: tempVarInfo }
+      paramVarInfos[i] = tempVarInfo
       paramNameToLocalIndex.set(param.paramName, tempVarInfo.index)
 
       const hint = parameterHints?.get(i)
@@ -303,8 +313,9 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
         index: state.nextLocalIndex++,
       }
       state.locals[0].set(param.name, paramInfo)
+      paramVarInfos[i] = paramInfo
       destructuredParams[i] = null
-      paramNameToLocalIndex.set(param.name, i)
+      paramNameToLocalIndex.set(param.name, paramInfo.index)
 
       const hint = parameterHints?.get(i)
       if (hint) {
@@ -321,8 +332,8 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   state.paramNameToLocalIndex = paramNameToLocalIndex
 
   // Handle default parameters: if param is undefined, set to default value
-  const defaultParamFunctionIds = new Map<number, number>()
-  const defaultParamFunctionIdsByName = new Map<string, number>()
+  let defaultParamFunctionIds: Map<number, number> | null = null
+  let defaultParamFunctionIdsByName: Map<string, number> | null = null
   let hasDefaultCalls = false
   for (let i = 0; i < paramCount; i++) {
     const defaultExpr = defaults[i]
@@ -331,17 +342,16 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
       const param = params[i]
       const destructInfo = destructuredParams[i]
       const paramName = param.type === 'param' ? param.name : null
-      const paramInfo = destructInfo
-        ? destructInfo.tempVar
-        : { scope: 'local' as const, index: i }
+      const paramInfo = paramVarInfos[i]!
+      const defaultStackExpr = { expr: defaultExpr }
 
       // Get parameter value and check if it's undefined (always GetLocal for param slot)
       compileGetVariable(state, paramInfo)
-      state.stack.push({ expr: defaultExpr })
+      state.stack.push(defaultStackExpr)
 
       state.ops.push(AudioVmOp.IsUndefined)
       state.stack.pop()
-      state.stack.push({ expr: defaultExpr })
+      state.stack.push(defaultStackExpr)
 
       // If undefined (IsUndefined returned 1), don't jump - continue to set default
       // If not undefined (IsUndefined returned 0), jump to skip setting default
@@ -354,8 +364,8 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
       if (paramName) state.locals[0].delete(paramName)
       if (defaultExpr.type === 'fn') {
         const innerId = compileFunction(state, defaultExpr, null)
-        defaultParamFunctionIds.set(i, innerId)
-        if (paramName) defaultParamFunctionIdsByName.set(paramName, innerId)
+        ;(defaultParamFunctionIds ??= new Map()).set(i, innerId)
+        if (paramName) (defaultParamFunctionIdsByName ??= new Map()).set(paramName, innerId)
       }
       else {
         compileExpr(state, defaultExpr)
@@ -378,7 +388,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
       state.ops[jumpToSkipIndex] = skipTarget
     }
   }
-  if (defaultParamFunctionIdsByName.size > 0) {
+  if (defaultParamFunctionIdsByName && defaultParamFunctionIdsByName.size > 0) {
     state.functionIdToDefaultParamFunctions.set(functionId, defaultParamFunctionIdsByName)
   }
 
@@ -387,14 +397,17 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
     const destructInfo = destructuredParams[i]
     if (destructInfo) {
       const { kind, names, tempVar } = destructInfo
+      const paramExpr = params[i] as unknown as Expr
+      const stackExpr = { expr: paramExpr }
       const objectKeys = kind === 'object' ? getObjectKeysForVarInfo(state, tempVar) : null
+      const objectKeyIndexByName = objectKeys ? buildObjectKeyIndexMap(objectKeys) : null
 
       // Declare local variables for each destructured name
       for (let j = 0; j < names.length; j++) {
         let sourceIndex = j
-        if (objectKeys) {
-          const keyIndex = objectKeys.indexOf(names[j]!)
-          if (keyIndex >= 0) sourceIndex = keyIndex
+        if (objectKeyIndexByName) {
+          const keyIndex = objectKeyIndexByName.get(names[j]!)
+          if (keyIndex !== undefined) sourceIndex = keyIndex
         }
 
         const localInfo: VariableInfo = {
@@ -405,21 +418,21 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
 
         // Get the array parameter
         compileGetVariable(state, tempVar)
-        state.stack.push({ expr: params[i] as unknown as Expr })
+        state.stack.push(stackExpr)
 
         // Push the index
         state.ops.push(AudioVmOp.PushScalar)
         state.ops.push(sourceIndex)
-        state.stack.push({ expr: params[i] as unknown as Expr })
+        state.stack.push(stackExpr)
 
         // Index into the array (0 = no history recording)
         state.ops.push(AudioVmOp.ArrayGet, 0)
         state.stack.pop() // index
         state.stack.pop() // array
-        state.stack.push({ expr: params[i] as unknown as Expr })
+        state.stack.push(stackExpr)
 
         // Set the local variable
-        compileSetVariable(state, localInfo, params[i] as unknown as Expr)
+        compileSetVariable(state, localInfo, paramExpr)
         state.stack.pop()
       }
     }
@@ -486,7 +499,9 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
     bytecodeLength,
     closureVars: closureVarNames,
     definitionLine: expr.loc.line,
-    defaultParamFunctionIds: defaultParamFunctionIds.size > 0 ? defaultParamFunctionIds : undefined,
+    defaultParamFunctionIds: defaultParamFunctionIds && defaultParamFunctionIds.size > 0
+      ? defaultParamFunctionIds
+      : undefined,
     defaultParamExprs: hasDefaultCalls ? defaults : undefined,
     returnObjectKeys: inferFunctionReturnObjectKeys(expr),
   }
@@ -556,7 +571,7 @@ export function compileFunction(state: State, expr: Extract<Expr, { type: 'fn' }
   // Return gen = history entry with largest PC in this function (the gen whose value is left on stack before Return)
   let returnIndex: number | undefined
   let maxPc = -1
-  for (let i = 0; i < state.historySourceMap.length; i++) {
+  for (let i = historyStartIndex; i < state.historySourceMap.length; i++) {
     const entry = state.historySourceMap[i]!
     if (entry.__finalFunctionId === functionId && entry.pc > maxPc) {
       maxPc = entry.pc

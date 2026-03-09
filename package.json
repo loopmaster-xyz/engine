@@ -12,7 +12,9 @@
     "bench:vm": "env -u DEBUG bun run test/perf/audio-vm.runtime.bench.ts",
     "bench:vm:json": "env -u DEBUG bun run test/perf/audio-vm.runtime.bench.ts --json",
     "bench:vm:check": "env -u DEBUG bun run test/perf/audio-vm.bench-gate.ts check",
-    "bench:vm:record": "env -u DEBUG bun run test/perf/audio-vm.bench-gate.ts record"
+    "bench:vm:record": "env -u DEBUG bun run test/perf/audio-vm.bench-gate.ts record",
+    "bench:compile": "env -u DEBUG bun run test/perf/compiler-incremental.bench.ts",
+    "bench:compile:json": "env -u DEBUG bun run test/perf/compiler-incremental.bench.ts --json"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.3",

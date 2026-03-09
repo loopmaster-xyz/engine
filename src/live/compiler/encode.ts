@@ -1,6 +1,7 @@
 import { getOpcodeInfo, isOpcode } from './opcode.ts'
 
 type U32Bits = Uint32Array
+export type DefineFunctionSegmentCache = Map<number, U32Bits>
 
 const FUNCTION_BYTECODE_CACHE_MAX_ENTRIES = 2048
 const FUNCTION_BYTECODE_CACHE_MAX_WORDS = 2_000_000
@@ -51,6 +52,71 @@ function hashFunctionBytecodeSegment(ops: number[], startPc: number, segLen: num
   }
 
   return `${segLen},${h1 >>> 0},${h2 >>> 0}`
+}
+
+function scanToNextOp(ops: number[], pc: number, limit: number): number {
+  if (pc >= limit) return pc
+  const value = ops[pc]!
+  if (!isOpcode(value)) return pc + 1
+  const info = getOpcodeInfo(value)
+  pc++
+  switch (info.kind) {
+    case 'pc-param':
+    case 'param':
+      return pc < limit ? pc + 1 : pc
+    case 'three-param':
+      return Math.min(limit, pc + 3)
+    case 'table':
+      if (pc >= limit) return pc
+      return Math.min(limit, pc + 1 + Math.max(0, Math.round(ops[pc]!)))
+    case 'define-function':
+      if (pc + 5 >= limit) return limit
+      return Math.min(limit, pc + 6 + Math.max(0, Math.round(ops[pc + 5]!)))
+    case 'none':
+      return pc
+  }
+}
+
+/**
+ * Build an encoded-byte cache for top-level DefineFunction segments.
+ * Key = functionId, value = encoded words [id, paramCount, ..., bytecode...].
+ */
+export function buildEncodedDefineFunctionSegmentCache(ops: number[]): DefineFunctionSegmentCache {
+  const out: DefineFunctionSegmentCache = new Map()
+  const limit = ops.length
+  let pc = 0
+
+  while (pc < limit) {
+    const value = ops[pc]!
+    if (!isOpcode(value)) {
+      pc++
+      continue
+    }
+    const info = getOpcodeInfo(value)
+    if (info.kind !== 'define-function') {
+      pc = scanToNextOp(ops, pc, limit)
+      continue
+    }
+
+    const headerPc = pc + 1
+    if (headerPc + 5 >= limit) break
+
+    const functionId = Math.round(ops[headerPc]!)
+    const bytecodeLen = Math.max(0, Math.round(ops[headerPc + 5]!))
+    const segLen = 6 + bytecodeLen
+    const segEnd = headerPc + segLen
+    if (segEnd > limit) break
+
+    const segOps = ops.slice(headerPc, segEnd)
+    const buffer = new ArrayBuffer(segLen * 4)
+    const u32View = new Uint32Array(buffer)
+    const f32View = new Float32Array(buffer)
+    encodeFunctionBytecode(segOps, u32View, f32View, 0, segLen)
+    out.set(functionId, u32View)
+    pc = segEnd
+  }
+
+  return out
 }
 
 /**
@@ -118,8 +184,22 @@ export function encodeFunctionBytecode(
   outputOffset: number = 0,
   jumpTargetAdd: number = 0,
   patchMap?: Map<number, number>,
+  preencodedDefineFunctionSegmentsById?: DefineFunctionSegmentCache,
 ): number {
   const startPc = pc
+  if (patchMap == null && preencodedDefineFunctionSegmentsById && pc + 6 <= limit) {
+    const functionId = Math.round(ops[pc]!)
+    const bytecodeLen = Math.max(0, Math.round(ops[pc + 5]!))
+    const segLen = 6 + bytecodeLen
+    const segEnd = pc + segLen
+    if (segEnd <= limit) {
+      const preencoded = preencodedDefineFunctionSegmentsById.get(functionId)
+      if (preencoded && preencoded.length === segLen) {
+        u32View.set(preencoded, outputOffset + pc)
+        return segEnd
+      }
+    }
+  }
   const canCache = patchMap == null && pc + 6 <= limit
   let cacheKey: string | null = null
   let cacheSegLen = 0
@@ -198,7 +278,7 @@ export function encodeFunctionBytecode(
       }
       case 'define-function':
         pc = encodeFunctionBytecode(ops, u32View, f32View, pc, Math.min(limit, bodyEnd), outputOffset, jumpTargetAdd,
-          patchMap)
+          patchMap, preencodedDefineFunctionSegmentsById)
         break
     }
   }
@@ -222,6 +302,7 @@ export function encodeToBuffer(
   outputOffset: number,
   jumpTargetAdd: number,
   patchMap?: Map<number, number>,
+  preencodedDefineFunctionSegmentsById?: DefineFunctionSegmentCache,
 ): void {
   const limit = ops.length
   let pc = 0
@@ -272,7 +353,8 @@ export function encodeToBuffer(
         break
       }
       case 'define-function':
-        pc = encodeFunctionBytecode(ops, u32View, f32View, pc, limit, outputOffset, jumpTargetAdd, patchMap)
+        pc = encodeFunctionBytecode(ops, u32View, f32View, pc, limit, outputOffset, jumpTargetAdd, patchMap,
+          preencodedDefineFunctionSegmentsById)
         break
     }
   }

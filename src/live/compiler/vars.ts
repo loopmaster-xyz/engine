@@ -30,6 +30,27 @@ export function variableBindingKey(scope: VariableInfo['scope'], index: number):
   return `${scope}:${index}`
 }
 
+function clearVariableInferenceByBindingKey(state: State, bindingKey: string, includeFunctionBinding: boolean): void {
+  if (includeFunctionBinding) state.variableFunctionIds.delete(bindingKey)
+  state.objectKeysByBinding.delete(bindingKey)
+  state.objectPropertyStoreShapesByBinding.delete(bindingKey)
+  state.arrayElementObjectKeysByBinding.delete(bindingKey)
+  state.arrayElementObjectPropertyStoreShapesByBinding.delete(bindingKey)
+  state.storeShapesByBinding.delete(bindingKey)
+}
+
+export function clearVariableInferenceMetadata(
+  state: State,
+  varInfo: VariableInfo,
+  opts: { includeFunctionBinding?: boolean } = {},
+): void {
+  const includeFunctionBinding = opts.includeFunctionBinding !== false
+  clearVariableInferenceByBindingKey(state, variableBindingKey(varInfo.scope, varInfo.index), includeFunctionBinding)
+  if (varInfo.scope !== 'closure') return
+  clearVariableInferenceByBindingKey(state, variableBindingKey('local', varInfo.index), includeFunctionBinding)
+  clearVariableInferenceByBindingKey(state, variableBindingKey('global', varInfo.index), includeFunctionBinding)
+}
+
 export function clearVariableFunctionBinding(state: State, varInfo: VariableInfo): void {
   state.variableFunctionIds.delete(variableBindingKey(varInfo.scope, varInfo.index))
   if (varInfo.scope === 'closure') {
@@ -151,7 +172,10 @@ export function clearVariableArrayElementObjectPropertyStoreShapes(state: State,
 }
 
 function getFunctionInfoById(state: State, functionId: number): FunctionInfo | undefined {
-  for (const info of state.functions) {
+  const byIndex = state.functions[functionId]
+  if (byIndex && byIndex.id === functionId) return byIndex
+  for (let i = 0; i < state.functions.length; i++) {
+    const info = state.functions[i]!
     if (info.id === functionId) return info
   }
   return undefined
@@ -279,6 +303,12 @@ function sameObjectKeySequence(a: string[], b: string[]): boolean {
     if (a[i] !== b[i]) return false
   }
   return true
+}
+
+function buildObjectKeyIndexMap(keys: readonly string[]): Map<string, number> {
+  const out = new Map<string, number>()
+  for (let i = 0; i < keys.length; i++) out.set(keys[i]!, i)
+  return out
 }
 
 function getNthPositionalArgValue(args: Extract<Expr, { type: 'call' }>['args'], ordinal: number): Expr | null {
@@ -797,10 +827,11 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
         error(state, 'Object destructuring assignment requires known object shape', expr.loc)
         return
       }
+      const objectKeyIndexByName = buildObjectKeyIndexMap(objectKeys)
       elementIndexes = []
       for (const name of names) {
-        const propertyIndex = objectKeys.indexOf(name)
-        if (propertyIndex < 0) {
+        const propertyIndex = objectKeyIndexByName.get(name)
+        if (propertyIndex === undefined) {
           error(state, `Unknown object property: ${name}`, left.loc)
           return
         }
@@ -839,12 +870,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
 
       // Declare and assign the variable.
       const varInfo = declareVariable(state, name, left.loc, shadow)
-      clearVariableFunctionBinding(state, varInfo)
-      clearVariableObjectShape(state, varInfo)
-      clearVariableObjectPropertyStoreShapes(state, varInfo)
-      clearVariableArrayElementObjectKeys(state, varInfo)
-      clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
-      clearVariableStoreShape(state, varInfo)
+      if (!shadow) clearVariableInferenceMetadata(state, varInfo)
       compileSetVariable(state, varInfo, left)
       stack.pop() // value
     }
@@ -893,11 +919,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
 
     const varInfo = declareVariable(state, leftName, expr.loc)
     setVariableFunctionBinding(state, varInfo, functionId)
-    clearVariableObjectShape(state, varInfo)
-    clearVariableObjectPropertyStoreShapes(state, varInfo)
-    clearVariableArrayElementObjectKeys(state, varInfo)
-    clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
-    clearVariableStoreShape(state, varInfo)
+    clearVariableInferenceMetadata(state, varInfo, { includeFunctionBinding: false })
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
     compileSetVariable(state, varInfo, left)
@@ -958,8 +980,8 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       return
     }
     if (storeShape?.kind === 'object') {
-      const propertyIndex = storeShape.keys.indexOf(left.property)
-      if (propertyIndex < 0) {
+      const propertyIndex = buildObjectKeyIndexMap(storeShape.keys).get(left.property)
+      if (propertyIndex === undefined) {
         error(state, `Unknown store object property: ${left.property}`, left.loc)
         return
       }
@@ -978,8 +1000,8 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
       error(state, `Property write requires known object shape: ${left.property}`, left.loc)
       return
     }
-    const propertyIndex = objectKeys.indexOf(left.property)
-    if (propertyIndex < 0) {
+    const propertyIndex = buildObjectKeyIndexMap(objectKeys).get(left.property)
+    if (propertyIndex === undefined) {
       error(state, `Unknown object property: ${left.property}`, left.loc)
       return
     }
@@ -1118,11 +1140,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
     const functionId = compileFunction(state, right, leftName)
     if (stack.length === 0) return
     setVariableFunctionBinding(state, varInfo, functionId)
-    clearVariableObjectShape(state, varInfo)
-    clearVariableObjectPropertyStoreShapes(state, varInfo)
-    clearVariableArrayElementObjectKeys(state, varInfo)
-    clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
-    clearVariableStoreShape(state, varInfo)
+    if (!shadow) clearVariableInferenceMetadata(state, varInfo, { includeFunctionBinding: false })
     ops.push(AudioVmOp.Dup)
     stack.push({ expr: right })
     compileSetVariable(state, varInfo, left)
@@ -1132,30 +1150,31 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
   }
 
   if (op === '=' || op === ':=') {
-    const aliasFunctionId = (left.type === 'identifier'
-      && right.type === 'identifier'
-      && hasFunctionByName(state, right.name))
-      ? getFunctionByName(state, right.name)?.id
-      : undefined
-    const inferredObjectKeys = left.type === 'identifier' ? getObjectKeysForExpr(state, right) : null
-    const inferredObjectPropertyStoreShapes = left.type === 'identifier'
-      ? getObjectPropertyStoreShapesForExpr(state, right)
-      : null
-    const inferredArrayElementObjectKeys = left.type === 'identifier'
-      ? getArrayElementObjectKeysForExpr(state, right)
-      : null
-    const inferredArrayElementObjectPropertyStoreShapes = left.type === 'identifier'
+    let aliasFunctionId: number | undefined
+    if (left.type === 'identifier' && right.type === 'identifier') {
+      const rightVarInfo = lookupVariable(state, right.name)
+      if (rightVarInfo) aliasFunctionId = getFunctionIdForVarInfo(state, rightVarInfo)
+      if (aliasFunctionId === undefined) aliasFunctionId = getFunctionByName(state, right.name)?.id
+    }
+
+    const canInferShapes = left.type === 'identifier'
+      && right.type !== 'number'
+      && right.type !== 'string'
+      && right.type !== 'fn'
+    const inferredObjectKeys = canInferShapes ? getObjectKeysForExpr(state, right) : null
+    const inferredObjectPropertyStoreShapes = canInferShapes ? getObjectPropertyStoreShapesForExpr(state, right) : null
+    const inferredArrayElementObjectKeys = canInferShapes ? getArrayElementObjectKeysForExpr(state, right) : null
+    const inferredArrayElementObjectPropertyStoreShapes = canInferShapes
       ? getArrayElementObjectPropertyStoreShapesForExpr(state, right)
       : null
-    const inferredStoreShape = left.type === 'identifier' ? getStoreShapeForExpr(state, right) : null
+    const inferredStoreShape = canInferShapes ? getStoreShapeForExpr(state, right) : null
     if (left.type === 'identifier' && right.type === 'array') {
       state.varToArrayLiteral.set(left.name, right)
     }
     if (left.type === 'identifier' && right.type === 'object') {
       state.varToObjectLiteral.set(left.name, right)
     }
-    if (left.type === 'identifier' && right.type === 'identifier'
-      && hasFunctionByName(state, right.name))
+    if (left.type === 'identifier' && right.type === 'identifier' && aliasFunctionId !== undefined)
     {
       state.functionAliases.set(left.name, right.name)
     }
@@ -1168,12 +1187,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
 
     const shadow = op === ':='
     const varInfo = declareVariable(state, left.name, expr.loc, shadow)
-    clearVariableFunctionBinding(state, varInfo)
-    clearVariableObjectShape(state, varInfo)
-    clearVariableObjectPropertyStoreShapes(state, varInfo)
-    clearVariableArrayElementObjectKeys(state, varInfo)
-    clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
-    clearVariableStoreShape(state, varInfo)
+    if (!shadow) clearVariableInferenceMetadata(state, varInfo)
     if (aliasFunctionId !== undefined) setVariableFunctionBinding(state, varInfo, aliasFunctionId)
     if (inferredObjectKeys) setVariableObjectShape(state, varInfo, inferredObjectKeys)
     if (inferredObjectPropertyStoreShapes) {
@@ -1222,12 +1236,7 @@ export function compileAssign(state: State, expr: Extract<Expr, { type: 'assign'
 
     ops.push(AudioVmOp.Dup)
     stack.push(stackExpr)
-    clearVariableFunctionBinding(state, varInfo)
-    clearVariableObjectShape(state, varInfo)
-    clearVariableObjectPropertyStoreShapes(state, varInfo)
-    clearVariableArrayElementObjectKeys(state, varInfo)
-    clearVariableArrayElementObjectPropertyStoreShapes(state, varInfo)
-    clearVariableStoreShape(state, varInfo)
+    clearVariableInferenceMetadata(state, varInfo)
     compileSetVariable(state, varInfo, left)
     stack.pop()
     stack.push(stackExpr)

@@ -16,13 +16,13 @@ import {
   compileTry,
   compileWhile,
 } from './control.ts'
-import { encodeToBuffer, patchPcParamsInRange } from './encode.ts'
+import { buildEncodedDefineFunctionSegmentCache, encodeToBuffer, patchPcParamsInRange } from './encode.ts'
 import { compileFunction } from './functions.ts'
 import { compileHashVar, compileNoteVar, isNoteName } from './hash-vars.ts'
 import { compileBinaryOp, compileTernary, compileUnaryOp } from './math.ts'
 import { compilePipe } from './pipe.ts'
-import type { FunctionParamHint, State } from './state.ts'
-import type { CompileResult, StoreShape, VariableInfo } from './types.ts'
+import { State, type FunctionParamHint } from './state.ts'
+import { SYSTEM_VARS, type CompileResult, type SampleRegistration, type StoreShape, type VariableInfo } from './types.ts'
 import { compileArray, compileMember, compileObject } from './values.ts'
 import {
   compileAssign,
@@ -151,117 +151,137 @@ function mergeFunctionParamHintsByFnLoc(
   }
 }
 
-export function compile(
+function cloneVariableInfo(info: VariableInfo): VariableInfo {
+  if (info.closureIndex === undefined) return { scope: info.scope, index: info.index }
+  return { scope: info.scope, index: info.index, closureIndex: info.closureIndex }
+}
+
+function cloneVariableMap(source: Map<string, VariableInfo>): Map<string, VariableInfo> {
+  const cloned = new Map<string, VariableInfo>()
+  for (const [name, info] of source.entries()) cloned.set(name, cloneVariableInfo(info))
+  return cloned
+}
+
+function cloneVariableScopeStack(source: Map<string, VariableInfo>[]): Map<string, VariableInfo>[] {
+  return source.map(scope => cloneVariableMap(scope))
+}
+
+function cloneStringArrayMap(source: Map<string, string[]>): Map<string, string[]> {
+  const cloned = new Map<string, string[]>()
+  for (const [key, values] of source.entries()) cloned.set(key, [...values])
+  return cloned
+}
+
+function cloneStoreShapeMap(source: Map<string, StoreShape>): Map<string, StoreShape> {
+  const cloned = new Map<string, StoreShape>()
+  for (const [key, shape] of source.entries()) cloned.set(key, cloneStoreShape(shape))
+  return cloned
+}
+
+function cloneObjectPropertyStoreShapeMap(
+  source: Map<string, Map<string, StoreShape>>,
+): Map<string, Map<string, StoreShape>> {
+  const cloned = new Map<string, Map<string, StoreShape>>()
+  for (const [bindingKey, propertyShapes] of source.entries()) {
+    const clonedPropertyShapes = new Map<string, StoreShape>()
+    for (const [propertyKey, shape] of propertyShapes.entries()) {
+      clonedPropertyShapes.set(propertyKey, cloneStoreShape(shape))
+    }
+    cloned.set(bindingKey, clonedPropertyShapes)
+  }
+  return cloned
+}
+
+function cloneArrayInitRequests(
+  requests: Array<{ capacity: number; globalIdx: number }>,
+): Array<{ capacity: number; globalIdx: number }> {
+  return requests.map(req => ({ capacity: req.capacity, globalIdx: req.globalIdx }))
+}
+
+function cloneSampleRegistrations(registrations: SampleRegistration[]): SampleRegistration[] {
+  return registrations.map((registration) => {
+    if (registration.type !== 'inline' || !registration.inlineChannels) return { ...registration }
+    return {
+      ...registration,
+      inlineChannels: registration.inlineChannels.map(channel => channel.slice()),
+    }
+  })
+}
+
+function cloneProgramWithBody(program: Program, body: Stmt[]): Program {
+  return { type: 'program', body, loc: { ...program.loc } }
+}
+
+export type SplitProgram = {
+  prelude: Program
+  user: Program
+}
+
+export function splitProgramByPreludeLines(program: Program, preludeLines: number): SplitProgram {
+  if (preludeLines <= 0) {
+    return {
+      prelude: cloneProgramWithBody(program, []),
+      user: cloneProgramWithBody(program, [...program.body]),
+    }
+  }
+  const preludeBody: Stmt[] = []
+  const userBody: Stmt[] = []
+  for (const stmt of program.body) {
+    if (stmt.loc.line <= preludeLines) preludeBody.push(stmt)
+    else userBody.push(stmt)
+  }
+  return {
+    prelude: cloneProgramWithBody(program, preludeBody),
+    user: cloneProgramWithBody(program, userBody),
+  }
+}
+
+function collectAliasesFromAst(
   state: State,
-  program: Program,
-  preludeLines: number = 0,
-  seedFunctionParamHintsByFnLoc: Map<string, Map<number, FunctionParamHint>> = new Map(),
-  allowDeferredFunctionHintRecompile: boolean = true,
-): CompileResult {
-  state.preludeLines = preludeLines
-  state.ops = []
-  state.errors = []
-  state.stack = []
-  state.functionAliases = new Map()
-  state.globals = new Map()
-  state.locals = []
-  state.closureVars = []
-  state.functions = []
-  state.stringExpressions = new Map()
-  state.functionBytecodes = new Map()
-  state.loopStack = []
-  state.pipeVars = []
-  state.nextGlobalIndex = 0
-  state.nextLocalIndex = 0
-  state.nextFunctionId = 0
-  state.nextAllocCallSiteId = 0
-  state.nextStepCallSiteId = 0
-  state.nextStoreCallSiteId = 0
-  state.nextTempId = 0
-  state.inFunction = false
-  state.sampleRegistrations = []
-  state.recordCallbacks = new Map()
-  state.recordCallbackTemplates = new Map()
-  state.nextRecordScopeId = 0
-  state.scopeCaptureGlobals = new Map()
-  state.arrayInitOps = []
-  state.arrayInitRequests = []
-  state.arrayInitPcOffset = 0
-  state.nextRecordGlobalIdx = 1000
-  state.recordHandleByScopeGlobal = null
-  state.currentRecordScopeIdGlobal = null
-  state.recordCaptureStoresByScopeGlobal = null
-  state.callSiteIdToHandle = new Map()
-  state.historySourceMap = []
-  state.labels = []
-  state.varToArrayLiteral = new Map()
-  state.varToObjectLiteral = new Map()
-  state.objectKeysByBinding = new Map()
-  state.objectPropertyStoreShapesByBinding = new Map()
-  state.arrayElementObjectKeysByBinding = new Map()
-  state.arrayElementObjectPropertyStoreShapesByBinding = new Map()
-  state.storeShapesByBinding = new Map()
-  state.variableFunctionIds = new Map()
-  state.functionParamHintsByFnLoc = cloneFunctionParamHintsByFnLoc(seedFunctionParamHintsByFnLoc)
-  state.mixDefinitionLoc = null
-  state.scale = 'major'
-  state.scaleIndex = 0
-  state.rootMidi = 0
-  state.functionBytecodeStarts = new Map()
-  state.currentFunctionId = null
+  body: Stmt[],
+  deferredNames: Set<string>,
+  includeExistingFunctionTargets: boolean,
+): void {
+  for (const stmt of body) {
+    if (stmt.type === 'block') {
+      collectAliasesFromAst(state, stmt.body, deferredNames, includeExistingFunctionTargets)
+      continue
+    }
+    if (stmt.type !== 'expr' || stmt.expr.type !== 'assign') continue
+    const assign = stmt.expr
+    if (assign.left.type !== 'identifier' || assign.right.type !== 'identifier') continue
+    const target = assign.right.name
+    if (deferredNames.has(target) || (includeExistingFunctionTargets && hasFunctionByName(state, target))) {
+      state.functionAliases.set(assign.left.name, target)
+    }
+  }
+}
+
+type CompileBodyPassOptions = {
+  seedDeferredOpsPrefix?: number[]
+  seedMainOpsPrefix?: number[]
+  includeExistingFunctionAliasTargets?: boolean
+}
+
+type CompileBodyPassResult = {
+  deferredLocKeys: Set<string>
+  deferredOpsRaw: number[]
+  mainOpsRaw: number[]
+  deferredLength: number
+}
+
+function compileBodyPasses(state: State, body: Stmt[], opts: CompileBodyPassOptions = {}): CompileBodyPassResult {
   state.deferredGlobalFunctions = []
-  state.functionsByNameStack = [new Map()]
-  state.oversampleCallbackFunctionIds = new Set()
-  const recordMapping = assignRecordCallIds(program)
-  state.recordCallIds = recordMapping.recordCallIds
-  state.functionToRecordCall = recordMapping.functionToRecordCall
-  state.recordCallExprs = new Map()
-
-  // Pre-register all callSiteId handles to ensure deterministic handles
-  // This ensures record() returns the same handle that we'll store samples for
-  // For each function that contains record(), we need to find the record() call to get seconds
-  // Then pre-register handles for all callSiteIds that will call this function
-  // We'll do this by walking the program to find record() calls inside functions
-  const preRegisterCallSiteHandles = (stmt: Stmt): void => {
-    if (stmt.type === 'expr' && stmt.expr.type === 'call') {
-      const callExpr = stmt.expr
-      if (callExpr.callee.type === 'identifier' && callExpr.callee.name === 'record') {
-        const locKey = `${callExpr.loc.line}:${callExpr.loc.column}:${callExpr.loc.start}:${callExpr.loc.end}`
-        // If this record() is inside a function, it won't be in recordCallIds
-        // But we need to find all callSiteIds that will call functions containing this record()
-        // For now, we'll handle this during function call compilation
-      }
-    }
-    // Recursively check nested statements
-  }
-
-  // Actually, a simpler approach: pre-register handles when we process record() calls inside functions
-  // We'll store the record() call expression, and when we compile function calls, we'll register the handle
-  // This is already done in compileUserFunctionCall, but we need to ensure it happens for all call sites
-
-  // Pass 1: collect top-level function definitions (declare names only) so we can compile their bodies before the rest.
-  collectDeferredGlobalFunctions(state, program.body)
+  collectDeferredGlobalFunctions(state, body)
   const deferredNames = new Set(state.deferredGlobalFunctions.map(d => d.name))
-  const collectAliasesFromAst = (body: Stmt[]): void => {
-    for (const stmt of body) {
-      if (stmt.type === 'block') {
-        collectAliasesFromAst(stmt.body)
-        continue
-      }
-      if (stmt.type === 'expr' && stmt.expr.type === 'assign') {
-        const assign = stmt.expr
-        if (assign.left.type === 'identifier' && assign.right.type === 'identifier') {
-          const target = assign.right.name
-          if (deferredNames.has(target)) {
-            state.functionAliases.set(assign.left.name, target)
-          }
-        }
-      }
-    }
-  }
-  collectAliasesFromAst(program.body)
-  // Pass 2: compile deferred function bodies so functionsByName is populated for record() and user calls.
-  state.ops = []
+  collectAliasesFromAst(
+    state,
+    body,
+    deferredNames,
+    !!opts.includeExistingFunctionAliasTargets,
+  )
+
+  state.ops = opts.seedDeferredOpsPrefix ? [...opts.seedDeferredOpsPrefix] : []
   state.isDeferredPass = true
   for (const { name, fnExpr, globalIndex, loc } of state.deferredGlobalFunctions) {
     const prevCaptureGlobals = state.captureGlobalsInClosures
@@ -272,18 +292,59 @@ export function compile(
     state.ops.push(AudioVmOp.SetGlobal, globalIndex)
     state.stack.pop()
   }
-  const deferredOps = state.ops.slice()
-  const deferredLength = deferredOps.length
-  // Pass 3: compile all statements, skipping deferred defs (already emitted in deferredOps).
-  state.ops = []
+
+  const deferredOpsRaw = state.ops.slice()
+  const deferredLength = deferredOpsRaw.length
+
+  state.ops = opts.seedMainOpsPrefix ? [...opts.seedMainOpsPrefix] : []
   state.isDeferredPass = false
-  for (const stmt of program.body) {
+  for (const stmt of body) {
     if (isDeferredDefStmt(state, stmt)) continue
     compileStmt(state, stmt)
   }
-  state.ops = deferredOps.concat(state.ops)
+
+  const mainOpsRaw = state.ops.slice()
+  state.ops = deferredOpsRaw.concat(mainOpsRaw)
   patchPcParamsInRange(state.ops, deferredLength, deferredLength)
   state.arrayInitPcOffset = deferredLength
+
+  const deferredLocKeys = new Set(state.deferredGlobalFunctions.map(d => `${d.fnExpr.loc.start}:${d.fnExpr.loc.end}`))
+  return {
+    deferredLocKeys,
+    deferredOpsRaw,
+    mainOpsRaw,
+    deferredLength,
+  }
+}
+
+function collectPendingDeferredHints(
+  state: State,
+  deferredLocKeys: Set<string>,
+): Map<string, Map<number, FunctionParamHint>> {
+  const pendingDeferredHints = new Map<string, Map<number, FunctionParamHint>>()
+  for (const [fnLocKey, paramHints] of state.functionParamHintsByFnLoc.entries()) {
+    if (!deferredLocKeys.has(fnLocKey)) continue
+    const clonedByIndex = new Map<number, FunctionParamHint>()
+    for (const [paramIndex, hint] of paramHints.entries()) {
+      clonedByIndex.set(paramIndex, cloneFunctionParamHint(hint))
+    }
+    pendingDeferredHints.set(fnLocKey, clonedByIndex)
+  }
+  return pendingDeferredHints
+}
+
+function dedupeArrayInitRequests(state: State): void {
+  if (state.arrayInitRequests.length <= 1) return
+  const byGlobal = new Map<number, number>()
+  for (const req of state.arrayInitRequests) {
+    const prev = byGlobal.get(req.globalIdx) ?? 0
+    byGlobal.set(req.globalIdx, Math.max(prev, req.capacity))
+  }
+  state.arrayInitRequests = Array.from(byGlobal.entries()).map(([globalIdx, capacity]) => ({ globalIdx, capacity }))
+}
+
+function finalizeCompileResult(state: State): CompileResult {
+  dedupeArrayInitRequests(state)
 
   // Expand array init requests into a local buffer (never touch state.arrayInitOps so it cannot alias state.ops)
   const arrayInitOps: number[] = []
@@ -312,20 +373,6 @@ export function compile(
         if (state.oversampleCallbackFunctionIds.has(entry.__finalFunctionId)) continue
       }
       // state.historySourceMap[i]!.pc += arrayInitOffset
-    }
-  }
-
-  if (allowDeferredFunctionHintRecompile) {
-    const deferredLocKeys = new Set(state.deferredGlobalFunctions.map(d => `${d.fnExpr.loc.start}:${d.fnExpr.loc.end}`))
-    const pendingDeferredHints = new Map<string, Map<number, FunctionParamHint>>()
-    for (const [fnLocKey, paramHints] of state.functionParamHintsByFnLoc.entries()) {
-      if (!deferredLocKeys.has(fnLocKey)) continue
-      pendingDeferredHints.set(fnLocKey, paramHints)
-    }
-    if (pendingDeferredHints.size > 0) {
-      const mergedHints = cloneFunctionParamHintsByFnLoc(seedFunctionParamHintsByFnLoc)
-      mergeFunctionParamHintsByFnLoc(mergedHints, pendingDeferredHints)
-      return compile(state, program, preludeLines, mergedHints, false)
     }
   }
 
@@ -383,10 +430,26 @@ export function compile(
   const f32View = new Float32Array(buffer)
   if (arrayInitOffset > 0) {
     encodeToBuffer(arrayInitOps, u32View, f32View, 0, 0)
-    encodeToBuffer(state.ops, u32View, f32View, arrayInitOffset, arrayInitOffset)
+    encodeToBuffer(
+      state.ops,
+      u32View,
+      f32View,
+      arrayInitOffset,
+      arrayInitOffset,
+      undefined,
+      state.preencodedDefineFunctionSegmentsById ?? undefined,
+    )
   }
   else {
-    encodeToBuffer(state.ops, u32View, f32View, 0, 0)
+    encodeToBuffer(
+      state.ops,
+      u32View,
+      f32View,
+      0,
+      0,
+      undefined,
+      state.preencodedDefineFunctionSegmentsById ?? undefined,
+    )
   }
 
   // After compilation, ensure all callSiteId handles are in sampleRegistrations (prelude + user = e.g. 4 + 1)
@@ -401,13 +464,7 @@ export function compile(
 
         // Find all callSiteIds that correspond to calls to this function
         // These are the IDs in recordCallIds that correspond to function call sites
-        // We can identify them by checking if they're call sites (not direct record() calls)
-        // Actually, we need to match callSiteIds to function calls, which is complex
-        // Instead, let's ensure that when compileUserFunctionCall processes a call site,
-        // it always adds the handle to sampleRegistrations (which it already does at line 1587-1588)
-        // The issue might be that compileUserFunctionCall isn't being called for all call sites
-        // So let's pre-register handles for all callSiteIds that might be used
-        // We'll identify callSiteIds by checking if they're not direct record() call IDs
+        // We can identify them by checking if they're call sites (not direct record() call IDs)
         const directRecordCallIds = new Set<number>()
         for (const [locKey, id] of state.recordCallIds.entries()) {
           if (state.recordCallExprs.has(locKey)) {
@@ -415,7 +472,7 @@ export function compile(
           }
         }
 
-        for (const [callSiteLocKey, callSiteId] of state.recordCallIds.entries()) {
+        for (const [, callSiteId] of state.recordCallIds.entries()) {
           if (directRecordCallIds.has(callSiteId)) continue
           if (!state.recordCallbacks.has(callSiteId)) continue
 
@@ -437,15 +494,16 @@ export function compile(
     }
   }
 
-  for (const entry of state.historySourceMap) {
-    entry.pc += arrayInitOffset + (entry.__fromMainProgram ? state.arrayInitPcOffset : 0)
-  }
+  const historySourceMap = state.historySourceMap.map(entry => ({
+    ...entry,
+    pc: entry.pc + arrayInitOffset + (entry.__fromMainProgram ? state.arrayInitPcOffset : 0),
+  }))
 
   const functionReturnPcs: Record<string, number> = {}
   for (const [name, funcInfo] of functionsByNameEntries(state)) {
     const idx = funcInfo.returnHistorySourceMapIndex
     if (idx != null) {
-      const entry = state.historySourceMap[idx]
+      const entry = historySourceMap[idx]
       if (entry) functionReturnPcs[name] = entry.pc
     }
   }
@@ -454,13 +512,442 @@ export function compile(
     bytecode: f32View,
     errors: [],
     sampleRegistrations: state.sampleRegistrations,
-    historySourceMap: state.historySourceMap,
+    historySourceMap,
     labels: state.labels,
     recordCallbacks: state.recordCallbacks,
     functionReturnPcs,
     functionCalls: state.functionCallsMeta,
     bpm: state.bpm,
   }
+}
+
+function initializeStateForCompile(
+  state: State,
+  preludeLines: number,
+  seedFunctionParamHintsByFnLoc: Map<string, Map<number, FunctionParamHint>>,
+  recordMapping: ReturnType<typeof assignRecordCallIds>,
+): void {
+  state.preludeLines = preludeLines
+  state.ops = []
+  state.errors = []
+  state.stack = []
+  state.functionAliases = new Map()
+  state.globals = new Map()
+  state.locals = []
+  state.closureVars = []
+  state.functions = []
+  state.stringExpressions = new Map()
+  state.functionBytecodes = new Map()
+  state.loopStack = []
+  state.pipeVars = []
+  state.nextGlobalIndex = 0
+  state.nextLocalIndex = 0
+  state.nextFunctionId = 0
+  state.nextAllocCallSiteId = 0
+  state.nextStepCallSiteId = 0
+  state.nextStoreCallSiteId = 0
+  state.nextTempId = 0
+  state.inFunction = false
+  state.sampleRegistrations = []
+  state.recordCallbacks = new Map()
+  state.recordCallbackTemplates = new Map()
+  state.nextRecordScopeId = 0
+  state.scopeCaptureGlobals = new Map()
+  state.arrayInitOps = []
+  state.arrayInitRequests = []
+  state.arrayInitPcOffset = 0
+  state.nextRecordGlobalIdx = 1000
+  state.recordHandleByScopeGlobal = null
+  state.currentRecordScopeIdGlobal = null
+  state.recordCaptureStoresByScopeGlobal = null
+  state.callSiteIdToHandle = new Map()
+  state.historySourceMap = []
+  state.labels = []
+  state.varToArrayLiteral = new Map()
+  state.varToObjectLiteral = new Map()
+  state.objectKeysByBinding = new Map()
+  state.objectPropertyStoreShapesByBinding = new Map()
+  state.arrayElementObjectKeysByBinding = new Map()
+  state.arrayElementObjectPropertyStoreShapesByBinding = new Map()
+  state.storeShapesByBinding = new Map()
+  state.variableFunctionIds = new Map()
+  state.functionParamHintsByFnLoc = cloneFunctionParamHintsByFnLoc(seedFunctionParamHintsByFnLoc)
+  state.mixDefinitionLoc = null
+  state.scale = 'major'
+  state.scaleIndex = 0
+  state.rootMidi = 0
+  state.functionBytecodeStarts = new Map()
+  state.currentFunctionId = null
+  state.deferredGlobalFunctions = []
+  state.functionsByNameStack = [new Map()]
+  state.oversampleCallbackFunctionIds = new Set()
+  state.functionCallsMeta = []
+  state.seenCallSites = new Set()
+  state.paramNameToLocalIndex = null
+  state.compilingRecordCallback = false
+  state.captureGlobalsInClosures = false
+  state.functionDepth = 0
+  state.recordCallIds = recordMapping.recordCallIds
+  state.functionToRecordCall = recordMapping.functionToRecordCall
+  state.recordCallExprs = new Map()
+  state.preencodedDefineFunctionSegmentsById = null
+}
+
+function isSameStoreShape(a: StoreShape | undefined, b: StoreShape | undefined): boolean {
+  if (!a && !b) return true
+  if (!a || !b) return false
+  if (a.kind !== b.kind) return false
+  if (a.kind === 'array' && b.kind === 'array') return a.length === b.length
+  if (a.kind === 'object' && b.kind === 'object') {
+    if (a.keys.length !== b.keys.length) return false
+    for (let i = 0; i < a.keys.length; i++) {
+      if (a.keys[i] !== b.keys[i]) return false
+    }
+    return true
+  }
+  return false
+}
+
+function isSameObjectPropertyStoreShapes(
+  a: Map<string, StoreShape> | undefined,
+  b: Map<string, StoreShape> | undefined,
+): boolean {
+  if (!a && !b) return true
+  if (!a || !b) return false
+  if (a.size !== b.size) return false
+  for (const [key, shape] of a.entries()) {
+    if (!isSameStoreShape(shape, b.get(key))) return false
+  }
+  return true
+}
+
+function isSameFunctionParamHint(a: FunctionParamHint | undefined, b: FunctionParamHint | undefined): boolean {
+  if (!a && !b) return true
+  if (!a || !b) return false
+  const aKeys = a.objectKeys ?? []
+  const bKeys = b.objectKeys ?? []
+  if (aKeys.length !== bKeys.length) return false
+  for (let i = 0; i < aKeys.length; i++) {
+    if (aKeys[i] !== bKeys[i]) return false
+  }
+  if (!isSameObjectPropertyStoreShapes(a.objectPropertyStoreShapes, b.objectPropertyStoreShapes)) return false
+  if (!isSameStoreShape(a.storeShape, b.storeShape)) return false
+  return a.functionId === b.functionId
+}
+
+function isSameFunctionParamHintsByIndex(
+  a: Map<number, FunctionParamHint> | undefined,
+  b: Map<number, FunctionParamHint> | undefined,
+): boolean {
+  if (!a && !b) return true
+  if (!a || !b) return false
+  if (a.size !== b.size) return false
+  for (const [idx, hint] of a.entries()) {
+    if (!isSameFunctionParamHint(hint, b.get(idx))) return false
+  }
+  return true
+}
+
+function hasPreludeHintInvalidation(
+  baselineHints: Map<string, Map<number, FunctionParamHint>>,
+  currentHints: Map<string, Map<number, FunctionParamHint>>,
+  preludeDeferredLocKeys: Set<string>,
+): boolean {
+  for (const locKey of preludeDeferredLocKeys.values()) {
+    const baselineByIndex = baselineHints.get(locKey)
+    const currentByIndex = currentHints.get(locKey)
+    if (!isSameFunctionParamHintsByIndex(baselineByIndex, currentByIndex)) return true
+  }
+  return false
+}
+
+function ensureRecordHandleArrayCapacity(state: State): void {
+  if (state.recordHandleByScopeGlobal === null) return
+  let maxScopeId = -1
+  for (const callbackId of state.recordCallIds.values()) {
+    if (callbackId > maxScopeId) maxScopeId = callbackId
+  }
+  const requiredCapacity = Math.max(100, maxScopeId + 1)
+  let found = false
+  for (const req of state.arrayInitRequests) {
+    if (req.globalIdx !== state.recordHandleByScopeGlobal) continue
+    req.capacity = Math.max(req.capacity, requiredCapacity)
+    found = true
+  }
+  if (!found) {
+    state.arrayInitRequests.push({ capacity: requiredCapacity, globalIdx: state.recordHandleByScopeGlobal })
+  }
+}
+
+export type PreludeSnapshot = {
+  preludeLines: number
+  preludeDeferredOpsRaw: number[]
+  preludeMainOpsRaw: number[]
+  preencodedDefineFunctionSegmentsById: Map<number, Uint32Array>
+  baseState: State
+  preludeSampleRegistrations: SampleRegistration[]
+  seedFunctionParamHintsByFnLoc: Map<string, Map<number, FunctionParamHint>>
+  preludeDeferredLocKeys: Set<string>
+}
+
+export function buildPreludeSnapshot(preludeProgram: Program, preludeLines: number): PreludeSnapshot {
+  const preludeState = new State()
+  let seedHints = new Map<string, Map<number, FunctionParamHint>>()
+  let preludeDeferredLocKeys = new Set<string>()
+  let preludeDeferredOpsRaw: number[] = []
+  let preludeMainOpsRaw: number[] = []
+  const recordMapping = assignRecordCallIds(preludeProgram)
+  const maxAttempts = 2
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    initializeStateForCompile(preludeState, preludeLines, seedHints, recordMapping)
+    const pass = compileBodyPasses(preludeState, preludeProgram.body)
+    preludeDeferredLocKeys = pass.deferredLocKeys
+    preludeDeferredOpsRaw = [...pass.deferredOpsRaw]
+    preludeMainOpsRaw = [...pass.mainOpsRaw]
+    const pendingDeferredHints = collectPendingDeferredHints(preludeState, pass.deferredLocKeys)
+    if (attempt === 0 && pendingDeferredHints.size > 0) {
+      const mergedHints = cloneFunctionParamHintsByFnLoc(seedHints)
+      mergeFunctionParamHintsByFnLoc(mergedHints, pendingDeferredHints)
+      seedHints = mergedHints
+      continue
+    }
+    break
+  }
+  const preencodedDefineFunctionSegmentsById = buildEncodedDefineFunctionSegmentCache(preludeState.ops)
+
+  return {
+    preludeLines,
+    preludeDeferredOpsRaw,
+    preludeMainOpsRaw,
+    preencodedDefineFunctionSegmentsById,
+    baseState: preludeState,
+    preludeSampleRegistrations: cloneSampleRegistrations(preludeState.sampleRegistrations),
+    seedFunctionParamHintsByFnLoc: cloneFunctionParamHintsByFnLoc(preludeState.functionParamHintsByFnLoc),
+    preludeDeferredLocKeys,
+  }
+}
+
+function restoreStateFromPreludeSnapshot(
+  state: State,
+  snapshot: PreludeSnapshot,
+  seedFunctionParamHintsByFnLoc: Map<string, Map<number, FunctionParamHint>>,
+  recordMapping: ReturnType<typeof assignRecordCallIds>,
+): void {
+  const projectId = state.projectId
+  const baseState = snapshot.baseState
+
+  state.preludeLines = snapshot.preludeLines
+  state.ops = []
+  state.errors = []
+  state.stack = []
+  state.functionAliases = new Map(baseState.functionAliases)
+  state.globals = cloneVariableMap(baseState.globals)
+  state.locals = cloneVariableScopeStack(baseState.locals)
+  state.closureVars = cloneVariableScopeStack(baseState.closureVars)
+  state.functions = [...baseState.functions]
+  state.stringExpressions = new Map(baseState.stringExpressions)
+  state.functionBytecodes = new Map(baseState.functionBytecodes)
+  state.functionIdToDefaultParamFunctions = new Map(
+    Array.from(baseState.functionIdToDefaultParamFunctions.entries()).map(([functionId, mapping]) => [
+      functionId,
+      new Map(mapping),
+    ]),
+  )
+  state.loopStack = []
+  state.pipeVars = []
+  state.nextGlobalIndex = baseState.nextGlobalIndex
+  state.nextLocalIndex = baseState.nextLocalIndex
+  state.nextFunctionId = baseState.nextFunctionId
+  state.nextAllocCallSiteId = baseState.nextAllocCallSiteId
+  state.nextStepCallSiteId = baseState.nextStepCallSiteId
+  state.nextStoreCallSiteId = baseState.nextStoreCallSiteId
+  state.nextTempId = baseState.nextTempId
+  state.inFunction = false
+  state.sampleRegistrations = []
+  state.recordCallbacks = new Map(baseState.recordCallbacks)
+  state.recordCallbackTemplates = new Map(baseState.recordCallbackTemplates)
+  state.nextRecordScopeId = baseState.nextRecordScopeId
+  state.scopeCaptureGlobals = new Map(baseState.scopeCaptureGlobals)
+  state.arrayInitOps = []
+  state.arrayInitRequests = cloneArrayInitRequests(baseState.arrayInitRequests)
+  state.arrayInitPcOffset = 0
+  state.nextRecordGlobalIdx = baseState.nextRecordGlobalIdx
+  state.recordHandleByScopeGlobal = baseState.recordHandleByScopeGlobal
+  state.currentRecordScopeIdGlobal = baseState.currentRecordScopeIdGlobal
+  state.recordCaptureStoresByScopeGlobal = baseState.recordCaptureStoresByScopeGlobal
+  state.callSiteIdToHandle = new Map()
+  state.historySourceMap = baseState.historySourceMap.slice()
+  state.labels = [...baseState.labels]
+  state.varToArrayLiteral = new Map(baseState.varToArrayLiteral)
+  state.varToObjectLiteral = new Map(baseState.varToObjectLiteral)
+  state.objectKeysByBinding = cloneStringArrayMap(baseState.objectKeysByBinding)
+  state.objectPropertyStoreShapesByBinding = cloneObjectPropertyStoreShapeMap(baseState.objectPropertyStoreShapesByBinding)
+  state.arrayElementObjectKeysByBinding = cloneStringArrayMap(baseState.arrayElementObjectKeysByBinding)
+  state.arrayElementObjectPropertyStoreShapesByBinding = cloneObjectPropertyStoreShapeMap(
+    baseState.arrayElementObjectPropertyStoreShapesByBinding,
+  )
+  state.storeShapesByBinding = cloneStoreShapeMap(baseState.storeShapesByBinding)
+  state.variableFunctionIds = new Map(baseState.variableFunctionIds)
+  state.functionParamHintsByFnLoc = cloneFunctionParamHintsByFnLoc(seedFunctionParamHintsByFnLoc)
+  state.mixDefinitionLoc = baseState.mixDefinitionLoc ? { ...baseState.mixDefinitionLoc } : null
+  state.scale = baseState.scale
+  state.scaleIndex = baseState.scaleIndex
+  state.rootMidi = baseState.rootMidi
+  state.functionBytecodeStarts = new Map(baseState.functionBytecodeStarts)
+  state.currentFunctionId = null
+  state.deferredGlobalFunctions = []
+  state.functionsByNameStack = baseState.functionsByNameStack.map(scope => new Map(scope))
+  state.oversampleCallbackFunctionIds = new Set(baseState.oversampleCallbackFunctionIds)
+  state.functionCallsMeta = [...baseState.functionCallsMeta]
+  state.seenCallSites = new Set()
+  state.paramNameToLocalIndex = null
+  state.compilingRecordCallback = false
+  state.captureGlobalsInClosures = false
+  state.functionDepth = 0
+  state.recordCallIds = recordMapping.recordCallIds
+  state.functionToRecordCall = recordMapping.functionToRecordCall
+  state.recordCallExprs = new Map(baseState.recordCallExprs)
+  state.preencodedDefineFunctionSegmentsById = snapshot.preencodedDefineFunctionSegmentsById
+  state.projectId = projectId
+}
+
+function userBodyIntroducesGlobalDeclarations(snapshot: PreludeSnapshot, userBody: Stmt[]): boolean {
+  if (userBody.length === 0) return false
+  const knownGlobals = snapshot.baseState.globals
+  for (const stmt of userBody) {
+    if (stmt.type !== 'expr' || stmt.expr.type !== 'assign') continue
+    const expr = stmt.expr
+    if (expr.left.type === 'identifier') {
+      const name = expr.left.name
+      if (SYSTEM_VARS.has(name)) continue
+      if (expr.op === ':=') return true
+      if (!knownGlobals.has(name)) return true
+      continue
+    }
+    if (expr.left.type !== 'destructure') continue
+    if (expr.op === ':=') {
+      for (const name of expr.left.names) {
+        if (!SYSTEM_VARS.has(name)) return true
+      }
+      continue
+    }
+    for (const name of expr.left.names) {
+      if (!SYSTEM_VARS.has(name) && !knownGlobals.has(name)) return true
+    }
+  }
+  return false
+}
+
+function replayPreludeSampleRegistrations(state: State, snapshot: PreludeSnapshot): boolean {
+  state.sampleRegistrations = []
+  let mismatch = false
+  for (const registration of snapshot.preludeSampleRegistrations) {
+    if (
+      registration.type === 'record'
+      && registration.recordSeconds !== undefined
+      && registration.recordCallbackId !== undefined
+    ) {
+      const handle = sampleManager.registerRecord(
+        state.projectId,
+        registration.recordSeconds,
+        registration.recordCallbackId,
+      )
+      if (handle !== registration.handle) mismatch = true
+      state.sampleRegistrations.push({
+        ...registration,
+        handle,
+        recordProjectId: state.projectId,
+      })
+      continue
+    }
+    if (registration.type === 'freesound' && registration.freesoundId !== undefined) {
+      const handle = sampleManager.registerFreesound(registration.freesoundId)
+      if (handle !== registration.handle) mismatch = true
+      state.sampleRegistrations.push({ ...registration, handle })
+      continue
+    }
+    // Inline and espeak registrations are not expected from control prelude; fallback to full compile if encountered.
+    mismatch = true
+  }
+  return mismatch
+}
+
+export type IncrementalCompileResult = {
+  result: CompileResult | null
+  fallbackToFullCompile: boolean
+}
+
+export function compileWithPreludeSnapshot(
+  state: State,
+  program: Program,
+  userBody: Stmt[],
+  snapshot: PreludeSnapshot,
+): IncrementalCompileResult {
+  const recordMapping = assignRecordCallIds(program)
+  if (userBodyIntroducesGlobalDeclarations(snapshot, userBody)) {
+    return { result: null, fallbackToFullCompile: true }
+  }
+  let seedHints = cloneFunctionParamHintsByFnLoc(snapshot.seedFunctionParamHintsByFnLoc)
+  const maxAttempts = 2
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    restoreStateFromPreludeSnapshot(state, snapshot, seedHints, recordMapping)
+    if (replayPreludeSampleRegistrations(state, snapshot)) {
+      return { result: null, fallbackToFullCompile: true }
+    }
+    ensureRecordHandleArrayCapacity(state)
+    const pass = compileBodyPasses(state, userBody, {
+      seedDeferredOpsPrefix: snapshot.preludeDeferredOpsRaw,
+      seedMainOpsPrefix: snapshot.preludeMainOpsRaw,
+      includeExistingFunctionAliasTargets: true,
+    })
+    if (
+      hasPreludeHintInvalidation(
+        snapshot.seedFunctionParamHintsByFnLoc,
+        state.functionParamHintsByFnLoc,
+        snapshot.preludeDeferredLocKeys,
+      )
+    ) {
+      return { result: null, fallbackToFullCompile: true }
+    }
+    const pendingDeferredHints = collectPendingDeferredHints(state, pass.deferredLocKeys)
+    if (attempt === 0 && pendingDeferredHints.size > 0) {
+      const mergedHints = cloneFunctionParamHintsByFnLoc(seedHints)
+      mergeFunctionParamHintsByFnLoc(mergedHints, pendingDeferredHints)
+      seedHints = mergedHints
+      continue
+    }
+    return {
+      result: finalizeCompileResult(state),
+      fallbackToFullCompile: false,
+    }
+  }
+
+  return { result: finalizeCompileResult(state), fallbackToFullCompile: false }
+}
+
+export function compile(
+  state: State,
+  program: Program,
+  preludeLines: number = 0,
+  seedFunctionParamHintsByFnLoc: Map<string, Map<number, FunctionParamHint>> = new Map(),
+  allowDeferredFunctionHintRecompile: boolean = true,
+): CompileResult {
+  const recordMapping = assignRecordCallIds(program)
+  let seedHints = cloneFunctionParamHintsByFnLoc(seedFunctionParamHintsByFnLoc)
+  const maxAttempts = allowDeferredFunctionHintRecompile ? 2 : 1
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    initializeStateForCompile(state, preludeLines, seedHints, recordMapping)
+    const pass = compileBodyPasses(state, program.body)
+    const pendingDeferredHints = collectPendingDeferredHints(state, pass.deferredLocKeys)
+    if (attempt === 0 && allowDeferredFunctionHintRecompile && pendingDeferredHints.size > 0) {
+      const mergedHints = cloneFunctionParamHintsByFnLoc(seedHints)
+      mergeFunctionParamHintsByFnLoc(mergedHints, pendingDeferredHints)
+      seedHints = mergedHints
+      continue
+    }
+    return finalizeCompileResult(state)
+  }
+  return finalizeCompileResult(state)
 }
 
 export function compileStmt(state: State, stmt: Stmt): void {
@@ -535,16 +1022,24 @@ const BUFFER_BUILTIN_PARAMS: Record<string, string[]> = {
   advance: ['buf'],
   read: ['buf', 'offset'],
 }
+const BUILTIN_SPEC_BY_VARIANT = new Map<string, GenSpec>()
+const BUILTIN_DEFAULT_SPEC_BY_GEN_NAME = new Map<string, GenSpec>()
+for (const spec of genSpecs) {
+  if (!BUILTIN_SPEC_BY_VARIANT.has(spec.variantName)) BUILTIN_SPEC_BY_VARIANT.set(spec.variantName, spec)
+  if (spec.variantName === 'default' && !BUILTIN_DEFAULT_SPEC_BY_GEN_NAME.has(spec.genName)) {
+    BUILTIN_DEFAULT_SPEC_BY_GEN_NAME.set(spec.genName, spec)
+  }
+}
 
 function isKnownBuiltinName(name: string): boolean {
   return getBuiltinSpec(name) !== null || OUT_SOLO_BUILTINS.has(name) || name in BUFFER_BUILTIN_PARAMS
 }
 
 function getBuiltinSpec(name: string): GenSpec | null {
-  const byVariant = genSpecs.find(s => s.variantName === name)
+  const byVariant = BUILTIN_SPEC_BY_VARIANT.get(name)
   if (byVariant) return byVariant
   const genName = name.charAt(0).toUpperCase() + name.slice(1)
-  return genSpecs.find(s => s.genName === genName && s.variantName === 'default') ?? null
+  return BUILTIN_DEFAULT_SPEC_BY_GEN_NAME.get(genName) ?? null
 }
 
 function compileBuiltinAsValue(state: State, builtinName: string, loc: Loc): void {

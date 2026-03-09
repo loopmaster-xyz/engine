@@ -31,6 +31,7 @@ const primarySpecByGenKey: Record<string, GenSpec> = Object.create(null)
 const opCodeByGenKey: Record<string, number> = Object.create(null)
 const paramHasByGenKey: Record<string, Record<string, true>> = Object.create(null)
 const defaultsByGenName: Record<string, Record<string, number>> = Object.create(null)
+const primaryGeneratorByCallNameCache = new Map<string, { genKey: string; spec: GenSpec } | null>()
 
 const typePredOpByName: Record<string, AudioVmOp> = {
   isundefined: AudioVmOp.IsUndefined,
@@ -68,6 +69,20 @@ for (const s of genSpecs) {
   if (opCode !== undefined) opCodeByGenKey[key] = opCode
 }
 
+function resolvePrimaryGeneratorByCallName(funcName: string): { genKey: string; spec: GenSpec } | null {
+  const cached = primaryGeneratorByCallNameCache.get(funcName)
+  if (cached !== undefined) return cached
+
+  const variantGenName = primaryGenNameByVariantName[funcName]
+  const genName = variantGenName ?? (funcName.charAt(0).toUpperCase() + funcName.slice(1))
+  const variantName = variantGenName ? funcName : 'default'
+  const genKey = `${genName}${GEN_KEY_SEP}${variantName}`
+  const spec = primarySpecByGenKey[genKey]
+  const resolved = spec ? { genKey, spec } : null
+  primaryGeneratorByCallNameCache.set(funcName, resolved)
+  return resolved
+}
+
 function callNameFromCallee(callee: Expr): string {
   if (callee.type === 'identifier') return callee.name
   if (callee.type === 'member') return (callee as Extract<Expr, { type: 'member' }>).property
@@ -78,13 +93,46 @@ function callNameFromCallee(callee: Expr): string {
 function bestEffortArgs(args: Arg[]): Record<string, Expr[]> {
   const out: Record<string, Expr[]> = {}
   let pos = 0
-  for (const a of args) {
-    if (a.type !== 'arg' || !a.value) continue
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i]!
     const key = a.name ?? String(pos++)
     if (!out[key]) out[key] = []
     out[key].push(a.value)
   }
   return out
+}
+
+function countProvidedArgs(args: Arg[]): number {
+  return args.length
+}
+
+function hasNamedArgument(args: Arg[]): boolean {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!
+    if (arg.name) return true
+    if (arg.shorthand && arg.value.type === 'identifier') return true
+  }
+  return false
+}
+
+function getArgValue(args: readonly Arg[], index: number): Expr | null {
+  return args[index]?.value ?? null
+}
+
+function shouldUseNamedMatchingForGeneratorArgs(args: readonly Arg[], paramHas: Record<string, true>): boolean {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!
+    if (arg.name) return true
+    if (arg.shorthand && arg.value.type === 'identifier' && paramHas[arg.value.name]) return true
+  }
+  return false
+}
+
+function findParamIndexByPrefix(params: readonly string[], prefix: string): number {
+  for (let i = 0; i < params.length; i++) {
+    if (params[i]!.startsWith(prefix)) return i
+  }
+  return -1
 }
 
 function exprContainsArrayOrObjectLiteral(expr: Expr): boolean {
@@ -103,7 +151,7 @@ function exprContainsArrayOrObjectLiteral(expr: Expr): boolean {
     case 'call':
       if (exprContainsArrayOrObjectLiteral(expr.callee)) return true
       for (const arg of expr.args) {
-        if (arg.type === 'arg' && arg.value && exprContainsArrayOrObjectLiteral(arg.value)) return true
+        if (exprContainsArrayOrObjectLiteral(arg.value)) return true
       }
       return false
     case 'index':
@@ -124,7 +172,7 @@ function getValidatedStoreInitExpr(
     error(state, 'store(init) requires exactly 1 argument', callExpr.loc)
     return null
   }
-  const initArg = args[0]?.type === 'arg' ? args[0].value : null
+  const initArg = getArgValue(args, 0)
   if (!initArg) {
     error(state, 'store(init) requires an initializer argument', callExpr.loc)
     return null
@@ -160,19 +208,18 @@ function matchFixedArgs(
   paramNames: string[],
 ): (Expr | null)[] | null {
   const matched: (Expr | null)[] = new Array(paramNames.length).fill(null)
+  const paramIndexByName = new Map<string, number>()
+  for (let i = 0; i < paramNames.length; i++) paramIndexByName.set(paramNames[i]!, i)
+  const prefixMatchCache = new Map<string, number>()
   let positionalIndex = 0
 
   for (const arg of args) {
-    if (arg.type !== 'arg' || !arg.value) continue
-
     if (arg.name) {
       const argName = arg.name
-      let matchedParamIndex = -1
-      for (let j = 0; j < paramNames.length; j++) {
-        if (paramNames[j].startsWith(argName)) {
-          matchedParamIndex = j
-          break
-        }
+      let matchedParamIndex = prefixMatchCache.get(argName)
+      if (matchedParamIndex === undefined) {
+        matchedParamIndex = findParamIndexByPrefix(paramNames, argName)
+        prefixMatchCache.set(argName, matchedParamIndex)
       }
 
       if (matchedParamIndex === -1) {
@@ -189,7 +236,7 @@ function matchFixedArgs(
     }
     else if (arg.shorthand && arg.value.type === 'identifier') {
       const shorthandName = arg.value.name
-      const matchedParamIndex = paramNames.indexOf(shorthandName)
+      const matchedParamIndex = paramIndexByName.get(shorthandName) ?? -1
 
       if (matchedParamIndex !== -1) {
         if (matched[matchedParamIndex] !== null) {
@@ -230,11 +277,16 @@ function matchFixedArgs(
   return matched
 }
 
-function pushCallMeta(state: State, callExpr: Extract<Expr, { type: 'call' }>, name: string,
-  args: Record<string, Expr[]>): void
+function pushCallMeta(
+  state: State,
+  callExpr: Extract<Expr, { type: 'call' }>,
+  name: string,
+  args: Record<string, Expr[]> | Arg[],
+): void
 {
   if (callExpr.loc.line <= state.preludeLines) return
-  state.functionCallsMeta.push({ name, astNode: callExpr, args })
+  const resolvedArgs = Array.isArray(args) ? bestEffortArgs(args) : args
+  state.functionCallsMeta.push({ name, astNode: callExpr, args: resolvedArgs })
 }
 
 function pushArrayGetHistoryForArrayExpr(
@@ -315,6 +367,208 @@ function pushCallSiteSourceMap(state: State, callExpr: Extract<Expr, { type: 'ca
   }
 }
 
+function shouldUseSpecialCallDispatch(funcName: string): boolean {
+  switch (funcName) {
+    case 'dtof':
+    case 'get':
+    case 'out':
+    case 'solo':
+    case 'outs':
+    case 'sout':
+    case 'oversample':
+    case 'espeak':
+    case 'sam':
+    case 'freesound':
+    case 'record':
+    case 'tram':
+    case 'mini':
+    case 'label':
+    case 'timeline':
+    case 'store':
+    case 'alloc':
+    case 'append':
+    case 'write':
+    case 'advance':
+    case 'read':
+    case 'isundefined':
+    case 'isscalar':
+    case 'isaudio':
+    case 'isarray':
+    case 'isfunction':
+    case 'slicer':
+    case 'Fit':
+    case 'Walk':
+    case 'Glide':
+    case 'Step':
+    case 'Random':
+      return true
+    default:
+      return false
+  }
+}
+
+function compileGeneratorCallFromSpec(
+  state: State,
+  callExpr: Extract<Expr, { type: 'call' }>,
+  args: Arg[],
+  dollarIndex: number,
+  genKey: string,
+  spec: GenSpec,
+): void {
+  const paramCount = spec.paramNames.length
+  const usesInput = spec.usesInput
+  const totalArgs = paramCount + (usesInput ? 1 : 0)
+  const stackBefore = state.stack.length
+
+  const argCount = args.length + (dollarIndex >= 0 ? 1 : 0)
+  if (argCount > totalArgs) {
+    error(state, `Too many arguments for function '${callNameFromCallee(callExpr.callee)}'`, callExpr.loc)
+    return
+  }
+
+  const opCode = opCodeByGenKey[genKey]
+  if (opCode === undefined) {
+    error(state, `Unknown opcode for generator: ${spec.genName}_${spec.variantName}`, callExpr.loc)
+    return
+  }
+
+  const paramHas = paramHasByGenKey[genKey]
+  const resolvedArgs: Record<string, Expr[]> | null = callExpr.loc.line <= state.preludeLines ? null : {}
+  const defaults = defaultsByGenName[spec.genName]
+
+  if (!shouldUseNamedMatchingForGeneratorArgs(args, paramHas)) {
+    let positionalIndex = 0
+    for (let i = 0; i < totalArgs; i++) {
+      if (i === dollarIndex) {
+        if (state.stack.length === 0) {
+          error(state, '$ used without a value on the stack', callExpr.loc)
+          return
+        }
+        positionalIndex++
+        continue
+      }
+
+      const paramIndex = usesInput ? i - 1 : i
+      const paramName = paramIndex >= 0 ? spec.paramNames[paramIndex] : null
+      const argExpr = positionalIndex < args.length ? args[positionalIndex++]!.value : null
+
+      if (resolvedArgs && paramName && argExpr) {
+        ;(resolvedArgs[paramName] ??= []).push(argExpr)
+      }
+
+      if (argExpr) {
+        compileExpr(state, argExpr)
+      }
+      else {
+        const defaultValue = (paramName ? defaults?.[paramName] : undefined) ?? 0
+        state.ops.push(AudioVmOp.PushScalar)
+        state.ops.push(defaultValue)
+        state.stack.push({ expr: { type: 'number' as const, value: defaultValue, loc: callExpr.loc } })
+      }
+    }
+  }
+  else {
+    const namedByName: Record<string, Expr> = Object.create(null)
+    const namedOrder: string[] = []
+    const positionalArgs: Expr[] = []
+
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i]!
+      if (arg.name) {
+        if (!(arg.name in namedByName)) namedOrder.push(arg.name)
+        namedByName[arg.name] = arg.value
+        continue
+      }
+
+      if (arg.shorthand && arg.value.type === 'identifier') {
+        const shorthandName = arg.value.name
+        if (paramHas[shorthandName]) {
+          if (!(shorthandName in namedByName)) namedOrder.push(shorthandName)
+          namedByName[shorthandName] = arg.value
+          continue
+        }
+      }
+
+      positionalArgs.push(arg.value)
+    }
+
+    let positionalIndex = 0
+    const namedUsed = new Array(namedOrder.length).fill(false)
+
+    for (let i = 0; i < totalArgs; i++) {
+      if (i === dollarIndex) {
+        if (state.stack.length === 0) {
+          error(state, '$ used without a value on the stack', callExpr.loc)
+          return
+        }
+        positionalIndex++
+        continue
+      }
+
+      const paramIndex = usesInput ? i - 1 : i
+      const paramName = paramIndex >= 0 ? spec.paramNames[paramIndex] : null
+
+      let argExpr: Expr | null = null
+      if (paramName) {
+        for (let j = 0; j < namedOrder.length; j++) {
+          if (namedUsed[j]) continue
+          const argName = namedOrder[j]!
+          if (!paramName.startsWith(argName)) continue
+          namedUsed[j] = true
+          argExpr = namedByName[argName] ?? null
+          break
+        }
+      }
+
+      if (!argExpr) {
+        argExpr = positionalArgs[positionalIndex] ?? null
+        positionalIndex++
+      }
+
+      if (resolvedArgs && paramName && argExpr) {
+        ;(resolvedArgs[paramName] ??= []).push(argExpr)
+      }
+
+      if (argExpr) {
+        compileExpr(state, argExpr)
+      }
+      else {
+        const defaultValue = (paramName ? defaults?.[paramName] : undefined) ?? 0
+        state.ops.push(AudioVmOp.PushScalar)
+        state.ops.push(defaultValue)
+        state.stack.push({ expr: { type: 'number' as const, value: defaultValue, loc: callExpr.loc } })
+      }
+    }
+  }
+
+  // Store PC: if in function, it's relative to function start; if in main program, it's already absolute.
+  const pc = state.ops.length
+  if (callExpr.loc.line > state.preludeLines) {
+    const userLine = callExpr.loc.line - state.preludeLines
+    const historyEntry: HistorySourceMap = {
+      line: userLine,
+      column: callExpr.loc.column,
+      genName: spec.genName,
+      pc: state.inFunction ? 0 : pc,
+      inFunction: state.inFunction,
+      __fromMainProgram: !state.isDeferredPass,
+    }
+    state.historySourceMap.push(historyEntry)
+    if (state.inFunction && state.currentFunctionId !== null) {
+      ;(historyEntry as any).__functionId = state.currentFunctionId
+      ;(historyEntry as any).__relativePc = pc
+    }
+    else {
+      historyEntry.pc = pc
+    }
+  }
+
+  state.ops.push(opCode)
+  state.stack.length = stackBefore
+  state.stack.push({ expr: callExpr })
+  pushCallMeta(state, callExpr, spec.genName, resolvedArgs ?? {})
+}
+
 /** Compile get(array, index) / arr[i] as ArrayGet gen – same history/source-map path as other gens. */
 export function compileGetCall(
   state: State,
@@ -356,9 +610,9 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
         error(state, `Unknown store object method: ${memberExpr.property}`, expr.loc)
         return
       }
-      pushCallMeta(state, expr, memberExpr.property, bestEffortArgs(expr.args))
+      pushCallMeta(state, expr, memberExpr.property, expr.args)
       for (const arg of expr.args) {
-        if (arg.type === 'arg' && arg.value) compileExpr(state, arg.value)
+        compileExpr(state, arg.value)
       }
       const indexExpr: Extract<Expr, { type: 'number' }> = {
         type: 'number',
@@ -385,9 +639,9 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
         error(state, `Unknown object method: ${memberExpr.property}`, expr.loc)
         return
       }
-      pushCallMeta(state, expr, memberExpr.property, bestEffortArgs(expr.args))
+      pushCallMeta(state, expr, memberExpr.property, expr.args)
       for (const arg of expr.args) {
-        if (arg.type === 'arg' && arg.value) compileExpr(state, arg.value)
+        compileExpr(state, arg.value)
       }
       const indexExpr: Extract<Expr, { type: 'number' }> = {
         type: 'number',
@@ -533,8 +787,6 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
       let positionalIndex = 0
 
       for (const arg of expr.args) {
-        if (arg.type !== 'arg' || !arg.value) continue
-
         if (arg.name) {
           const matchedName = methodParamNames.find(name => name.startsWith(arg.name!))
           if (!matchedName) {
@@ -612,7 +864,7 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
       return
     }
 
-    pushCallMeta(state, expr, memberExpr.property, bestEffortArgs(expr.args))
+    pushCallMeta(state, expr, memberExpr.property, expr.args)
     compileExpr(state, memberExpr.object)
 
     if (state.stack.length === 0) {
@@ -621,17 +873,17 @@ export function compileCall(state: State, expr: Extract<Expr, { type: 'call' }>)
     }
 
     if (memberExpr.property === 'push') {
-      const args = expr.args.map(arg => arg.type === 'arg' ? arg.value : null).filter((a): a is Expr => a !== null)
-      if (args.length === 0) {
+      const argCount = expr.args.length
+      for (let i = 0; i < argCount; i++) {
+        compileExpr(state, expr.args[i]!.value)
+      }
+      if (argCount === 0) {
         error(state, 'push() requires at least one argument', expr.loc)
         return
       }
-      for (const arg of args) {
-        compileExpr(state, arg)
-      }
       state.ops.push(AudioVmOp.ArrayPush)
-      state.ops.push(args.length)
-      state.stack.length -= args.length
+      state.ops.push(argCount)
+      state.stack.length -= argCount
       state.stack.push({ expr })
       return
     }
@@ -651,10 +903,10 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
 
   // Handle indexed function calls like fns
   if (callee.type === 'index') {
-    pushCallMeta(state, callExpr, '[]', bestEffortArgs(args))
+    pushCallMeta(state, callExpr, '[]', args)
     // Compile arguments first
-    for (const arg of args) {
-      if (arg.type === 'arg' && arg.value) compileExpr(state, arg.value)
+    for (let i = 0; i < args.length; i++) {
+      compileExpr(state, args[i]!.value)
     }
 
     // Compile the index expression to get the function ID
@@ -671,16 +923,37 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (callee.type !== 'identifier') {
-    pushCallMeta(state, callExpr, callNameFromCallee(callee), bestEffortArgs(args))
+    pushCallMeta(state, callExpr, callNameFromCallee(callee), args)
     error(state, 'Only simple function calls are supported', callExpr.loc)
     return
   }
 
   const funcName = callee.name
 
+  const useSpecialDispatch = shouldUseSpecialCallDispatch(funcName)
+  const mathUnaryId = getMathUnaryId(funcName)
+  const mathBinaryId = mathUnaryId >= 0 ? -1 : getMathBinaryId(funcName)
+  const mathTernaryId = mathUnaryId >= 0 || mathBinaryId >= 0 ? -1 : getMathTernaryId(funcName)
+
+  if (!useSpecialDispatch && mathUnaryId < 0 && mathBinaryId < 0 && mathTernaryId < 0) {
+    const generator = resolvePrimaryGeneratorByCallName(funcName)
+    if (generator) {
+      compileGeneratorCallFromSpec(state, callExpr, args, dollarIndex, generator.genKey, generator.spec)
+      return
+    }
+    const varInfo = lookupVariable(state, funcName)
+    if (varInfo) {
+      compileUserFunctionCall(state, callExpr, funcName, varInfo, args, dollarIndex)
+      return
+    }
+    pushCallMeta(state, callExpr, funcName, args)
+    error(state, `Unknown generator: ${funcName}`, callExpr.loc)
+    return
+  }
+
   if (funcName === 'dtof') {
-    pushCallMeta(state, callExpr, 'dtof', bestEffortArgs(args))
-    const degreeArg = args[0]?.type === 'arg' ? args[0].value : null
+    pushCallMeta(state, callExpr, 'dtof', args)
+    const degreeArg = getArgValue(args, 0)
     if (!degreeArg || degreeArg.type !== 'number') {
       error(state, 'dtof(degree) requires a literal number (scale degree 1-based)', callExpr.loc)
       return
@@ -692,14 +965,14 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
 
   if (funcName === 'get') {
     if (args.length < 2) {
-      pushCallMeta(state, callExpr, 'get', bestEffortArgs(args))
+      pushCallMeta(state, callExpr, 'get', args)
       error(state, 'get(array, index) requires two arguments', callExpr.loc)
       return
     }
-    const arrayArg = args[0]?.type === 'arg' ? args[0].value : null
-    const indexArg = args[1]?.type === 'arg' ? args[1].value : null
+    const arrayArg = getArgValue(args, 0)
+    const indexArg = getArgValue(args, 1)
     if (!arrayArg || !indexArg) {
-      pushCallMeta(state, callExpr, 'get', bestEffortArgs(args))
+      pushCallMeta(state, callExpr, 'get', args)
       error(state, 'get(array, index) requires two arguments', callExpr.loc)
       return
     }
@@ -709,15 +982,11 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'out' || funcName === 'solo' || funcName === 'outs' || funcName === 'sout') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     const isSolo = funcName !== 'out'
-    let argCount = 0
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i]
-      if (arg.type === 'arg' && arg.value) {
-        compileExpr(state, arg.value)
-        argCount++
-      }
+    const argCount = args.length
+    for (let i = 0; i < argCount; i++) {
+      compileExpr(state, args[i]!.value)
     }
     if (argCount === 0) {
       error(state, `${funcName} requires at least one argument`, callExpr.loc)
@@ -754,13 +1023,13 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'oversample') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     if (args.length !== 2) {
       error(state, 'oversample() requires exactly 2 arguments: factor and callback', callExpr.loc)
       return
     }
-    const factorArg = args[0]?.type === 'arg' ? args[0].value : null
-    const callbackArg = args[1]?.type === 'arg' ? args[1].value : null
+    const factorArg = getArgValue(args, 0)
+    const callbackArg = getArgValue(args, 1)
     if (!factorArg || !callbackArg) {
       error(state, 'oversample() requires factor and callback arguments', callExpr.loc)
       return
@@ -790,7 +1059,7 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   // Compile-time eSpeak TTS: text/voice/params must be literals so we can render once,
   // register a sample handle, and reuse it at runtime instead of synthesizing per sample.
   if (funcName === 'espeak') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     if (args.length < 1) {
       error(state, 'espeak() requires at least 1 argument: text', callExpr.loc)
       return
@@ -844,7 +1113,7 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   // via sam-js, resample to engine rate, register as inline sample, and push its handle.
   // All control parameters are literals so compilation is deterministic.
   if (funcName === 'sam') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     if (args.length < 1) {
       error(state, 'sam() requires at least 1 argument: text', callExpr.loc)
       return
@@ -965,12 +1234,12 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'freesound') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     if (args.length !== 1) {
       error(state, 'freesound() requires exactly 1 argument: id', callExpr.loc)
       return
     }
-    const idArg = args[0]?.type === 'arg' ? args[0].value : null
+    const idArg = getArgValue(args, 0)
     if (!idArg || idArg.type !== 'number') {
       error(state, 'freesound() id must be a literal number', callExpr.loc)
       return
@@ -985,27 +1254,27 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'record') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     compileRecord(state, callExpr)
     return
   }
 
   if (funcName === 'tram') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     compileTram(state, callExpr, args)
     return
   }
 
   if (funcName === 'mini') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     compileMini(state, callExpr, args)
     return
   }
 
   if (funcName === 'label') {
-    const a0 = args[0]?.type === 'arg' ? args[0].value : null
-    const a1 = args[1]?.type === 'arg' ? args[1].value : null
-    const a2 = args[2]?.type === 'arg' ? args[2].value : null
+    const a0 = getArgValue(args, 0)
+    const a1 = getArgValue(args, 1)
+    const a2 = getArgValue(args, 2)
     if (a0?.type === 'number' && a1?.type === 'string') {
       const bar = Math.max(0, Math.floor(Number(a0.value)) - 1)
       let colorIndex = 1
@@ -1019,13 +1288,13 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'timeline') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     compileTimeline(state, callExpr, args)
     return
   }
 
   if (funcName === 'store') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     const initExpr = getValidatedStoreInitExpr(state, callExpr, args)
     if (!initExpr) return
     const stackBefore = state.stack.length
@@ -1042,12 +1311,12 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'alloc') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     if (args.length !== 1) {
       error(state, 'alloc() requires 1 argument: seconds', callExpr.loc)
       return
     }
-    const secondsArg = args[0]?.type === 'arg' ? args[0].value : null
+    const secondsArg = getArgValue(args, 0)
     if (!secondsArg) {
       error(state, 'alloc() requires seconds argument', callExpr.loc)
       return
@@ -1062,13 +1331,13 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'append') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     if (args.length !== 2) {
       error(state, 'append() requires 2 arguments: input and buf', callExpr.loc)
       return
     }
-    const inputArg = args[0]?.type === 'arg' ? args[0].value : null
-    const bufArg = args[1]?.type === 'arg' ? args[1].value : null
+    const inputArg = getArgValue(args, 0)
+    const bufArg = getArgValue(args, 1)
     if (!inputArg || !bufArg) {
       error(state, 'append() requires input and buf arguments', callExpr.loc)
       return
@@ -1083,13 +1352,13 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'write') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     if (args.length !== 2) {
       error(state, 'write() requires 2 arguments: input and buf', callExpr.loc)
       return
     }
-    const inputArg = args[0]?.type === 'arg' ? args[0].value : null
-    const bufArg = args[1]?.type === 'arg' ? args[1].value : null
+    const inputArg = getArgValue(args, 0)
+    const bufArg = getArgValue(args, 1)
     if (!inputArg || !bufArg) {
       error(state, 'write() requires input and buf arguments', callExpr.loc)
       return
@@ -1104,12 +1373,12 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'advance') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     if (args.length !== 1) {
       error(state, 'advance() requires 1 argument: buf', callExpr.loc)
       return
     }
-    const bufArg = args[0]?.type === 'arg' ? args[0].value : null
+    const bufArg = getArgValue(args, 0)
     if (!bufArg) {
       error(state, 'advance() requires buf argument', callExpr.loc)
       return
@@ -1123,13 +1392,13 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'read') {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
+    pushCallMeta(state, callExpr, funcName, args)
     if (args.length !== 2) {
       error(state, 'read() requires 2 arguments: buf and offset (seconds)', callExpr.loc)
       return
     }
-    const bufArg = args[0]?.type === 'arg' ? args[0].value : null
-    const offsetArg = args[1]?.type === 'arg' ? args[1].value : null
+    const bufArg = getArgValue(args, 0)
+    const offsetArg = getArgValue(args, 1)
     if (!bufArg || !offsetArg) {
       error(state, 'read() requires buf and offset arguments', callExpr.loc)
       return
@@ -1146,16 +1415,13 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   if (funcName === 'isundefined' || funcName === 'isscalar' || funcName === 'isaudio' || funcName === 'isarray'
     || funcName === 'isfunction')
   {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
-    let argCount = dollarIndex >= 0 ? 1 : 0
-    for (const a of args) {
-      if (a.type === 'arg' && a.value) argCount++
-    }
+    pushCallMeta(state, callExpr, funcName, args)
+    const argCount = args.length + (dollarIndex >= 0 ? 1 : 0)
     if (argCount > 1) {
       error(state, `Too many arguments for function '${funcName}'`, callExpr.loc)
       return
     }
-    const argExpr = dollarIndex === 0 ? null : (args[0]?.type === 'arg' ? args[0].value : null)
+    const argExpr = dollarIndex === 0 ? null : getArgValue(args, 0)
     if (argExpr) {
       compileExpr(state, argExpr)
     }
@@ -1172,18 +1438,14 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
     return
   }
 
-  const mathUnaryId = getMathUnaryId(funcName)
   if (mathUnaryId >= 0) {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
-    let argCount = 0
-    for (const a of args) {
-      if (a.type === 'arg' && a.value) argCount++
-    }
+    pushCallMeta(state, callExpr, funcName, args)
+    const argCount = args.length
     if (argCount > 1) {
       error(state, `Too many arguments for function '${funcName}'`, callExpr.loc)
       return
     }
-    const argExpr = args[0]?.type === 'arg' ? args[0].value : null
+    const argExpr = getArgValue(args, 0)
     if (!argExpr) {
       error(state, `${funcName}(x) requires one argument`, callExpr.loc)
       return
@@ -1200,19 +1462,15 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
     return
   }
 
-  const mathBinaryId = getMathBinaryId(funcName)
   if (mathBinaryId >= 0) {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
-    let argCount = 0
-    for (const a of args) {
-      if (a.type === 'arg' && a.value) argCount++
-    }
+    pushCallMeta(state, callExpr, funcName, args)
+    const argCount = args.length
     if (argCount > 2) {
       error(state, `Too many arguments for function '${funcName}'`, callExpr.loc)
       return
     }
-    const left = args[0]?.type === 'arg' ? args[0].value : null
-    const right = args[1]?.type === 'arg' ? args[1].value : null
+    const left = getArgValue(args, 0)
+    const right = getArgValue(args, 1)
     if (!left || !right) {
       error(state, `${funcName}(x, y) requires two arguments`, callExpr.loc)
       return
@@ -1231,20 +1489,16 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
     return
   }
 
-  const mathTernaryId = getMathTernaryId(funcName)
   if (mathTernaryId >= 0) {
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
-    let argCount = 0
-    for (const a of args) {
-      if (a.type === 'arg' && a.value) argCount++
-    }
+    pushCallMeta(state, callExpr, funcName, args)
+    const argCount = args.length
     if (argCount > 3) {
       error(state, `Too many arguments for function '${funcName}'`, callExpr.loc)
       return
     }
-    const a = args[0]?.type === 'arg' ? args[0].value : null
-    const b = args[1]?.type === 'arg' ? args[1].value : null
-    const c = args[2]?.type === 'arg' ? args[2].value : null
+    const a = getArgValue(args, 0)
+    const b = getArgValue(args, 1)
+    const c = getArgValue(args, 2)
     if (!a || !b || !c) {
       error(state, `${funcName}(a, b, c) requires three arguments`, callExpr.loc)
       return
@@ -1266,23 +1520,23 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'slicer') {
-    const thresholdArg = args.find(a => a.type === 'arg' && a.name === 'threshold' && a.value)
-    if (thresholdArg && thresholdArg.type === 'arg' && thresholdArg.value?.type !== 'number') {
+    const thresholdArg = args.find(a => a.name === 'threshold')
+    if (thresholdArg && thresholdArg.value.type !== 'number') {
       error(state, 'slicer() threshold parameter must be a scalar value', callExpr.loc)
       return
     }
   }
 
   if (funcName === 'Fit') {
-    pushCallMeta(state, callExpr, 'Fit', bestEffortArgs(args))
+    pushCallMeta(state, callExpr, 'Fit', args)
     if (args.length < 2) {
       error(state, 'Fit(array, bars, swing?, offset?) requires at least array and bars', callExpr.loc)
       return
     }
-    const arrayArg = args[0]?.type === 'arg' ? args[0].value : null
-    const barsArg = args[1]?.type === 'arg' ? args[1].value : null
-    const swingArg = args.length > 2 && args[2]?.type === 'arg' ? args[2].value : null
-    const offsetArg = args.length > 3 && args[3]?.type === 'arg' ? args[3].value : null
+    const arrayArg = getArgValue(args, 0)
+    const barsArg = getArgValue(args, 1)
+    const swingArg = getArgValue(args, 2)
+    const offsetArg = getArgValue(args, 3)
     if (!arrayArg || !barsArg) {
       error(state, 'Fit requires array and bars arguments', callExpr.loc)
       return
@@ -1317,15 +1571,15 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'Walk') {
-    pushCallMeta(state, callExpr, 'Walk', bestEffortArgs(args))
+    pushCallMeta(state, callExpr, 'Walk', args)
     if (args.length < 2) {
       error(state, 'Walk(array, bar, swing?, offset?) requires at least array and bar', callExpr.loc)
       return
     }
-    const arrayArg = args[0]?.type === 'arg' ? args[0].value : null
-    const barArg = args[1]?.type === 'arg' ? args[1].value : null
-    const swingArg = args.length > 2 && args[2]?.type === 'arg' ? args[2].value : null
-    const offsetArg = args.length > 3 && args[3]?.type === 'arg' ? args[3].value : null
+    const arrayArg = getArgValue(args, 0)
+    const barArg = getArgValue(args, 1)
+    const swingArg = getArgValue(args, 2)
+    const offsetArg = getArgValue(args, 3)
     if (!arrayArg || !barArg) {
       error(state, 'Walk requires array and bar arguments', callExpr.loc)
       return
@@ -1352,14 +1606,14 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'Glide') {
-    pushCallMeta(state, callExpr, 'Glide', bestEffortArgs(args))
+    pushCallMeta(state, callExpr, 'Glide', args)
     if (args.length < 2) {
       error(state, 'Glide(array, bar, exponent?) requires at least array and bar', callExpr.loc)
       return
     }
-    const arrayArg = args[0]?.type === 'arg' ? args[0].value : null
-    const barArg = args[1]?.type === 'arg' ? args[1].value : null
-    const exponentArg = args.length > 2 && args[2]?.type === 'arg' ? args[2].value : null
+    const arrayArg = getArgValue(args, 0)
+    const barArg = getArgValue(args, 1)
+    const exponentArg = getArgValue(args, 2)
     if (!arrayArg || !barArg) {
       error(state, 'Glide requires array and bar arguments', callExpr.loc)
       return
@@ -1379,13 +1633,13 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'Step') {
-    pushCallMeta(state, callExpr, 'Step', bestEffortArgs(args))
+    pushCallMeta(state, callExpr, 'Step', args)
     if (args.length < 2) {
       error(state, 'Step(array, trig) requires array and trigger', callExpr.loc)
       return
     }
-    const arrayArg = args[0]?.type === 'arg' ? args[0].value : null
-    const trigArg = args[1]?.type === 'arg' ? args[1].value : null
+    const arrayArg = getArgValue(args, 0)
+    const trigArg = getArgValue(args, 1)
     if (!arrayArg || !trigArg) {
       error(state, 'Step requires array and trig arguments', callExpr.loc)
       return
@@ -1401,14 +1655,14 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
   }
 
   if (funcName === 'Random') {
-    pushCallMeta(state, callExpr, 'Random', bestEffortArgs(args))
+    pushCallMeta(state, callExpr, 'Random', args)
     if (args.length < 2) {
       error(state, 'Random(array, trig, seed?) requires array and trigger', callExpr.loc)
       return
     }
-    const arrayArg = args[0]?.type === 'arg' ? args[0].value : null
-    const trigArg = args[1]?.type === 'arg' ? args[1].value : null
-    const seedArg = args[2]?.type === 'arg' ? args[2].value : null
+    const arrayArg = getArgValue(args, 0)
+    const trigArg = getArgValue(args, 1)
+    const seedArg = getArgValue(args, 2)
     if (!arrayArg || !trigArg) {
       error(state, 'Random requires array and trig arguments', callExpr.loc)
       return
@@ -1431,162 +1685,19 @@ export function compileCallWithArgs(state: State, callExpr: Extract<Expr, { type
     return
   }
 
-  // First check if funcName is a variant name (like 'lp' or 'hp')
-  const variantGenName = primaryGenNameByVariantName[funcName]
-  const genName = variantGenName ?? (funcName.charAt(0).toUpperCase() + funcName.slice(1))
-  const variantName = variantGenName ? funcName : 'default'
-  const genKey = `${genName}${GEN_KEY_SEP}${variantName}`
-  const spec = primarySpecByGenKey[genKey]
-
-  if (!spec) {
-    // Check if this is a user-defined function
-    const varInfo = lookupVariable(state, funcName)
-    if (varInfo) {
-      // This is a user function call - need to get function definition to match named params
-      compileUserFunctionCall(state, callExpr, funcName, varInfo, args, dollarIndex)
-      return
-    }
-
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
-    error(state, `Unknown generator: ${funcName}`, callExpr.loc)
+  const generator = resolvePrimaryGeneratorByCallName(funcName)
+  if (generator) {
+    compileGeneratorCallFromSpec(state, callExpr, args, dollarIndex, generator.genKey, generator.spec)
     return
   }
 
-  const paramCount = spec.paramNames.length
-  const usesInput = spec.usesInput
-  const totalArgs = paramCount + (usesInput ? 1 : 0)
-  const stackBefore = state.stack.length
-
-  const paramHas = paramHasByGenKey[genKey]
-  const namedByName: Record<string, Expr> = Object.create(null)
-  const namedOrder: string[] = []
-  const positionalArgs: Expr[] = []
-  let argCount = 0
-
-  for (const a of args) {
-    if (a.type !== 'arg' || !a.value) continue
-    argCount++
-
-    if (a.name) {
-      if (!(a.name in namedByName)) namedOrder.push(a.name)
-      namedByName[a.name] = a.value
-      continue
-    }
-
-    if (a.value.type === 'identifier') {
-      const n = a.value.name
-      if (paramHas[n]) {
-        if (!(n in namedByName)) namedOrder.push(n)
-        namedByName[n] = a.value
-        continue
-      }
-    }
-
-    positionalArgs.push(a.value)
-  }
-
-  argCount += dollarIndex >= 0 ? 1 : 0
-  if (argCount > totalArgs) {
-    error(state, `Too many arguments for function '${funcName}'`, callExpr.loc)
+  const varInfo = lookupVariable(state, funcName)
+  if (varInfo) {
+    compileUserFunctionCall(state, callExpr, funcName, varInfo, args, dollarIndex)
     return
   }
-
-  // Runtime will handle polymorphism
-  const opCode = opCodeByGenKey[genKey]
-
-  if (opCode === undefined) {
-    error(state, `Unknown opcode for generator: ${spec.genName}_${spec.variantName}`, callExpr.loc)
-    return
-  }
-
-  // Handle $ in pipe - count it as a positional arg at dollarIndex
-  let positionalIndex = 0
-  const resolvedArgs: Record<string, Expr[]> | null = callExpr.loc.line <= state.preludeLines ? null : {}
-  const namedUsed = new Array(namedOrder.length).fill(false)
-  const defaults = defaultsByGenName[genName]
-
-  for (let i = 0; i < totalArgs; i++) {
-    if (i === dollarIndex) {
-      if (state.stack.length === 0) {
-        error(state, '$ used without a value on the stack', callExpr.loc)
-        return
-      }
-      // $ is already on stack, counts as a positional arg
-      positionalIndex++
-    }
-    else {
-      // Determine parameter name for this position
-      const paramIndex = usesInput ? i - 1 : i
-      const paramName = paramIndex >= 0 ? spec.paramNames[paramIndex] : null
-
-      // Check for named argument first using startsWith matching
-      let argExpr: Expr | null = null
-      if (paramName) {
-        for (let j = 0; j < namedOrder.length; j++) {
-          if (namedUsed[j]) continue
-          const argName = namedOrder[j]
-          if (!paramName.startsWith(argName)) continue
-          namedUsed[j] = true
-          argExpr = namedByName[argName] ?? null
-          break
-        }
-      }
-
-      if (!argExpr) {
-        // Use positional argument if available
-        argExpr = positionalArgs[positionalIndex] ?? null
-        positionalIndex++
-      }
-
-      if (resolvedArgs && paramName && argExpr) {
-        ;(resolvedArgs[paramName] ??= []).push(argExpr)
-      }
-
-      if (argExpr) {
-        compileExpr(state, argExpr)
-      }
-      else {
-        const defaultValue = (paramName ? defaults?.[paramName] : undefined) ?? 0
-        state.ops.push(AudioVmOp.PushScalar)
-        state.ops.push(defaultValue)
-        state.stack.push({ expr: { type: 'number' as const, value: defaultValue, loc: callExpr.loc } })
-      }
-    }
-  }
-
-  // Store PC: if in function, it's relative to function start; if in main program, it's already absolute
-  // Store PC before emitting to match runtime: at runtime, pc points to opcode, then increments, then we calculate pc - 1
-  const pc = state.ops.length
-  if (callExpr.loc.line > state.preludeLines) {
-    const userLine = callExpr.loc.line - state.preludeLines
-    const historyEntry: HistorySourceMap = {
-      line: userLine,
-      column: callExpr.loc.column,
-      genName: spec.genName,
-      pc: state.inFunction ? 0 : pc,
-      inFunction: state.inFunction,
-      __fromMainProgram: !state.isDeferredPass,
-    }
-    state.historySourceMap.push(historyEntry)
-
-    // If in function, mark this entry to be updated later with absolute PC
-    if (state.inFunction && state.currentFunctionId !== null) {
-      // Store a reference to update later - pc is relative to function bytecode start
-      ;(historyEntry as any).__functionId = state.currentFunctionId
-      ;(historyEntry as any).__relativePc = pc
-    }
-    else {
-      // In main program, PC is already absolute - store it directly
-      historyEntry.pc = pc
-    }
-  }
-
-  // Emit generator opcode
-  state.ops.push(opCode)
-
-  state.stack.length = stackBefore
-  state.stack.push({ expr: callExpr })
-  pushCallMeta(state, callExpr, spec.genName, resolvedArgs ?? {})
+  pushCallMeta(state, callExpr, funcName, args)
+  error(state, `Unknown generator: ${funcName}`, callExpr.loc)
 }
 
 function resolveFunctionInfo(state: State, funcName: string): FunctionInfo | undefined {
@@ -1602,6 +1713,8 @@ function resolveFunctionInfo(state: State, funcName: string): FunctionInfo | und
 }
 
 function getFunctionInfoById(state: State, functionId: number): FunctionInfo | undefined {
+  const byIndex = state.functions[functionId]
+  if (byIndex && byIndex.id === functionId) return byIndex
   for (const info of state.functions) {
     if (info.id === functionId) return info
   }
@@ -1643,8 +1756,7 @@ function maybeHintFunctionParamBindingsFromPositionalArgs(
       positionalParamIndex++
       continue
     }
-    const arg = args[i]
-    if (arg.type !== 'arg' || !arg.value) continue
+    const arg = args[i]!
     const paramIndex = positionalParamIndex++
     if (paramIndex >= paramCount) break
     const functionId = resolveFunctionIdFromExpr(state, arg.value)
@@ -1692,7 +1804,6 @@ function maybeHintInlineMapCallbackParam(
   let callbackArg: Expr | null = null
   const positional: Expr[] = []
   for (const arg of args) {
-    if (arg.type !== 'arg' || !arg.value) continue
     if (arg.name) {
       if (!arrayArg && 'array'.startsWith(arg.name)) arrayArg = arg.value
       if (!callbackArg && 'fn'.startsWith(arg.name)) callbackArg = arg.value
@@ -1778,8 +1889,7 @@ function maybeHintPlayCallbackParamFromPositionalArgs(
       positionalParamIndex++
       continue
     }
-    const arg = args[i]
-    if (arg.type !== 'arg' || !arg.value) continue
+    const arg = args[i]!
     if (positionalParamIndex === callbackParamIndex) {
       maybeHintFunctionValueFirstParamObjectKeys(state, arg.value, PLAY_CALLBACK_OBJECT_KEYS)
       return
@@ -1807,10 +1917,12 @@ function compileObjectDestructureArgumentForParam(
   objectKeys: string[],
   destructureNames: string[],
 ): boolean {
+  const keyIndexByName = new Map<string, number>()
+  for (let i = 0; i < objectKeys.length; i++) keyIndexByName.set(objectKeys[i]!, i)
   const keyIndexes: number[] = []
   for (const keyName of destructureNames) {
-    const keyIndex = objectKeys.indexOf(keyName)
-    if (keyIndex < 0) {
+    const keyIndex = keyIndexByName.get(keyName)
+    if (keyIndex === undefined) {
       error(state, `Unknown object property: ${keyName}`, callExpr.loc)
       return false
     }
@@ -1958,16 +2070,14 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
   // }
 
   // Check if any arguments are named (explicit name: value or shorthand identifier that may match a param)
-  const hasNamedArgs = args.some(arg =>
-    arg.type === 'arg' && (arg.name || (arg.shorthand && arg.value.type === 'identifier'))
-  )
+  const hasNamedArgs = hasNamedArgument(args)
 
   // If no function info or no named arguments, use simple positional matching (use resolvedFuncInfo so aliases work)
   if (!resolvedFuncInfo || !hasNamedArgs) {
     maybeHintPlayCallbackParamFromPositionalArgs(state, resolvedFuncInfo, args, dollarIndex)
     maybeHintFunctionParamBindingsFromPositionalArgs(state, resolvedFuncInfo, args, dollarIndex)
-    pushCallMeta(state, callExpr, funcName, bestEffortArgs(args))
-    const argsProvided = args.filter(a => a.type === 'arg' && a.value).length + (dollarIndex >= 0 ? 1 : 0)
+    pushCallMeta(state, callExpr, funcName, args)
+    const argsProvided = countProvidedArgs(args) + (dollarIndex >= 0 ? 1 : 0)
     const paramCount = resolvedFuncInfo?.params.length ?? 0
     if (resolvedFuncInfo && argsProvided > paramCount) {
       error(state, `Too many arguments for function '${funcName}'`, callExpr.loc)
@@ -1981,11 +2091,9 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
         positionalParamIndex++
         continue
       }
-      const arg = args[i]
-      if (arg.type === 'arg' && arg.value) {
-        const paramIndex = positionalParamIndex++
-        if (!compileUserFunctionArgument(state, callExpr, resolvedFuncInfo, paramIndex, arg.value)) return
-      }
+      const arg = args[i]!
+      const paramIndex = positionalParamIndex++
+      if (!compileUserFunctionArgument(state, callExpr, resolvedFuncInfo, paramIndex, arg.value)) return
     }
     // Push undefined for missing params so defaults apply
     const missingCount = Math.max(0, paramCount - argsProvided)
@@ -2010,6 +2118,9 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
   // Named argument matching
   const params = resolvedFuncInfo.params
   const paramCount = params.length
+  const paramIndexByName = new Map<string, number>()
+  for (let i = 0; i < paramCount; i++) paramIndexByName.set(params[i]!, i)
+  const prefixMatchCache = new Map<string, number>()
 
   // Match arguments to parameters (positional and named with prefix matching)
   const matchedArgs: (Expr | null)[] = new Array(paramCount).fill(null)
@@ -2024,12 +2135,10 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
       // Explicit named argument (e.g., trig:1)
       const argName = arg.name
       // Named argument - find matching parameter with startsWith
-      let matchedParamIndex = -1
-      for (let j = 0; j < params.length; j++) {
-        if (params[j].startsWith(argName)) {
-          matchedParamIndex = j
-          break
-        }
+      let matchedParamIndex = prefixMatchCache.get(argName)
+      if (matchedParamIndex === undefined) {
+        matchedParamIndex = findParamIndexByPrefix(params, argName)
+        prefixMatchCache.set(argName, matchedParamIndex)
       }
 
       if (matchedParamIndex === -1) {
@@ -2047,7 +2156,7 @@ export function compileUserFunctionCall(state: State, callExpr: Extract<Expr, { 
     else if (arg.shorthand && arg.value.type === 'identifier') {
       // Shorthand argument (e.g., trig) - only treat as named if it exactly matches a parameter
       const shorthandName = arg.value.name
-      const matchedParamIndex = params.indexOf(shorthandName)
+      const matchedParamIndex = paramIndexByName.get(shorthandName) ?? -1
 
       if (matchedParamIndex !== -1) {
         // Matches a parameter, treat as named argument

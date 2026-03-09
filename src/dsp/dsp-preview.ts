@@ -1,3 +1,4 @@
+import { debounce } from 'utils'
 import {
   MINI_ARRAY_HEADER_SIZE,
   MINI_HISTORY_ENTRY_SIZE,
@@ -103,6 +104,10 @@ export function createDspPreview(runtime: WasmRuntime) {
     }
   }
 
+  const gc = debounce(1000, () => {
+    runtime.gc()
+  })
+
   return {
     setControlCompileSnapshot(ccs: ControlCompileSnapshot) {
       state.result = ccs
@@ -140,7 +145,7 @@ export function createDspPreview(runtime: WasmRuntime) {
         piOverNyquist,
         bpm,
       )
-      runtime.gc()
+      gc()
       const infoPtr = runtime.getAudioVmInfoPtr(vmId)
       if (!state.vmView || state.structureHash !== state.lastBuiltStructureHash) {
         state.vmView = new AudioVmView(runtime.memory, infoPtr)

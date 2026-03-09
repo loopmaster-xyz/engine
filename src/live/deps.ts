@@ -26,13 +26,25 @@ export function collectClosureVarNames(
   outerLocals: Array<Map<string, unknown>>,
   opts: CollectOpts,
 ): string[] {
+  if (outerLocals.length === 0) return []
   const out = new Set<string>()
   const params = collectParamNames(fnExpr.params)
-  const inOuterLocals = (name: string): boolean => {
-    for (const scope of outerLocals) {
-      if (scope.has(name)) return true
+  let outerLocalNames: Set<string> | null = null
+
+  const hasOuterLocalName = (name: string): boolean => {
+    if (outerLocalNames === null) {
+      const names = new Set<string>()
+      for (let i = 0; i < outerLocals.length; i++) {
+        for (const key of outerLocals[i]!.keys()) names.add(key)
+      }
+      outerLocalNames = names
     }
-    return false
+    return outerLocalNames.has(name)
+  }
+
+  const maybeCapture = (name: string): void => {
+    if (params.has(name) || opts.systemVars.has(name)) return
+    if (hasOuterLocalName(name)) out.add(name)
   }
 
   const walkExpr = (e: Expr): void => {
@@ -41,9 +53,7 @@ export function collectClosureVarNames(
       case 'string':
         return
       case 'identifier':
-        if (!params.has(e.name) && !opts.systemVars.has(e.name) && inOuterLocals(e.name)) {
-          out.add(e.name)
-        }
+        maybeCapture(e.name)
         return
       case 'array':
         for (const it of e.items) walkExpr(it)
@@ -72,27 +82,19 @@ export function collectClosureVarNames(
         return
       case 'call':
         walkExpr(e.callee)
-        for (const a of e.args) {
-          if (a.type === 'arg') walkExpr(a.value)
-        }
+        for (let i = 0; i < e.args.length; i++) walkExpr(e.args[i]!.value)
         return
       case 'assign':
         if (e.left.type === 'identifier') {
           walkExpr(e.right)
-          if (e.op !== ':=' && !params.has(e.left.name) && !opts.systemVars.has(e.left.name)
-            && inOuterLocals(e.left.name))
-          {
-            out.add(e.left.name)
-          }
+          if (e.op !== ':=') maybeCapture(e.left.name)
           return
         }
         if (e.left.type === 'destructure') {
           // For destructuring assignments, check each name in the pattern
           walkExpr(e.right)
           for (const name of e.left.names) {
-            if (e.op !== ':=' && !params.has(name) && !opts.systemVars.has(name) && inOuterLocals(name)) {
-              out.add(name)
-            }
+            if (e.op !== ':=') maybeCapture(name)
           }
           return
         }
@@ -232,9 +234,7 @@ export function collectCapturedVarNames(body: Expr | Stmt, opts: CollectOpts): s
         return
       case 'call':
         walkExpr(e.callee)
-        for (const a of e.args) {
-          if (a.type === 'arg') walkExpr(a.value)
-        }
+        for (let i = 0; i < e.args.length; i++) walkExpr(e.args[i]!.value)
         return
       case 'assign':
         if (e.left.type === 'identifier' && e.op !== ':=') add(e.left.name)
@@ -353,333 +353,143 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
     return `${loc.line}:${loc.column}:${loc.start}:${loc.end}`
   }
 
-  const functionsWithRecord = new Set<string>()
   const functionToRecordCall = new Map<string, string>()
+  const functionsWithRecord = new Set<string>()
+  const functionContext: Array<string | null> = []
 
-  const checkForRecord = (expr: Expr): boolean => {
-    if (expr.type === 'call' && expr.callee.type === 'identifier' && expr.callee.name === 'record') {
-      return true
-    }
-    switch (expr.type) {
+  const currentFunctionContext = (): string | null => {
+    if (functionContext.length === 0) return null
+    return functionContext[functionContext.length - 1] ?? null
+  }
+
+  const discoverExpr = (e: Expr): void => {
+    switch (e.type) {
       case 'number':
       case 'string':
       case 'identifier':
-        return false
       case 'destructure':
-        return false
+        return
       case 'array':
-        for (const it of expr.items) { if (checkForRecord(it)) return true }
-        return false
+        for (const it of e.items) discoverExpr(it)
+        return
       case 'object':
-        for (const entry of expr.entries) { if (checkForRecord(entry.value)) return true }
-        return false
+        for (const entry of e.entries) discoverExpr(entry.value)
+        return
       case 'index':
-        return checkForRecord(expr.object) || checkForRecord(expr.index)
+        discoverExpr(e.object)
+        discoverExpr(e.index)
+        return
       case 'member':
-        return checkForRecord(expr.object)
+        discoverExpr(e.object)
+        return
       case 'unary':
-        return checkForRecord(expr.expr)
+        discoverExpr(e.expr)
+        return
       case 'binary':
-        return checkForRecord(expr.left) || checkForRecord(expr.right)
+        discoverExpr(e.left)
+        discoverExpr(e.right)
+        return
       case 'ternary':
-        return checkForRecord(expr.test) || checkForRecord(expr.then) || checkForRecord(expr.else)
+        discoverExpr(e.test)
+        discoverExpr(e.then)
+        discoverExpr(e.else)
+        return
       case 'call':
-        if (checkForRecord(expr.callee)) return true
-        for (const a of expr.args) {
-          if (a.type === 'arg' && checkForRecord(a.value)) return true
+        if (e.callee.type === 'identifier' && e.callee.name === 'record') {
+          const functionName = currentFunctionContext()
+          if (functionName !== null && !functionToRecordCall.has(functionName)) {
+            const locKey = getLocKey(e.loc)
+            functionToRecordCall.set(functionName, locKey)
+            functionsWithRecord.add(functionName)
+          }
         }
-        return false
+        discoverExpr(e.callee)
+        for (const a of e.args) discoverExpr(a.value)
+        return
       case 'assign':
-        return checkForRecord(expr.left) || checkForRecord(expr.right)
-      case 'fn':
-        return false
-      case 'switch':
-        if (checkForRecord(expr.test)) return true
-        for (const c of expr.cases) {
-          if (c.test && checkForRecord(c.test)) return true
-          for (const st of c.body) { if (checkStmtForRecord(st)) return true }
+        if (e.left.type === 'identifier' && e.right.type === 'fn') {
+          functionContext.push(e.left.name)
+          if (e.right.body.type === 'block') discoverStmt(e.right.body)
+          else discoverExpr(e.right.body)
+          functionContext.pop()
+          return
         }
-        return false
+        if (e.left.type !== 'identifier' && e.left.type !== 'destructure') discoverExpr(e.left)
+        discoverExpr(e.right)
+        return
+      case 'switch':
+        discoverExpr(e.test)
+        for (const c of e.cases) {
+          if (c.test) discoverExpr(c.test)
+          for (const st of c.body) discoverStmt(st)
+        }
+        return
+      case 'fn':
+        functionContext.push(null)
+        if (e.body.type === 'block') discoverStmt(e.body)
+        else discoverExpr(e.body)
+        functionContext.pop()
+        return
     }
   }
 
-  const checkStmtForRecord = (s: Stmt): boolean => {
+  const discoverStmt = (s: Stmt): void => {
     switch (s.type) {
       case 'expr':
-        return checkForRecord(s.expr)
+        discoverExpr(s.expr)
+        return
       case 'block':
-        for (const it of s.body) { if (checkStmtForRecord(it)) return true }
-        return false
+        for (const it of s.body) discoverStmt(it)
+        return
       case 'if':
-        return checkForRecord(s.test) || checkStmtForRecord(s.then) || (s.else ? checkStmtForRecord(s.else) : false)
+        discoverExpr(s.test)
+        discoverStmt(s.then)
+        if (s.else) discoverStmt(s.else)
+        return
       case 'while':
-        return checkForRecord(s.test) || checkStmtForRecord(s.body)
+        discoverExpr(s.test)
+        discoverStmt(s.body)
+        return
       case 'do':
-        return checkStmtForRecord(s.body) || checkForRecord(s.test)
+        discoverStmt(s.body)
+        discoverExpr(s.test)
+        return
       case 'for':
-        return checkForRecord(s.from) || checkForRecord(s.to) || checkStmtForRecord(s.body)
+        discoverExpr(s.from)
+        discoverExpr(s.to)
+        discoverStmt(s.body)
+        return
       case 'for-of':
-        return checkForRecord(s.iterable) || checkStmtForRecord(s.body)
+        discoverExpr(s.iterable)
+        discoverStmt(s.body)
+        return
       case 'switch':
-        return checkForRecord(s.test)
-          || s.cases.some(c => c.body.some(st => checkStmtForRecord(st)))
-      case 'return':
-        return s.value ? checkForRecord(s.value) : false
-      case 'throw':
-        return s.value ? checkForRecord(s.value) : false
-      case 'try':
-        return checkStmtForRecord(s.body) || (s.catch ? checkStmtForRecord(s.catch.body) : false)
-          || (s.finally ? checkStmtForRecord(s.finally) : false)
-      case 'label':
-        return checkStmtForRecord(s.stmt)
-      case 'break':
-      case 'continue':
-        return false
-    }
-  }
-
-  // Helper to find the record() call location within an expression
-  const findRecordCallLoc = (expr: Expr): string | null => {
-    if (expr.type === 'call' && expr.callee.type === 'identifier' && expr.callee.name === 'record') {
-      return getLocKey(expr.loc)
-    }
-    switch (expr.type) {
-      case 'number':
-      case 'string':
-      case 'identifier':
-        return null
-      case 'array':
-        for (const it of expr.items) {
-          const loc = findRecordCallLoc(it)
-          if (loc) return loc
-        }
-        return null
-      case 'object':
-        for (const entry of expr.entries) {
-          const loc = findRecordCallLoc(entry.value)
-          if (loc) return loc
-        }
-        return null
-      case 'index':
-        return findRecordCallLoc(expr.object) || findRecordCallLoc(expr.index)
-      case 'member':
-        return findRecordCallLoc(expr.object)
-      case 'unary':
-        return findRecordCallLoc(expr.expr)
-      case 'binary':
-        return findRecordCallLoc(expr.left) || findRecordCallLoc(expr.right)
-      case 'ternary':
-        return findRecordCallLoc(expr.test) || findRecordCallLoc(expr.then) || findRecordCallLoc(expr.else)
-      case 'call':
-        const calleeLoc = findRecordCallLoc(expr.callee)
-        if (calleeLoc) return calleeLoc
-        for (const a of expr.args) {
-          if (a.type === 'arg') {
-            const argLoc = findRecordCallLoc(a.value)
-            if (argLoc) return argLoc
-          }
-        }
-        return null
-      case 'assign':
-        return findRecordCallLoc(expr.left) || findRecordCallLoc(expr.right)
-      case 'destructure':
-        // Destructure patterns don't contain expressions
-        return null
-      case 'fn':
-        return null // Don't recurse into nested functions
-      case 'switch': {
-        const testLoc = findRecordCallLoc(expr.test)
-        if (testLoc) return testLoc
-        for (const c of expr.cases) {
-          if (c.test) {
-            const loc = findRecordCallLoc(c.test)
-            if (loc) return loc
-          }
-          for (const st of c.body) {
-            const loc = findRecordCallLocInStmt(st)
-            if (loc) return loc
-          }
-        }
-        return null
-      }
-    }
-  }
-
-  // Helper to find the record() call location within a statement
-  const findRecordCallLocInStmt = (s: Stmt): string | null => {
-    switch (s.type) {
-      case 'expr':
-        return findRecordCallLoc(s.expr)
-      case 'block':
-        for (const it of s.body) {
-          const loc = findRecordCallLocInStmt(it)
-          if (loc) return loc
-        }
-        return null
-      case 'if':
-        return findRecordCallLoc(s.test) || findRecordCallLocInStmt(s.then)
-          || (s.else ? findRecordCallLocInStmt(s.else) : null)
-      case 'while':
-        return findRecordCallLoc(s.test) || findRecordCallLocInStmt(s.body)
-      case 'do':
-        return findRecordCallLocInStmt(s.body) || findRecordCallLoc(s.test)
-      case 'for':
-        return findRecordCallLoc(s.from) || findRecordCallLoc(s.to) || findRecordCallLocInStmt(s.body)
-      case 'for-of':
-        return findRecordCallLoc(s.iterable) || findRecordCallLocInStmt(s.body)
-      case 'switch': {
-        const loc = findRecordCallLoc(s.test)
-        if (loc) return loc
+        discoverExpr(s.test)
         for (const c of s.cases) {
-          for (const st of c.body) {
-            const stLoc = findRecordCallLocInStmt(st)
-            if (stLoc) return stLoc
-          }
+          for (const st of c.body) discoverStmt(st)
         }
-        return null
-      }
+        return
       case 'return':
-        return s.value ? findRecordCallLoc(s.value) : null
+        if (s.value) discoverExpr(s.value)
+        return
       case 'throw':
-        return s.value ? findRecordCallLoc(s.value) : null
+        if (s.value) discoverExpr(s.value)
+        return
       case 'try':
-        return findRecordCallLocInStmt(s.body) || (s.catch ? findRecordCallLocInStmt(s.catch.body) : null)
-          || (s.finally ? findRecordCallLocInStmt(s.finally) : null)
+        discoverStmt(s.body)
+        if (s.catch) discoverStmt(s.catch.body)
+        if (s.finally) discoverStmt(s.finally)
+        return
       case 'label':
-        return findRecordCallLocInStmt(s.stmt)
+        discoverStmt(s.stmt)
+        return
       case 'break':
       case 'continue':
-        return null
+        return
     }
   }
 
-  const discoverRecordFunctions = (): void => {
-    const walkExpr = (e: Expr): void => {
-      if (e.type === 'assign' && e.left.type === 'identifier' && e.right.type === 'fn') {
-        const funcName = e.left.name
-        const hasRecord = e.right.body.type === 'block'
-          ? checkStmtForRecord(e.right.body)
-          : checkForRecord(e.right.body)
-        if (hasRecord) {
-          functionsWithRecord.add(funcName)
-          const recordLocKey = e.right.body.type === 'block'
-            ? findRecordCallLocInStmt(e.right.body)
-            : findRecordCallLoc(e.right.body)
-          if (recordLocKey) functionToRecordCall.set(funcName, recordLocKey)
-        }
-      }
-      switch (e.type) {
-        case 'number':
-        case 'string':
-        case 'identifier':
-        case 'destructure':
-          return
-        case 'array':
-          for (const it of e.items) walkExpr(it)
-          return
-        case 'object':
-          for (const entry of e.entries) walkExpr(entry.value)
-          return
-        case 'index':
-          walkExpr(e.object)
-          walkExpr(e.index)
-          return
-        case 'member':
-          walkExpr(e.object)
-          return
-        case 'unary':
-          walkExpr(e.expr)
-          return
-        case 'binary':
-          walkExpr(e.left)
-          walkExpr(e.right)
-          return
-        case 'ternary':
-          walkExpr(e.test)
-          walkExpr(e.then)
-          walkExpr(e.else)
-          return
-        case 'call':
-          walkExpr(e.callee)
-          for (const a of e.args) {
-            if (a.type === 'arg') walkExpr(a.value)
-          }
-          return
-        case 'assign':
-          walkExpr(e.left)
-          walkExpr(e.right)
-          return
-        case 'fn':
-          if (e.body.type === 'block') walkStmt(e.body)
-          else walkExpr(e.body)
-          return
-        case 'switch':
-          walkExpr(e.test)
-          for (const c of e.cases) {
-            if (c.test) walkExpr(c.test)
-            for (const st of c.body) walkStmt(st)
-          }
-          return
-      }
-    }
-    const walkStmt = (s: Stmt): void => {
-      switch (s.type) {
-        case 'expr':
-          walkExpr(s.expr)
-          return
-        case 'block':
-          for (const it of s.body) walkStmt(it)
-          return
-        case 'if':
-          walkExpr(s.test)
-          walkStmt(s.then)
-          if (s.else) walkStmt(s.else)
-          return
-        case 'while':
-          walkExpr(s.test)
-          walkStmt(s.body)
-          return
-        case 'do':
-          walkStmt(s.body)
-          walkExpr(s.test)
-          return
-        case 'for':
-          walkExpr(s.from)
-          walkExpr(s.to)
-          walkStmt(s.body)
-          return
-        case 'for-of':
-          walkExpr(s.iterable)
-          walkStmt(s.body)
-          return
-        case 'switch':
-          walkExpr(s.test)
-          for (const c of s.cases) {
-            for (const st of c.body) walkStmt(st)
-          }
-          return
-        case 'return':
-          if (s.value) walkExpr(s.value)
-          return
-        case 'throw':
-          if (s.value) walkExpr(s.value)
-          return
-        case 'try':
-          walkStmt(s.body)
-          if (s.catch) walkStmt(s.catch.body)
-          if (s.finally) walkStmt(s.finally)
-          return
-        case 'label':
-          walkStmt(s.stmt)
-          return
-        case 'break':
-        case 'continue':
-          return
-      }
-    }
-    for (const stmt of program.body) walkStmt(stmt)
-  }
-  discoverRecordFunctions()
+  for (const stmt of program.body) discoverStmt(stmt)
 
   let inFunctionBody = false
 
@@ -721,18 +531,21 @@ export function assignRecordCallIds(program: { body: Stmt[] }): RecordCallMappin
               const locKey = getLocKey(e.loc)
               if (!recordCallIds.has(locKey)) recordCallIds.set(locKey, nextRecordId++)
             }
-          } else if (functionsWithRecord.has(e.callee.name)) {
+          }
+          else if (functionsWithRecord.has(e.callee.name)) {
             const callSiteLocKey = getLocKey(e.loc)
             if (!recordCallIds.has(callSiteLocKey)) recordCallIds.set(callSiteLocKey, nextRecordId++)
           }
         }
-        walkExpr(e.callee)
+        else {
+          walkExpr(e.callee)
+        }
         for (const a of e.args) {
-          if (a.type === 'arg') walkExpr(a.value)
+          walkExpr(a.value)
         }
         return
       case 'assign':
-        walkExpr(e.left)
+        if (e.left.type !== 'identifier' && e.left.type !== 'destructure') walkExpr(e.left)
         walkExpr(e.right)
         return
       case 'destructure':
