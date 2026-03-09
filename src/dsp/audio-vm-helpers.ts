@@ -346,7 +346,9 @@ export function createTypedHistories(
     if (arr) arr.push(entry)
     else sourceMapByPc.set(entry.pc, [entry])
 
-    if (entry.callSite && entry.funcName) {
+    // Only keep user-program call sites. Prelude/internal call-site entries can
+    // otherwise remap unrelated histories to line 1 and duplicate widgets.
+    if (entry.callSite && entry.funcName && entry.__fromMainProgram !== false) {
       const e = entry as CallSiteEntry
       callSiteByPc.set(entry.pc, e)
       callSiteEntries.push(e)
@@ -362,7 +364,8 @@ export function createTypedHistories(
     let match = false
     for (const pc of frames) {
       const entries = sourceMapByPc.get(pc)
-      const sm = entries?.find(e => !e.callSite && outSoloMatch(e.genName, history.genName))
+      const candidates = entries?.filter(e => !e.callSite && outSoloMatch(e.genName, history.genName))
+      const sm = candidates?.find(e => e.__fromMainProgram !== false) ?? candidates?.[0]
       if (sm) {
         match = true
         matches.push({ history, sourceMap: sm })
