@@ -116,8 +116,8 @@ tube=(in,drive=3,bias=.2)->{
 
 // Modulated delay effect with LFO-controlled delay time
 moddelay=(in,base,depth,rate,feedback,offset=0,mode=write)->{
-  lfo = lfotri(rate, offset)
-  seconds = base + depth * lfo
+  lfo := lfotri(rate, offset)
+  seconds := base + depth * lfo
   delay(in, seconds, feedback, mode)
 }
 
@@ -319,40 +319,40 @@ mono=([L,R])->(L+R)*.5
 
 // Adjust stereo width using mid-side processing (1 = normal, 0 = mono, >1 = wider)
 stereowidth=([L,R],width=1)->{
-  mid=(L+R)*0.5
-  side=(L-R)*0.5
+  mid:=(L+R)*0.5
+  side:=(L-R)*0.5
   side*=width
   return [mid+side,mid-side]
 }
 
 // Widen stereo signal by delaying high frequencies in right channel
 widen=([L,R],seconds=0.0001)->{
-  cutoff=200
-  loL=lp(L,cutoff)
-  loR=lp(R,cutoff)
-  hiL=hp(L,cutoff)
-  hiR=hp(R,cutoff)
+  cutoff:=200
+  loL:=lp(L,cutoff)
+  loR:=lp(R,cutoff)
+  hiL:=hp(L,cutoff)
+  hiR:=hp(R,cutoff)
   return [loL+hiL,loR+delay(hiR,seconds)]
 }
 
 // Pan stereo signal (0=left, 0.5=center, 1=right)
 pan=([L,R],balance=0.5)->{
-  p=clamp(balance,0,1)
+  p:=clamp(balance,0,1)
   return [L*(1-p),R*p]
 }
 
 // Vocoder effect using bandpass filters and envelope following
 vocoder=(carrier,modulator,bands=16,attack=.008,release=.04,freqMin=80,freqMax=7700)->{
-  logRange = log(freqMax / freqMin)
-  step     = logRange / (bands - 1)
-  r = exp(step)
-  Q = clamp(1 / (r - 1), 8, 20)
-  s = 0
+  logRange := log(freqMax / freqMin)
+  step     := logRange / (bands - 1)
+  r := exp(step)
+  Q := clamp(1 / (r - 1), 8, 20)
+  s := 0
   for (i in 0 .. bands-1) {
-    freq = freqMin * exp(i * step)
-    modBand = bp(modulator, freq, Q)
-    env     = envfollow(abs(modBand), attack, release)
-    carBand = bp(carrier, freq, Q)
+    freq := freqMin * exp(i * step)
+    modBand := bp(modulator, freq, Q)
+    env     := envfollow(abs(modBand), attack, release)
+    carBand := bp(carrier, freq, Q)
     s += carBand * env
   }
   s/bands
@@ -392,7 +392,7 @@ karplus=(hz,pluck=pink,seed=123,attack=.01,decay=.1,exponent=50,damping=.5,feedb
 }
 
 rhodes=(hz,trig)->{
-  env=adsr(.00001,1.4,.92,8,e:6,trig)
+  env:=adsr(.00001,1.4,.92,8,e:6,trig)
   oversample(4,()->{
     sine(hz+sine(hz*1.013,trig)*hz*7.25,trig)*ad(.00001,1.2,e:6,trig)*.12
     +sine(hz+sine(hz*2.752,trig)*hz*2.15,trig)*env*.4
@@ -406,9 +406,9 @@ rhodes=(hz,trig)->{
 
 // Supersaw oscillator with detuned voices
 supersaw=(hz,voices=5,spread=.05)->{
-  s = 0
+  s := 0
   for (i in 0 .. voices) {
-    d = (i/(voices+1)-.5)*spread
+    d := (i/(voices+1)-.5)*spread
     s += saw(hz*(1+d))
   }
   s / voices
@@ -427,32 +427,32 @@ bdsynth=(
 )->sine(base+punch*fm(trig),offset,trig)*amp(trig) |> lps($,base+cutoff*filter(trig),q) |> limiter($)
 
 bd=(base,punch,offset,sampleOffset=0,cutoff,q,amp,fm,filter,trig=tram('x-x-x-x-'))->{
-  sample=record(.2,()->bdsynth(base,punch,offset,cutoff,q,amp,fm,filter,trig:1))
+  sample:=record(.2,()->bdsynth(base,punch,offset,cutoff,q,amp,fm,filter,trig:1))
   sampler(sample,offset:sampleOffset,trig)
 }
 
 hhsynth=(width=.4,trig)->{
-  env=adsr(.06,.05 ,.950 ,.1 ,32,trig)
+  env:=adsr(.06,.05 ,.950 ,.1 ,32,trig)
   oversample(8,()->[205.3,369.6,304.4,522.7,800,540].map(x->pwm(x,width)).avg()*env
   |> bp($,8000,.85)|>bp($,10k,.85)|>hp($,11k,.85)) |> tanh($*6)
 }
 
 ch=(width=.9,trig=tram('--x-',1/4))->{
-  sample=record(.2,()->hhsynth(width,trig:step(.9,dec())))
+  sample:=record(.2,()->hhsynth(width,trig:step(.9,dec())))
   sampler(sample,trig,offset:.29)*ad(0.0001,.5,3,trig)*.6
 }
 
 oh=(width=.4,trig=tram('-x',1/4))->{
-  sample=record(.2,()->hhsynth(width,trig:step(.9,dec())))
+  sample:=record(.2,()->hhsynth(width,trig:step(.9,dec())))
   sampler(sample,trig,offset:.299)*ad(0.0001,.9,trig)*.8
 }
 
 sdsynth=(seed=7,base=#5*o2,trig=step(.9,dec()))->{
-  amp=ad(.0001,1.7366,20,trig)
-  noise=adsr(.0001,.0231 ,.870 ,.3159 ,8.000,trig)
-  click = ad(.0001, .02, 4, trig)
-  pitch = ad(.0001, .3095 , 20, trig)
-  pitchAmt=base*2
+  amp:=ad(.0001,1.7366,20,trig)
+  noise:=adsr(.0001,.0231 ,.870 ,.3159 ,8.000,trig)
+  click:= ad(.0001, .02, 4, trig)
+  pitch:= ad(.0001, .3095 , 20, trig)
+  pitchAmt:=base*2
   ;(sine(base+pitch*pitchAmt,trig)*.3 |> bps($, base * 2, .8))*amp
 
   +(white(seed,trig) |> hps($, 1800,.4) |> bps($, 7100, .4))*noise
@@ -461,13 +461,13 @@ sdsynth=(seed=7,base=#5*o2,trig=step(.9,dec()))->{
 }
 
 sd=(seed,trig=tram('-x',1/2))->{
-  sample=record(.2,()->sdsynth(seed))
+  sample:=record(.2,()->sdsynth(seed))
   sampler(sample,trig)
 }
 
 drums=(seed=1)->{
-  chw = fract(seed * 1234.1234)
-  ohw = fract(seed * 4567.4567)
+  chw := fract(seed * 1234.1234)
+  ohw := fract(seed * 4567.4567)
   bd()+sd(seed)+ch(chw)+oh(ohw) |> limiter($)
 }
 
@@ -486,10 +486,10 @@ marimba=(hz,trig=every(1/8))->{
 }
 
 piano=(hz,trig)->{
-  s=oversample(4,()->sine(hz+sine(hz*7,trig)*hz*1.007,trig)+sine(hz+sine(hz*3,trig)*hz*1.004,trig)*.25)*.5
+  s:=oversample(4,()->sine(hz+sine(hz*7,trig)*hz*1.007,trig)+sine(hz+sine(hz*3,trig)*hz*1.004,trig)*.25)*.5
   s+=gauss()*.3*ad(.00001,.01,e:3,trig)
   s*=adsr(.0003,.18,.9,.8,e:9,trig)
-  hzco=hz**.79
+  hzco:=hz**.79
   s=s*.15+delay(s,1.2/hzco,.84,mode:append,x->tanh(lp1(x,hz*8)))*.015
          +delay(s,1.8/hzco,.94,mode:append,x->tanh(lp1(x,hz*3)))*.015
 }
@@ -498,6 +498,28 @@ bongo=(hz,trig)->{
   pink()*ad(.0008,.01+.02*(random(123) |> sah($,trig)),2,trig)*(1+.6*(random(567) |> sah($,trig)))+
   sine(hz+sine(300)*50+sine(800+800*(random(234) |> sah($,trig)))*(700+200*(random(345) |> sah($,trig))))*ad(.01,.12,3,trig)
   *(.2+.8*(random(456) |> sah($,trig)))
+}
+
+flute=(hz,trig)->{
+  env:=adsr(.05,.10,.82,.24,3,trig)
+  vib:=lfosine(5.0)*0.0015*ad(.2,1.5,trig)
+  freq:=hz*(1+vib)
+
+  air:=bp(pink(),hz*2.0,1.1)*.435*env
+  body:=sine(freq)*.95 + sine(freq*2)*.035 + sine(freq*3.02)*.065
+
+  s:=body + air
+  s:=lp(s,hz*8 + 1200,.7)
+  tanh(s*.95)*env*.45
+}
+
+pad=(notes,trig)->{
+  notes.map(hz->
+    (tri(hz*2.035)*.22+saw(hz*(1+.003*lfosine(1/2)))+sqr(hz/2.03)*.08)
+    |> lpm($,500+lfosine(4)*2000,1)*.5 + hpm($,6000,.5)*.02).avg()
+
+  * adsr(.03,.3,.95,1.5,trig)
+  |> ($+fdn($,.5,.5,.5,1))*.5
 }
 
 ;
