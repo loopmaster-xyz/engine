@@ -162,6 +162,20 @@ midiToHz = midi -> {
   440 * 2 ** ((m - 69) / 12) * tune
 }
 
+ratchet = (n, trig) -> {
+  phase := phasor(n, trig)
+  zerox(phase - .5)
+}
+
+// Keep or drop incoming triggers with probability p.
+skip=(trig,p=.5,seed=0)->{
+  r:=random(seed) |> sah($,trig)
+  trig * step(r,p)
+}
+
+// Basic flam: original hit plus one delayed softer hit.
+flam=(trig,seconds=.2,decay=.7)->trig + delay(trig*decay,seconds)
+
 // mini event interpreter.
 // Input event shape: { hz, trig, from, id, glide? } encoded as [hz, trig, from, id, glide?].
 // Callback receives one object argument: { hz, trig }.

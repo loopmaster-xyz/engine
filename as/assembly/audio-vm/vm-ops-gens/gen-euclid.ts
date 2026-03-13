@@ -13,52 +13,52 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Euclid(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar(), 157, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar(), 157, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio(), 158, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio(), 158, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar(), 159, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar(), 159, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio(), 160, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio(), 160, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar(), 161, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar(), 161, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio(), 162, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio(), 162, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar(), 163, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar(), 163, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio(), 164, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio(), 164, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar(), 165, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar(), 165, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio(), 166, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio(), 166, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar(), 167, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar(), 167, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio(), 168, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio(), 168, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar(), 169, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar(), 169, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio(), 170, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio(), 170, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar(), 171, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar(), 171, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar>(dst).reset() }))
-  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio(), 172, 4, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio(), 172, 5, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio>(dst).copyFrom(changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio>(src))
   }, (dst: Object) => { changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio>(dst).reset() }))
 }
@@ -103,6 +103,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar = changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
         const baseLen: i32 = params.bufferLength / osFactor
@@ -136,6 +137,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio = changetype<Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
@@ -182,6 +184,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar = changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
@@ -228,6 +231,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio = changetype<Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
       const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
@@ -286,6 +290,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar = changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const stepsAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, stepsTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
@@ -332,6 +337,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio = changetype<Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const stepsAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, stepsTagged, procLen)
       const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
@@ -390,6 +396,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar = changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const stepsAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, stepsTagged, procLen)
       const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
@@ -448,6 +455,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio = changetype<Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const stepsAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, stepsTagged, procLen)
       const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
       const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
@@ -518,6 +526,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar = changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const pulsesAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, pulsesTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
       if (osFactor > 0) {
@@ -564,6 +573,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio = changetype<Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const pulsesAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, pulsesTagged, procLen)
       const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
@@ -622,6 +632,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar = changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const pulsesAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, pulsesTagged, procLen)
       const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
@@ -680,6 +691,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio = changetype<Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const pulsesAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, pulsesTagged, procLen)
       const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
       const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
@@ -750,6 +762,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar = changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const pulsesAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, pulsesTagged, procLen)
       const stepsAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, stepsTagged, procLen)
       const osFactor: i32 = genOpHelpers.getOversampleFactor(vm)
@@ -808,6 +821,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio = changetype<Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const pulsesAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, pulsesTagged, procLen)
       const stepsAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, stepsTagged, procLen)
       const barAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, barTagged, procLen)
@@ -878,6 +892,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar = changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const pulsesAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, pulsesTagged, procLen)
       const stepsAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, stepsTagged, procLen)
       const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)
@@ -948,6 +963,7 @@ case AudioVmOp.GenEuclid_default: {
       output = vm.arena.get(procLen)
       const outputPtr: usize = output.dataStart
       const instance: Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio = changetype<Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio>(slot.instance)
+      vm.paramScratch[4] = instance.fired
       const pulsesAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, pulsesTagged, procLen)
       const stepsAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, stepsTagged, procLen)
       const offsetAudioPtr: usize = genOpHelpers.taggedToAudioParamPtr(vm, offsetTagged, procLen)

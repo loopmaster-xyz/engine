@@ -6,6 +6,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar 
   static readonly defaultInstance: Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar = new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   lastSteps: f32 = Infinity
   lastBar: f32 = Infinity
   lastSamplesPerBar: f32 = Infinity
@@ -20,6 +21,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar 
 
   copyFrom(src: Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.lastSteps = src.lastSteps
     this.lastBar = src.lastBar
     this.lastSamplesPerBar = src.lastSamplesPerBar
@@ -55,9 +57,13 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar 
       this.lastBar = barClamped
     }
 
+    if (this.fired) {
+      this.fired = 0
+    }
     this.nextSampleCount = (sampleCount + bufferLength)
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let stepDur: f32 = this.stepDur
 
@@ -85,6 +91,9 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar 
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -94,6 +103,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_scalar 
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -101,6 +111,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio {
   static readonly defaultInstance: Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio = new Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   nextSampleCount: i32
 
   reset(): void {
@@ -109,6 +120,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio {
 
   copyFrom(src: Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.nextSampleCount = src.nextSampleCount
   }
 
@@ -120,8 +132,12 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio {
     let isDiscontinuous: f32 = 0
     let stepDur: f32 = 0
     this.nextSampleCount = (sampleCount + bufferLength)
+    if (this.fired) {
+      this.fired = 0
+    }
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let nextSampleCount: i32 = this.nextSampleCount
 
@@ -154,6 +170,9 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -164,6 +183,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_scalar_bar_audio {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -171,6 +191,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar {
   static readonly defaultInstance: Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar = new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   lastSteps: f32 = Infinity
   lastBar: f32 = Infinity
   lastSamplesPerBar: f32 = Infinity
@@ -185,6 +206,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar {
 
   copyFrom(src: Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.lastSteps = src.lastSteps
     this.lastBar = src.lastBar
     this.lastSamplesPerBar = src.lastSamplesPerBar
@@ -219,9 +241,13 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar {
       this.lastBar = barClamped
     }
 
+    if (this.fired) {
+      this.fired = 0
+    }
     this.nextSampleCount = (sampleCount + bufferLength)
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let stepDur: f32 = this.stepDur
 
@@ -252,6 +278,9 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -262,6 +291,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_scalar {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -269,6 +299,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio {
   static readonly defaultInstance: Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio = new Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   nextSampleCount: i32
 
   reset(): void {
@@ -277,6 +308,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio {
 
   copyFrom(src: Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.nextSampleCount = src.nextSampleCount
   }
 
@@ -287,8 +319,12 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio {
     let isDiscontinuous: f32 = 0
     let stepDur: f32 = 0
     this.nextSampleCount = (sampleCount + bufferLength)
+    if (this.fired) {
+      this.fired = 0
+    }
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let nextSampleCount: i32 = this.nextSampleCount
 
@@ -324,6 +360,9 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -335,6 +374,7 @@ export class Euclid_default_pulses_scalar_steps_scalar_offset_audio_bar_audio {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -342,6 +382,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar {
   static readonly defaultInstance: Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar = new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   lastBar: f32 = Infinity
   lastSamplesPerBar: f32 = Infinity
   intervalSamples: f32
@@ -353,6 +394,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar {
 
   copyFrom(src: Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.lastBar = src.lastBar
     this.lastSamplesPerBar = src.lastSamplesPerBar
     this.intervalSamples = src.intervalSamples
@@ -377,9 +419,13 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar {
       this.lastSamplesPerBar = samplesPerBar
     }
 
+    if (this.fired) {
+      this.fired = 0
+    }
     this.nextSampleCount = (sampleCount + bufferLength)
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let intervalSamples: f32 = this.intervalSamples
     let nextSampleCount: i32 = this.nextSampleCount
@@ -412,6 +458,9 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -422,6 +471,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_scalar {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -429,6 +479,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio {
   static readonly defaultInstance: Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio = new Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   nextSampleCount: i32
 
   reset(): void {
@@ -437,6 +488,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio {
 
   copyFrom(src: Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.nextSampleCount = src.nextSampleCount
   }
 
@@ -447,8 +499,12 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio {
     let isDiscontinuous: f32 = 0
     let stepDur: f32 = 0
     this.nextSampleCount = (sampleCount + bufferLength)
+    if (this.fired) {
+      this.fired = 0
+    }
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let nextSampleCount: i32 = this.nextSampleCount
 
@@ -484,6 +540,9 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -495,6 +554,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_scalar_bar_audio {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -502,6 +562,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar {
   static readonly defaultInstance: Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar = new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   lastBar: f32 = Infinity
   lastSamplesPerBar: f32 = Infinity
   intervalSamples: f32
@@ -513,6 +574,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar {
 
   copyFrom(src: Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.lastBar = src.lastBar
     this.lastSamplesPerBar = src.lastSamplesPerBar
     this.intervalSamples = src.intervalSamples
@@ -536,9 +598,13 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar {
       this.lastSamplesPerBar = samplesPerBar
     }
 
+    if (this.fired) {
+      this.fired = 0
+    }
     this.nextSampleCount = (sampleCount + bufferLength)
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let intervalSamples: f32 = this.intervalSamples
     let nextSampleCount: i32 = this.nextSampleCount
@@ -573,6 +639,9 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -584,6 +653,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_scalar {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -591,6 +661,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio {
   static readonly defaultInstance: Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio = new Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   nextSampleCount: i32
 
   reset(): void {
@@ -599,6 +670,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio {
 
   copyFrom(src: Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.nextSampleCount = src.nextSampleCount
   }
 
@@ -608,8 +680,12 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio {
     let isDiscontinuous: f32 = 0
     let stepDur: f32 = 0
     this.nextSampleCount = (sampleCount + bufferLength)
+    if (this.fired) {
+      this.fired = 0
+    }
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let nextSampleCount: i32 = this.nextSampleCount
 
@@ -647,6 +723,9 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -659,6 +738,7 @@ export class Euclid_default_pulses_scalar_steps_audio_offset_audio_bar_audio {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -666,6 +746,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar {
   static readonly defaultInstance: Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar = new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   lastSteps: f32 = Infinity
   lastBar: f32 = Infinity
   lastSamplesPerBar: f32 = Infinity
@@ -680,6 +761,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar {
 
   copyFrom(src: Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.lastSteps = src.lastSteps
     this.lastBar = src.lastBar
     this.lastSamplesPerBar = src.lastSamplesPerBar
@@ -714,9 +796,13 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar {
       this.lastBar = barClamped
     }
 
+    if (this.fired) {
+      this.fired = 0
+    }
     this.nextSampleCount = (sampleCount + bufferLength)
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let stepDur: f32 = this.stepDur
 
@@ -747,6 +833,9 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -757,6 +846,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_scalar {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -764,6 +854,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio {
   static readonly defaultInstance: Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio = new Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   nextSampleCount: i32
 
   reset(): void {
@@ -772,6 +863,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio {
 
   copyFrom(src: Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.nextSampleCount = src.nextSampleCount
   }
 
@@ -782,8 +874,12 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio {
     let isDiscontinuous: f32 = 0
     let stepDur: f32 = 0
     this.nextSampleCount = (sampleCount + bufferLength)
+    if (this.fired) {
+      this.fired = 0
+    }
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let nextSampleCount: i32 = this.nextSampleCount
 
@@ -819,6 +915,9 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -830,6 +929,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_scalar_bar_audio {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -837,6 +937,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar {
   static readonly defaultInstance: Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar = new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   lastSteps: f32 = Infinity
   lastBar: f32 = Infinity
   lastSamplesPerBar: f32 = Infinity
@@ -851,6 +952,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar {
 
   copyFrom(src: Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.lastSteps = src.lastSteps
     this.lastBar = src.lastBar
     this.lastSamplesPerBar = src.lastSamplesPerBar
@@ -884,9 +986,13 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar {
       this.lastBar = barClamped
     }
 
+    if (this.fired) {
+      this.fired = 0
+    }
     this.nextSampleCount = (sampleCount + bufferLength)
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let stepDur: f32 = this.stepDur
 
@@ -919,6 +1025,9 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -930,6 +1039,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_scalar {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -937,6 +1047,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio {
   static readonly defaultInstance: Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio = new Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   nextSampleCount: i32
 
   reset(): void {
@@ -945,6 +1056,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio {
 
   copyFrom(src: Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.nextSampleCount = src.nextSampleCount
   }
 
@@ -954,8 +1066,12 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio {
     let isDiscontinuous: f32 = 0
     let stepDur: f32 = 0
     this.nextSampleCount = (sampleCount + bufferLength)
+    if (this.fired) {
+      this.fired = 0
+    }
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let nextSampleCount: i32 = this.nextSampleCount
 
@@ -993,6 +1109,9 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -1005,6 +1124,7 @@ export class Euclid_default_pulses_audio_steps_scalar_offset_audio_bar_audio {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -1012,6 +1132,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar {
   static readonly defaultInstance: Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar = new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   lastBar: f32 = Infinity
   lastSamplesPerBar: f32 = Infinity
   intervalSamples: f32
@@ -1023,6 +1144,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar {
 
   copyFrom(src: Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.lastBar = src.lastBar
     this.lastSamplesPerBar = src.lastSamplesPerBar
     this.intervalSamples = src.intervalSamples
@@ -1046,9 +1168,13 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar {
       this.lastSamplesPerBar = samplesPerBar
     }
 
+    if (this.fired) {
+      this.fired = 0
+    }
     this.nextSampleCount = (sampleCount + bufferLength)
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let intervalSamples: f32 = this.intervalSamples
     let nextSampleCount: i32 = this.nextSampleCount
@@ -1083,6 +1209,9 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -1094,6 +1223,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_scalar {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -1101,6 +1231,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio {
   static readonly defaultInstance: Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio = new Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   nextSampleCount: i32
 
   reset(): void {
@@ -1109,6 +1240,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio {
 
   copyFrom(src: Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.nextSampleCount = src.nextSampleCount
   }
 
@@ -1118,8 +1250,12 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio {
     let isDiscontinuous: f32 = 0
     let stepDur: f32 = 0
     this.nextSampleCount = (sampleCount + bufferLength)
+    if (this.fired) {
+      this.fired = 0
+    }
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let nextSampleCount: i32 = this.nextSampleCount
 
@@ -1157,6 +1293,9 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -1169,6 +1308,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_scalar_bar_audio {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -1176,6 +1316,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar {
   static readonly defaultInstance: Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar = new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   lastBar: f32 = Infinity
   lastSamplesPerBar: f32 = Infinity
   intervalSamples: f32
@@ -1187,6 +1328,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar {
 
   copyFrom(src: Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.lastBar = src.lastBar
     this.lastSamplesPerBar = src.lastSamplesPerBar
     this.intervalSamples = src.intervalSamples
@@ -1209,9 +1351,13 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar {
       this.lastSamplesPerBar = samplesPerBar
     }
 
+    if (this.fired) {
+      this.fired = 0
+    }
     this.nextSampleCount = (sampleCount + bufferLength)
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let intervalSamples: f32 = this.intervalSamples
     let nextSampleCount: i32 = this.nextSampleCount
@@ -1248,6 +1394,9 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -1260,6 +1409,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_scalar {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }
 
@@ -1267,6 +1417,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio {
   static readonly defaultInstance: Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio = new Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio()
 
   lastStepAbs: f32 =-1
+  fired: f32 = 0
   lastSamplesPerBar: f32 = Infinity
   nextSampleCount: i32
 
@@ -1276,6 +1427,7 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio {
 
   copyFrom(src: Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio): void {
     this.lastStepAbs = src.lastStepAbs
+    this.fired = src.fired
     this.lastSamplesPerBar = src.lastSamplesPerBar
     this.nextSampleCount = src.nextSampleCount
   }
@@ -1291,9 +1443,13 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio {
       this.lastSamplesPerBar = samplesPerBar
     }
 
+    if (this.fired) {
+      this.fired = 0
+    }
     this.nextSampleCount = (sampleCount + bufferLength)
 
     let lastStepAbs: f32 = this.lastStepAbs
+    let fired: f32 = this.fired
     let output: f32
     let nextSampleCount: i32 = this.nextSampleCount
 
@@ -1333,6 +1489,9 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio {
         hit = euclidHitF32(pulsesClamped, stepsClamped, stepInBar, offsetClamped)
         shouldTrigger = f32((!isDiscontinuous && isBoundary))
         output = shouldTrigger ? hit : 0
+        if (shouldTrigger) {
+          fired = 1
+        }
         lastStepAbs = curStepAbs
         isDiscontinuous = 0
         store<f32>(output$, output)
@@ -1346,5 +1505,6 @@ export class Euclid_default_pulses_audio_steps_audio_offset_audio_bar_audio {
     }
 
     this.lastStepAbs = lastStepAbs
+    this.fired = fired
   }
 }

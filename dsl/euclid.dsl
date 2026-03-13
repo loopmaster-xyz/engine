@@ -15,6 +15,11 @@ parameters {
 
 fields {
   lastStepAbs: f32 = -1.0
+  fired: f32 = 0.0
+}
+
+emit {
+  fired
 }
 
 control {
@@ -26,6 +31,10 @@ control {
   isLateStart = f32(sampleCount >= 0.0 && lastStepAbs < 0.0)
   isDiscontinuous = f32(sampleCount != nextSampleCount && !isLateStart)
   nextSampleCount = sampleCount + f32(bufferLength)
+
+  if fired {
+    fired = 0.0
+  }
 }
 
 audio {
@@ -39,6 +48,9 @@ audio {
   hit = euclidHitF32(pulses, steps, stepInBar, offset)
   shouldTrigger = f32(!isDiscontinuous && isBoundary)
   output = shouldTrigger ? hit : 0.0
+  if shouldTrigger {
+    fired = 1.0
+  }
   lastStepAbs = curStepAbs
   isDiscontinuous = 0.0
 }
