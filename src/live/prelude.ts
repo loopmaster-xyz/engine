@@ -373,7 +373,7 @@ vocoder=(carrier,modulator,bands=16,attack=.008,release=.04,freqMin=80,freqMax=7
 }
 
 // Granular synthesis-inspired trigger generator based on speed
-grain=(speed=1,seed)->step(.999+.001*((1-clamp(speed,0,1))**.293),random(seed))
+grain=(speed=1,seed)->step(random(seed),.999+.001*((1-clamp(speed,0,1))**.293))
 
 // 3-band equalizer with low/mid/high controls
 eq3=(in,low=0,mid=0,high=0,lf=500,mf=2000,hf=8000)->{
@@ -452,16 +452,16 @@ hhsynth=(width=.4,trig)->{
 }
 
 ch=(width=.9,trig=tram('--x-',1/4))->{
-  sample:=record(.2,()->hhsynth(width,trig:step(.9,dec())))
+  sample:=record(.2,()->hhsynth(width,trig:step(dec(),.9)))
   sampler(sample,trig,offset:.29)*ad(0.0001,.5,3,trig)*.6
 }
 
 oh=(width=.4,trig=tram('-x',1/4))->{
-  sample:=record(.2,()->hhsynth(width,trig:step(.9,dec())))
+  sample:=record(.2,()->hhsynth(width,trig:step(dec(),.9)))
   sampler(sample,trig,offset:.299)*ad(0.0001,.9,trig)*.8
 }
 
-sdsynth=(seed=7,base=#5*o2,trig=step(.9,dec()))->{
+sdsynth=(seed=7,base=#5*o2,trig=step(dec(),.9))->{
   amp:=ad(.0001,1.7366,20,trig)
   noise:=adsr(.0001,.0231 ,.870 ,.3159 ,8.000,trig)
   click:= ad(.0001, .02, 4, trig)

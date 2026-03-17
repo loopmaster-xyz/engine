@@ -296,7 +296,7 @@ export function snap(x: f32, step: f32): f32 {
 
 // @ts-ignore
 // @inline
-export function stepFn(edge: f32, x: f32): f32 {
+export function stepFn(x: f32, edge: f32): f32 {
   return x < edge ? 0.0 : 1.0
 }
 

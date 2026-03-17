@@ -364,13 +364,11 @@ export const gens: Record<string, GenDescriptor> = {
   },
   At: {
     name: 'At',
-    description: 'Probabilistic trigger at bar start and/or every N bars',
+    description: 'Trigger at specific bar once or every N bars',
     category: 'sequencers',
     parameters: [
       { name: 'bar', default: 0, min: 0, unit: 'bars', description: 'Start time in bars' },
-      { name: 'every', default: 0, min: 0, unit: 'bars', description: 'Interval in bars (0 = single trigger at start)' },
-      { name: 'probability', default: 1, min: 0, max: 1, unit: 'factor', description: 'Probability of 1 when trigger fires' },
-      { name: 'seed', default: 0, description: 'Seed for deterministic random' }
+      { name: 'every', default: 0, min: 0, unit: 'bars', description: 'Interval in bars (0 = single trigger at start)' }
     ]
   },
   Diodeladder: {

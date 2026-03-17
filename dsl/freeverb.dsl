@@ -13,7 +13,7 @@ parameters {
 
 constants {
   INPUT_SCALE = 0.015
-  OUTPUT_SCALE = 3
+  OUTPUT_SCALE = 30
 }
 
 fields {

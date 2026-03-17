@@ -13,6 +13,13 @@ class CombFilter {
     this.delayLength = delayLength
   }
 
+  reset(): void {
+    this.readPos = 0
+    this.writePos = 0
+    this.lowpassState = 0.0
+    this.buffer.fill(0.0)
+  }
+
   process(x: f32, roomSize: f32, damping1: f32, damping2: f32): f32 {
     const y: f32 = this.buffer[this.readPos]
     this.lowpassState = y * damping2 + this.lowpassState * damping1
@@ -36,6 +43,13 @@ class AllpassFilter {
     this.delayLength = delayLength
   }
 
+  reset(): void {
+    this.readPos = 0
+    this.writePos = 0
+    this.feedback = 0.5
+    this.buffer.fill(0.0)
+  }
+
   process(x: f32): f32 {
     const bufOut: f32 = this.buffer[this.readPos]
     this.buffer[this.writePos] = x + bufOut * this.feedback
@@ -45,15 +59,15 @@ class AllpassFilter {
   }
 }
 
-function scaledDelaySamples(baseMs: f32, sr: f32): i32 {
-  let n: i32 = i32(Mathf.round(baseMs * sr / 1000.0))
+function scaledDelaySamples(baseSamples: f32, sr: f32): i32 {
+  let n = i32(Mathf.round(baseSamples * sr / 44100.0))
   if (n < 1) n = 1
   return n
 }
 
 export class FreeverbKernel {
-  static combDelaysMs: f32[] = [1116.0, 1188.0, 1277.0, 1356.0, 1422.0, 1491.0, 1557.0, 1617.0]
-  static allpassDelaysMs: f32[] = [556.0, 441.0, 341.0, 225.0]
+  static combDelaysSamples: f32[] = [1116.0, 1188.0, 1277.0, 1356.0, 1422.0, 1491.0, 1557.0, 1617.0]
+  static allpassDelaysSamples: f32[] = [556.0, 441.0, 341.0, 225.0]
 
   sampleRate: f32 = 44100.0
   arena: AudioBufferArena = new AudioBufferArena()
@@ -64,7 +78,14 @@ export class FreeverbKernel {
 
   constructor(private stereoSpread: f32 = 0.0) {}
 
-  reset(): void {}
+  reset(): void {
+    for (let i: i32 = 0; i < this.combs.length; i++) {
+      this.combs[i].reset()
+    }
+    for (let i: i32 = 0; i < this.allpasses.length; i++) {
+      this.allpasses[i].reset()
+    }
+  }
 
   setSampleRate(sampleRate: f32): void {
     if (this.sampleRate === sampleRate && this.initialized) {
@@ -75,9 +96,9 @@ export class FreeverbKernel {
   }
 
   private initialize(): void {
-    for (let i: i32 = 0; i < FreeverbKernel.combDelaysMs.length; i++) {
-      const baseMs: f32 = FreeverbKernel.combDelaysMs[i] + this.stereoSpread
-      const delaySamples: i32 = scaledDelaySamples(baseMs, this.sampleRate)
+    for (let i: i32 = 0; i < FreeverbKernel.combDelaysSamples.length; i++) {
+      const baseSamples: f32 = FreeverbKernel.combDelaysSamples[i]
+      const delaySamples: i32 = scaledDelaySamples(baseSamples, this.sampleRate) + i32(this.stereoSpread)
       if (i < this.combs.length) {
         this.arena.release(this.combs[i].buffer)
         const buffer: Float32Array = this.arena.get(delaySamples)
@@ -99,9 +120,9 @@ export class FreeverbKernel {
       }
     }
 
-    for (let i: i32 = 0; i < FreeverbKernel.allpassDelaysMs.length; i++) {
-      const baseMs: f32 = FreeverbKernel.allpassDelaysMs[i] + this.stereoSpread
-      const delaySamples: i32 = scaledDelaySamples(baseMs, this.sampleRate)
+    for (let i: i32 = 0; i < FreeverbKernel.allpassDelaysSamples.length; i++) {
+      const baseSamples: f32 = FreeverbKernel.allpassDelaysSamples[i]
+      const delaySamples: i32 = scaledDelaySamples(baseSamples, this.sampleRate)
       if (i < this.allpasses.length) {
         this.arena.release(this.allpasses[i].buffer)
         const buffer: Float32Array = this.arena.get(delaySamples)

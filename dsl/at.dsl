@@ -1,20 +1,16 @@
 name: At
-description: "Probabilistic trigger at bar start and/or every N bars"
+description: "Trigger at specific bar once or every N bars"
 category: "sequencers"
 rate: "control"
 
-import { floor, max, sahValue }
+import { floor, max }
 
 parameters {
   bar   { default: 0, min: 0, unit: "bars", description: "Start time in bars" }
   every { default: 0, min: 0, unit: "bars", description: "Interval in bars (0 = single trigger at start)" }
-  probability  { default: 1, min: 0, max: 1, unit: "factor", description: "Probability of 1 when trigger fires" }
-  seed  { default: 0, types: [scalar], description: "Seed for deterministic random" }
 }
 
 fields {
-  prevSeed: f32 = -1.0
-  baseSeed: f32 = 0.0
   fired: f32 = 0.0
 }
 
@@ -23,10 +19,6 @@ emit {
 }
 
 control {
-  if seed != prevSeed {
-    prevSeed = seed
-    baseSeed = seed
-  }
   if fired > 0.0 {
     fired = 0.0
   }
@@ -55,12 +47,8 @@ audio {
     }
   }
   if shouldTrigger > 0.0 {
-    random = sahValue(baseSeed, cycle)
-    out = random < probability ? 1.0 : 0.0
-    output = out
-    if out > 0.0 {
-      fired = 1.0
-    }
+    output = 1.0
+    fired = 1.0
   }
   else {
     output = 0.0

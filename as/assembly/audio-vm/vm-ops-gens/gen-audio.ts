@@ -13,7 +13,7 @@ import { GenPool } from '../gen-pool'
 import { RunParams } from '../run-params'
 
 export function initGenPools_Audio(vm: VmState): void {
-  vm.genPools.push(new GenPool(() => new Audio_default_(), 655, 0, vm.genPoolManager, (dst: Object, src: Object) => {
+  vm.genPools.push(new GenPool(() => new Audio_default_(), 651, 0, vm.genPoolManager, (dst: Object, src: Object) => {
     changetype<Audio_default_>(dst).copyFrom(changetype<Audio_default_>(src))
   }, (dst: Object) => { changetype<Audio_default_>(dst).reset() }))
 }
@@ -42,7 +42,7 @@ case AudioVmOp.GenAudio_default: {
           case 0: {
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[655].get()
+              const slot: GenSlot = vm.genPools[651].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputLeftResolved, procLen)
@@ -58,7 +58,7 @@ case AudioVmOp.GenAudio_default: {
             }
             {
               const tempScopeMark: i32 = vm.beginTempAudioScope()
-              const slot: GenSlot = vm.genPools[655].get()
+              const slot: GenSlot = vm.genPools[651].get()
               genOpHelpers.writeCallStackMetaToSlot(vm, slot)
               const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
               const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputRightResolved, procLen)
@@ -91,7 +91,7 @@ case AudioVmOp.GenAudio_default: {
   switch (modeMask) {
     case 0: {
       const tempScopeMark: i32 = vm.beginTempAudioScope()
-      const slot: GenSlot = vm.genPools[655].get()
+      const slot: GenSlot = vm.genPools[651].get()
       genOpHelpers.writeCallStackMetaToSlot(vm, slot)
       const procLen: i32 = genOpHelpers.alignedProcLength(params.bufferLength)
       const inputPtr: usize = genOpHelpers.taggedToInputPtr(vm, inputResolved, procLen)

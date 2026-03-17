@@ -2,7 +2,7 @@
 // DO NOT MODIFY DIRECTLY, modify src/dsl/generator.ts to make changes
 import { FreeverbKernel, FreeverbKernelStereo, TWO_PI, applyCurve, clamp, cos, cosNormalized, floor, fract01, log, max, min, polyBlep, pow, sin, sinNormalized, sqrt, warn } from '../util'
 export const INPUT_SCALE: f32 = f32(0.015)
-export const OUTPUT_SCALE: f32 = f32(3)
+export const OUTPUT_SCALE: f32 = f32(30)
 
 export class Freeverb_default_room_scalar_damping_scalar {
   static readonly defaultInstance: Freeverb_default_room_scalar_damping_scalar = new Freeverb_default_room_scalar_damping_scalar()
